@@ -25,6 +25,8 @@
       --header-bg: rgba(255, 255, 255, 0.95);
       --sidebar-bg: rgba(248, 249, 250, 0.9);
       --content-bg: rgba(255, 255, 255, 0.7);
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 70px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -101,6 +103,36 @@
       font-weight: bold;
     }
 
+    /* 汉堡菜单按钮 (移动端) */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 30px;
+      height: 25px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 1000;
+    }
+    .hamburger-menu span {
+      width: 100%;
+      height: 3px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger-menu.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger-menu.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-menu.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
     /* 主容器 */
     .main-container {
       display: flex;
@@ -110,7 +142,7 @@
 
     /* 左侧导航栏 */
     .sidebar {
-      width: 260px;
+      width: var(--sidebar-width);
       background: var(--sidebar-bg);
       border-right: 1px solid var(--border-color);
       overflow-y: auto;
@@ -119,6 +151,8 @@
       flex-direction: column;
       position: relative;
       padding-bottom: 70px; /* 为固定登录按钮留出空间 */
+      transition: transform 0.3s ease, width 0.3s ease;
+      z-index: 998;
     }
     .sidebar-nav {
       padding: 15px 0;
@@ -189,14 +223,15 @@
       bottom: 20px;
       left: 20px;
       z-index: 1000;
-      width: 240px;
+      width: 220px;
+      transition: all 0.3s ease;
     }
     .login-btn {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      padding: 14px 20px;
+      padding: 12px 16px;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
       color: white;
       border: none;
@@ -227,6 +262,7 @@
       position: relative;
       overflow: hidden;
       background: var(--content-bg);
+      transition: margin-left 0.3s ease;
     }
     .content-section {
       position: absolute;
@@ -271,25 +307,127 @@
     .content-section:nth-child(5) { transform: translateY(400vh); }
     .content-section:nth-child(6) { transform: translateY(500vh); }
     .content-section:nth-child(7) { transform: translateY(600vh); }
+
+    /* 移动端样式 */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0 15px;
+      }
+      
+      .hamburger-menu {
+        display: flex;
+        margin-right: 15px;
+      }
+      
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        height: calc(100vh - 70px);
+        transform: translateX(-100%);
+        width: 80%;
+        max-width: 300px;
+        z-index: 997;
+        padding-bottom: 80px;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .sidebar-link {
+        padding: 15px 20px;
+        font-size: 15px;
+      }
+      
+      .function-intro {
+        padding: 0 20px;
+        font-size: 12px;
+      }
+      
+      .sidebar-item.expanded .function-intro {
+        padding: 10px 20px 14px;
+      }
+      
+      .login-section {
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        width: calc(80% - 30px);
+        max-width: 270px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.active ~ .login-section {
+        transform: translateX(0);
+      }
+      
+      .login-btn {
+        padding: 10px 14px;
+        font-size: 15px;
+      }
+      
+      .content {
+        margin-left: 0 !important;
+      }
+      
+      .content-section {
+        padding: 30px 20px;
+      }
+      
+      .content-section h2 {
+        font-size: 26px;
+      }
+      
+      .content-section p {
+        font-size: 15px;
+      }
+    }
+
+    /* 小屏幕手机样式 */
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 85%;
+      }
+      
+      .login-section {
+        width: calc(85% - 30px);
+      }
+      
+      .sidebar-link {
+        padding: 12px 15px;
+        font-size: 14px;
+      }
+      
+      .arrow {
+        margin-left: 5px;
+      }
+    }
   </style>
 </head>
 <body>
   <!-- 顶部导航 -->
   <header class="header">
     <div class="header-left">
+      <button class="hamburger-menu" id="hamburgerMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
       <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
       <div class="site-title">
         <span class="web-badge">Web端</span>
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta1.0</div>
+    <div class="header-right">Beta1.0.1</div>
   </header>
 
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 左侧导航 -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <nav class="sidebar-nav">
         <div class="sidebar-item" data-index="0">
           <button class="sidebar-link">
@@ -546,58 +684,24 @@
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
     
-    // 改进的滚轮事件处理 - 模拟触摸滑动
+    // 改进的滚轮事件处理 - 修复方向问题
     content.addEventListener('wheel', (e) => {
       e.preventDefault();
       
-      // 模拟触摸事件的开始
-      if (!isDragging) {
-        startY = e.clientY;
-        isDragging = true;
-        dragDistance = 0;
-        dragStartTime = Date.now();
-        sections.forEach(sec => sec.style.transition = 'none');
+      // 修复方向：向下滚动应该切换到下一页
+      if (e.deltaY > 0) {
+        // 向下滚动
+        currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+      } else {
+        // 向上滚动
+        currentIndex = Math.max(currentIndex - 1, 0);
       }
       
-      // 模拟触摸移动
-      const deltaY = e.deltaY;
-      dragDistance += deltaY;
-      
-      // 实时更新页面位置
+      // 更新位置
       sections.forEach((sec, index) => {
-        const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
-        sec.style.transform = `translateY(${targetY}vh)`;
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
-      
-      // 使用防抖技术，在滚动停止后判定是否切换
-      clearTimeout(window.wheelTimeout);
-      window.wheelTimeout = setTimeout(() => {
-        // 模拟触摸结束
-        isDragging = false;
-        sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
-        
-        const threshold = window.innerHeight * 0.4;
-        const dragTime = Date.now() - dragStartTime;
-        const speed = Math.abs(dragDistance) / dragTime;
-        
-        // 判定切换
-        if (dragDistance < 0) {
-          if (Math.abs(dragDistance) > threshold || speed > 0.7) {
-            currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-          }
-        } else {
-          if (dragDistance > threshold || speed > 0.7) {
-            currentIndex = Math.max(currentIndex - 1, 0);
-          }
-        }
-        
-        // 更新位置
-        sections.forEach((sec, index) => {
-          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-        });
-        syncSidebar();
-        dragDistance = 0;
-      }, 150);
+      syncSidebar();
     });
     
     // 左侧导航点击
@@ -608,12 +712,70 @@
           sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
         });
         syncSidebar();
+        
+        // 移动端点击后关闭侧边栏
+        if (window.innerWidth <= 768) {
+          toggleSidebar();
+        }
       });
     });
+
+    // 移动端汉堡菜单功能
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const sidebar = document.getElementById('sidebar');
+    
+    function toggleSidebar() {
+      hamburgerMenu.classList.toggle('active');
+      sidebar.classList.toggle('active');
+      
+      // 添加/移除遮罩层
+      if (sidebar.classList.contains('active')) {
+        createOverlay();
+      } else {
+        removeOverlay();
+      }
+    }
+    
+    function createOverlay() {
+      const overlay = document.createElement('div');
+      overlay.id = 'sidebar-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = '70px';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = 'calc(100vh - 70px)';
+      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      overlay.style.zIndex = '996';
+      overlay.addEventListener('click', toggleSidebar);
+      document.body.appendChild(overlay);
+    }
+    
+    function removeOverlay() {
+      const overlay = document.getElementById('sidebar-overlay');
+      if (overlay) {
+        document.body.removeChild(overlay);
+      }
+    }
+    
+    hamburgerMenu.addEventListener('click', toggleSidebar);
 
     // 页面加载时更新登录按钮
     document.addEventListener('DOMContentLoaded', function() {
       updateLoginButton();
+      
+      // 添加悬停效果
+      const sidebarItems = document.querySelectorAll('.sidebar-item');
+      sidebarItems.forEach(item => {
+        const link = item.querySelector('.sidebar-link');
+        link.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateX(8px)';
+        });
+        link.addEventListener('mouseleave', function() {
+          if (!this.classList.contains('active')) {
+            this.style.transform = 'translateX(0)';
+          }
+        });
+      });
     });
   </script>
 </body>
