@@ -762,20 +762,6 @@
     // 页面加载时更新登录按钮
     document.addEventListener('DOMContentLoaded', function() {
       updateLoginButton();
-      
-      // 添加悬停效果
-      const sidebarItems = document.querySelectorAll('.sidebar-item');
-      sidebarItems.forEach(item => {
-        const link = item.querySelector('.sidebar-link');
-        link.addEventListener('mouseenter', function() {
-          this.style.transform = 'translateX(8px)';
-        });
-        link.addEventListener('mouseleave', function() {
-          if (!this.classList.contains('active')) {
-            this.style.transform = 'translateX(0)';
-          }
-        });
-      });
     });
   </script>
 </body>
