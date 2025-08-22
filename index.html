@@ -118,6 +118,7 @@
       display: flex;
       flex-direction: column;
       position: relative;
+      padding-bottom: 70px; /* 为固定登录按钮留出空间 */
     }
     .sidebar-nav {
       padding: 15px 0;
@@ -140,10 +141,11 @@
       transition: all 0.3s ease;
       position: relative;
     }
+    /* 悬停效果 */
     .sidebar-link:hover {
       background: var(--accent-light);
       color: var(--text-primary);
-      transform: translateX(5px);
+      transform: translateX(8px);
     }
     .sidebar-link.active {
       background: var(--accent-light);
@@ -181,15 +183,13 @@
       padding: 12px 25px 16px;
     }
     
-    /* 登录按钮区域 */
+    /* 登录按钮区域 - 固定在左下角 */
     .login-section {
-      padding: 15px 25px;
-      border-top: 1px solid var(--border-color);
-      margin-top: auto;
-      position: sticky;
-      bottom: 0;
-      background: var(--sidebar-bg);
-      backdrop-filter: blur(5px);
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 1000;
+      width: 240px;
     }
     .login-btn {
       display: flex;
@@ -208,12 +208,13 @@
       box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
       text-decoration: none;
     }
+    /* 登录按钮悬停效果 */
     .login-btn:hover {
-      transform: translateY(-2px);
+      transform: scale(1.05);
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
     .login-btn:active {
-      transform: translateY(0);
+      transform: scale(1);
     }
     .login-arrow {
       font-size: 16px;
@@ -234,8 +235,8 @@
       width: 100%;
       height: 100%; 
       padding: 40px 30px;
-      /* 强阻尼曲线：更明显的减速效果 */
-      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      /* 更平滑的阻尼曲线 */
+      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
       color: var(--text-primary);
     }
     .content-section h2 {
@@ -360,15 +361,15 @@
           </div>
         </div>
       </nav>
-      
-      <!-- 登录按钮区域 -->
-      <div class="login-section">
-        <a href="https://godlive-web.github.io/login" target="_blank" class="login-btn">
-          点击登录
-          <span class="login-arrow">→</span>
-        </a>
-      </div>
     </aside>
+
+    <!-- 登录按钮区域 - 固定在左下角 -->
+    <div class="login-section">
+      <a href="https://godlive-web.github.io/login" target="_blank" class="login-btn" id="loginButton">
+        <span id="loginText">点击登录</span>
+        <span class="login-arrow">→</span>
+      </a>
+    </div>
 
     <!-- 右侧拖拽区 -->
     <main class="content">
@@ -412,6 +413,41 @@
   </div>
 
   <script>
+    // Cookie处理函数
+    function setCookie(name, value, days, sameSite = 'Lax') {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
+    }
+
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+      return null;
+    }
+
+    // 初始化Cookie
+    if (!getCookie('user')) {
+      setCookie('user', '0', 30);
+    }
+
+    // 更新登录按钮文本
+    function updateLoginButton() {
+      const userCookie = getCookie('user');
+      const loginText = document.getElementById('loginText');
+      
+      if (userCookie && userCookie !== '0') {
+        loginText.textContent = userCookie;
+      } else {
+        loginText.textContent = '点击登录';
+      }
+    }
+
     // 全局状态
     const sections = document.querySelectorAll('.content-section');
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
@@ -422,7 +458,6 @@
     let dragDistance = 0;      // 拖拽距离
     let dragStartTime = 0;     // 拖拽开始时间
     let wheelDelta = 0;        // 滚轮累计距离
-    let lastWheelTime = 0;     // 上次滚轮时间
 
     // 同步左侧导航
     function syncSidebar() {
@@ -472,8 +507,8 @@
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
-      // 延长过渡时间+强阻尼曲线
-      sections.forEach(sec => sec.style.transition = 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)');
+      // 延长过渡时间+更平滑的阻尼曲线
+      sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
 
       // 1. 切换阈值提高到40%视口（需要明显滑动才触发）
       const threshold = window.innerHeight * 0.4; 
@@ -511,38 +546,58 @@
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
     
-    // 改进的滚轮事件处理
+    // 改进的滚轮事件处理 - 模拟触摸滑动
     content.addEventListener('wheel', (e) => {
       e.preventDefault();
       
-      const now = Date.now();
-      const timeDiff = now - lastWheelTime;
-      lastWheelTime = now;
-      
-      // 重置累计值如果时间间隔太长
-      if (timeDiff > 300) {
-        wheelDelta = 0;
+      // 模拟触摸事件的开始
+      if (!isDragging) {
+        startY = e.clientY;
+        isDragging = true;
+        dragDistance = 0;
+        dragStartTime = Date.now();
+        sections.forEach(sec => sec.style.transition = 'none');
       }
       
-      wheelDelta += e.deltaY;
+      // 模拟触摸移动
+      const deltaY = e.deltaY;
+      dragDistance += deltaY;
       
-      // 设置阈值 - 需要滚动更多才切换
-      const threshold = window.innerHeight * 0.4;
+      // 实时更新页面位置
+      sections.forEach((sec, index) => {
+        const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+        sec.style.transform = `translateY(${targetY}vh)`;
+      });
       
-      if (Math.abs(wheelDelta) > threshold) {
-        if (wheelDelta > 0) {
-          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+      // 使用防抖技术，在滚动停止后判定是否切换
+      clearTimeout(window.wheelTimeout);
+      window.wheelTimeout = setTimeout(() => {
+        // 模拟触摸结束
+        isDragging = false;
+        sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+        
+        const threshold = window.innerHeight * 0.4;
+        const dragTime = Date.now() - dragStartTime;
+        const speed = Math.abs(dragDistance) / dragTime;
+        
+        // 判定切换
+        if (dragDistance < 0) {
+          if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+            currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+          }
         } else {
-          currentIndex = Math.max(currentIndex - 1, 0);
+          if (dragDistance > threshold || speed > 0.7) {
+            currentIndex = Math.max(currentIndex - 1, 0);
+          }
         }
         
+        // 更新位置
         sections.forEach((sec, index) => {
           sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
         });
-        
         syncSidebar();
-        wheelDelta = 0; // 重置累计值
-      }
+        dragDistance = 0;
+      }, 150);
     });
     
     // 左侧导航点击
@@ -554,6 +609,11 @@
         });
         syncSidebar();
       });
+    });
+
+    // 页面加载时更新登录按钮
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLoginButton();
     });
   </script>
 </body>
