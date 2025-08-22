@@ -11,11 +11,44 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
+    :root {
+      /* 浅色主题变量 */
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --accent-color: #6f42c1;
+      --accent-light: #e0d6ff;
+      --border-color: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --card-bg: #ffffff;
+      --header-bg: rgba(255, 255, 255, 0.95);
+      --sidebar-bg: rgba(248, 249, 250, 0.9);
+      --content-bg: rgba(255, 255, 255, 0.7);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        /* 深色主题变量 */
+        --bg-primary: #0c0c1e;
+        --bg-secondary: #1a1a3a;
+        --text-primary: #e0e0ff;
+        --text-secondary: #a0a0ff;
+        --accent-color: #8a63d2;
+        --accent-light: rgba(100, 80, 255, 0.2);
+        --border-color: rgba(100, 80, 255, 0.3);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        --card-bg: rgba(20, 20, 45, 0.8);
+        --header-bg: rgba(15, 15, 35, 0.95);
+        --sidebar-bg: rgba(20, 20, 45, 0.8);
+        --content-bg: rgba(15, 15, 30, 0.5);
+      }
+    }
     body {
       font-family: "Microsoft YaHei", sans-serif;
       overflow: hidden;
-      background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3a 100%);
-      color: #e0e0ff;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     /* 顶部导航 */
@@ -29,11 +62,11 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 25px;
-      background: rgba(15, 15, 35, 0.95);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      background: var(--header-bg);
+      box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
       z-index: 999;
-      border-bottom: 1px solid rgba(100, 80, 255, 0.3);
+      border-bottom: 1px solid var(--border-color);
     }
     .header-left {
       display: flex;
@@ -48,8 +81,8 @@
       position: relative;
       font-size: 24px;
       font-weight: bold;
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(100, 80, 255, 0.7);
+      color: var(--text-primary);
+      text-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
     }
     .web-badge {
       position: absolute;
@@ -60,12 +93,12 @@
       padding: 2px 6px;
       border-radius: 4px;
       transform: rotate(-15deg);
+      color: white;
     }
     .header-right {
       font-size: 16px;
-      color: #a0a0ff;
+      color: var(--text-secondary);
       font-weight: bold;
-      text-shadow: 0 0 5px rgba(100, 80, 255, 0.5);
     }
 
     /* 主容器 */
@@ -78,8 +111,8 @@
     /* 左侧导航栏 */
     .sidebar {
       width: 260px;
-      background: rgba(20, 20, 45, 0.8);
-      border-right: 1px solid rgba(100, 80, 255, 0.2);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       display: flex;
@@ -91,7 +124,7 @@
       flex: 1;
     }
     .sidebar-item {
-      border-bottom: 1px solid rgba(100, 80, 255, 0.1);
+      border-bottom: 1px solid var(--border-color);
     }
     .sidebar-link {
       display: flex;
@@ -103,18 +136,18 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #d0d0ff;
+      color: var(--text-secondary);
       transition: all 0.3s ease;
       position: relative;
     }
     .sidebar-link:hover {
-      background: rgba(100, 80, 255, 0.1);
-      color: #ffffff;
+      background: var(--accent-light);
+      color: var(--text-primary);
       transform: translateX(5px);
     }
     .sidebar-link.active {
-      background: rgba(100, 80, 255, 0.2);
-      color: #ffffff;
+      background: var(--accent-light);
+      color: var(--accent-color);
       transform: translateX(8px);
     }
     .sidebar-link.active::before {
@@ -129,7 +162,7 @@
     .arrow {
       font-size: 12px;
       transition: transform 0.3s ease;
-      color: #8080ff;
+      color: var(--accent-color);
     }
     .sidebar-item.expanded .arrow {
       transform: rotate(180deg);
@@ -138,9 +171,9 @@
       max-height: 0;
       overflow: hidden;
       padding: 0 25px;
-      background: rgba(30, 30, 60, 0.5);
+      background: var(--card-bg);
       font-size: 13px;
-      color: #a0a0ff;
+      color: var(--text-secondary);
       transition: max-height 0.3s ease-out;
     }
     .sidebar-item.expanded .function-intro {
@@ -150,12 +183,12 @@
     
     /* 登录按钮区域 */
     .login-section {
-      padding: 20px 25px;
-      border-top: 1px solid rgba(100, 80, 255, 0.2);
+      padding: 15px 25px;
+      border-top: 1px solid var(--border-color);
       margin-top: auto;
       position: sticky;
       bottom: 0;
-      background: rgba(20, 20, 45, 0.95);
+      background: var(--sidebar-bg);
       backdrop-filter: blur(5px);
     }
     .login-btn {
@@ -173,6 +206,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+      text-decoration: none;
     }
     .login-btn:hover {
       transform: translateY(-2px);
@@ -183,6 +217,7 @@
     }
     .login-arrow {
       font-size: 16px;
+      text-decoration: none;
     }
 
     /* 右侧拖拽区（强阻力+强阻尼） */
@@ -190,7 +225,7 @@
       flex: 1;
       position: relative;
       overflow: hidden;
-      background: rgba(15, 15, 30, 0.5);
+      background: var(--content-bg);
     }
     .content-section {
       position: absolute;
@@ -201,13 +236,13 @@
       padding: 40px 30px;
       /* 强阻尼曲线：更明显的减速效果 */
       transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
-      color: #e0e0ff;
+      color: var(--text-primary);
     }
     .content-section h2 {
       font-size: 32px;
       margin-bottom: 25px;
-      color: #ffffff;
-      text-shadow: 0 0 10px rgba(100, 80, 255, 0.5);
+      color: var(--text-primary);
+      text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
       position: relative;
       padding-bottom: 15px;
     }
@@ -225,7 +260,7 @@
       margin-top: 20px;
       font-size: 17px;
       line-height: 1.7;
-      color: #c0c0ff;
+      color: var(--text-secondary);
     }
     /* 初始堆叠 */
     .content-section:nth-child(1) { transform: translateY(0); }
@@ -339,9 +374,9 @@
     <main class="content">
       <section class="content-section" data-index="0">
         <h2>查看地图</h2>
-        <p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如“宙界”的地图也会公布在此。</p>
+        <p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如"宙界"的地图也会公布在此。</p>
         <p> </p>
-        <p>当前地图尚在绘制。您也可以通过“关于我们”板块，加入我们，帮助完善神界小说体系。
+        <p>当前地图尚在绘制。您也可以通过"关于我们"板块，加入我们，帮助完善神界小说体系。</p>
       </section>
 
       <section class="content-section" data-index="1">
@@ -386,6 +421,8 @@
     let isDragging = false;    // 拖拽中标记
     let dragDistance = 0;      // 拖拽距离
     let dragStartTime = 0;     // 拖拽开始时间
+    let wheelDelta = 0;        // 滚轮累计距离
+    let lastWheelTime = 0;     // 上次滚轮时间
 
     // 同步左侧导航
     function syncSidebar() {
@@ -473,19 +510,41 @@
     content.addEventListener('mousemove', onDragMove);
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
-    // 滚轮事件
+    
+    // 改进的滚轮事件处理
     content.addEventListener('wheel', (e) => {
       e.preventDefault();
-      if (e.deltaY > 0) {
-        currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-      } else {
-        currentIndex = Math.max(currentIndex - 1, 0);
+      
+      const now = Date.now();
+      const timeDiff = now - lastWheelTime;
+      lastWheelTime = now;
+      
+      // 重置累计值如果时间间隔太长
+      if (timeDiff > 300) {
+        wheelDelta = 0;
       }
-      sections.forEach((sec, index) => {
-        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-      });
-      syncSidebar();
+      
+      wheelDelta += e.deltaY;
+      
+      // 设置阈值 - 需要滚动更多才切换
+      const threshold = window.innerHeight * 0.4;
+      
+      if (Math.abs(wheelDelta) > threshold) {
+        if (wheelDelta > 0) {
+          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+        } else {
+          currentIndex = Math.max(currentIndex - 1, 0);
+        }
+        
+        sections.forEach((sec, index) => {
+          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+        });
+        
+        syncSidebar();
+        wheelDelta = 0; // 重置累计值
+      }
     });
+    
     // 左侧导航点击
     sidebarLinks.forEach((link, index) => {
       link.addEventListener('click', () => {
