@@ -1,15 +1,501 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-  <title>神界阁</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>神界阁－探索神界圈</title>
   <style>
-    body {
-      text-align: center;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
-  </style>  
-  <body>
-    <p>当前网页正在由Auting网页工作组×春国工作室联合部署中，敬请期待。</p>
-    <p>我们推测您是从<a href="https://auting-awf.github.io">秋风Auting官网</a>跳转而来，点击返回
-  </body>
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0c0c1e 0%, #1a1a3a 100%);
+      color: #e0e0ff;
+    }
+
+    /* 顶部导航 */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 25px;
+      background: rgba(15, 15, 35, 0.95);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      border-bottom: 1px solid rgba(100, 80, 255, 0.3);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .logo {
+      height: 45px;
+      width: auto;
+    }
+    .site-title {
+      position: relative;
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(100, 80, 255, 0.7);
+    }
+    .web-badge {
+      position: absolute;
+      top: -8px;
+      left: -20px;
+      font-size: 10px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      padding: 2px 6px;
+      border-radius: 4px;
+      transform: rotate(-15deg);
+    }
+    .header-right {
+      font-size: 16px;
+      color: #a0a0ff;
+      font-weight: bold;
+      text-shadow: 0 0 5px rgba(100, 80, 255, 0.5);
+    }
+
+    /* 主容器 */
+    .main-container {
+      display: flex;
+      margin-top: 70px;
+      height: calc(100vh - 70px);
+    }
+
+    /* 左侧导航栏 */
+    .sidebar {
+      width: 260px;
+      background: rgba(20, 20, 45, 0.8);
+      border-right: 1px solid rgba(100, 80, 255, 0.2);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .sidebar-nav {
+      padding: 15px 0;
+      flex: 1;
+    }
+    .sidebar-item {
+      border-bottom: 1px solid rgba(100, 80, 255, 0.1);
+    }
+    .sidebar-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 25px;
+      width: 100%;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #d0d0ff;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .sidebar-link:hover {
+      background: rgba(100, 80, 255, 0.1);
+      color: #ffffff;
+      transform: translateX(5px);
+    }
+    .sidebar-link.active {
+      background: rgba(100, 80, 255, 0.2);
+      color: #ffffff;
+      transform: translateX(8px);
+    }
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(to bottom, #6a11cb, #2575fc);
+    }
+    .arrow {
+      font-size: 12px;
+      transition: transform 0.3s ease;
+      color: #8080ff;
+    }
+    .sidebar-item.expanded .arrow {
+      transform: rotate(180deg);
+    }
+    .function-intro {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 25px;
+      background: rgba(30, 30, 60, 0.5);
+      font-size: 13px;
+      color: #a0a0ff;
+      transition: max-height 0.3s ease-out;
+    }
+    .sidebar-item.expanded .function-intro {
+      max-height: 100px;
+      padding: 12px 25px 16px;
+    }
+    
+    /* 登录按钮区域 */
+    .login-section {
+      padding: 20px 25px;
+      border-top: 1px solid rgba(100, 80, 255, 0.2);
+      margin-top: auto;
+      position: sticky;
+      bottom: 0;
+      background: rgba(20, 20, 45, 0.95);
+      backdrop-filter: blur(5px);
+    }
+    .login-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+    }
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+    }
+    .login-btn:active {
+      transform: translateY(0);
+    }
+    .login-arrow {
+      font-size: 16px;
+    }
+
+    /* 右侧拖拽区（强阻力+强阻尼） */
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: rgba(15, 15, 30, 0.5);
+    }
+    .content-section {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; 
+      padding: 40px 30px;
+      /* 强阻尼曲线：更明显的减速效果 */
+      transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: #e0e0ff;
+    }
+    .content-section h2 {
+      font-size: 32px;
+      margin-bottom: 25px;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(100, 80, 255, 0.5);
+      position: relative;
+      padding-bottom: 15px;
+    }
+    .content-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      border-radius: 3px;
+    }
+    .content-section p {
+      margin-top: 20px;
+      font-size: 17px;
+      line-height: 1.7;
+      color: #c0c0ff;
+    }
+    /* 初始堆叠 */
+    .content-section:nth-child(1) { transform: translateY(0); }
+    .content-section:nth-child(2) { transform: translateY(100vh); }
+    .content-section:nth-child(3) { transform: translateY(200vh); }
+    .content-section:nth-child(4) { transform: translateY(300vh); }
+    .content-section:nth-child(5) { transform: translateY(400vh); }
+    .content-section:nth-child(6) { transform: translateY(500vh); }
+    .content-section:nth-child(7) { transform: translateY(600vh); }
+  </style>
 </head>
+<body>
+  <!-- 顶部导航 -->
+  <header class="header">
+    <div class="header-left">
+      <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
+      <div class="site-title">
+        <span class="web-badge">Web端</span>
+        神界阁
+      </div>
+    </div>
+    <div class="header-right">Beta1.0</div>
+  </header>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+    <!-- 左侧导航 -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <div class="sidebar-item" data-index="0">
+          <button class="sidebar-link">
+            查看地图
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            在这里您可以查看官方已公开的神界小说系列官方地图，了解神界各国的基础信息。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="1">
+          <button class="sidebar-link">
+            神界资讯
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            神界内阁会在此发布与神界圈、神界阁有关的资讯。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="2">
+          <button class="sidebar-link">
+            成员信息库
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            神界圈成员的部分个人信息存储库，仅限已登录的神界成员查看。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="3">
+          <button class="sidebar-link">
+            神界议案库
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            发布神界内阁经讨论的公开信息。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="4">
+          <button class="sidebar-link">
+            神界文件库
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            神界规约体系的律法组成部分，通过文字约束与保护每一位圈成员。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="5">
+          <button class="sidebar-link">
+            神界圈介绍
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            有关神界圈的一些事。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="6">
+          <button class="sidebar-link">
+            关于我们
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            有关该官网的基础信息。
+          </div>
+        </div>
+      </nav>
+      
+      <!-- 登录按钮区域 -->
+      <div class="login-section">
+        <a href="https://godlive-web.github.io/login" target="_blank" class="login-btn">
+          点击登录
+          <span class="login-arrow">→</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- 右侧拖拽区 -->
+    <main class="content">
+      <section class="content-section" data-index="0">
+        <h2>查看地图</h2>
+        <p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如“宙界”的地图也会公布在此。</p>
+        <p> </p>
+        <p>当前地图尚在绘制。您也可以通过“关于我们”板块，加入我们，帮助完善神界小说体系。
+      </section>
+
+      <section class="content-section" data-index="1">
+        <h2>神界资讯</h2>
+        <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
+      </section>
+
+      <section class="content-section" data-index="2">
+        <h2>成员信息库</h2>
+        <p>查阅神界成员的基本信息。注意，禁止泄露该页面的所有隐私信息。</p>
+      </section>
+
+      <section class="content-section" data-index="3">
+        <h2>神界议案库</h2>
+        <p>查看神界内阁讨论后发布的各项议案。</p>
+      </section>
+
+      <section class="content-section" data-index="4">
+        <h2>神界文件库</h2>
+        <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
+      </section>
+
+      <section class="content-section" data-index="5">
+        <h2>神界圈介绍</h2>
+        <p>了解神界圈的过往、来源、组织结构和未来发展。</p>
+      </section>
+
+      <section class="content-section" data-index="6">
+        <h2>关于我们</h2>
+        <p> </p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // 全局状态
+    const sections = document.querySelectorAll('.content-section');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
+    let currentIndex = 0;      // 当前激活索引
+    let startY = 0;            // 拖拽起始Y坐标
+    let isDragging = false;    // 拖拽中标记
+    let dragDistance = 0;      // 拖拽距离
+    let dragStartTime = 0;     // 拖拽开始时间
+
+    // 同步左侧导航
+    function syncSidebar() {
+      sidebarLinks.forEach((link, index) => {
+        link.classList.remove('active');
+        sidebarItems[index].classList.remove('expanded');
+        if (index === currentIndex) {
+          link.classList.add('active');
+          sidebarItems[index].classList.add('expanded');
+        }
+      });
+    }
+    syncSidebar();
+
+    // 拖拽开始
+    function onDragStart(e) {
+      if (e.type === 'touchstart') {
+        startY = e.touches[0].clientY;
+      } else {
+        startY = e.clientY;
+      }
+      isDragging = true;
+      dragDistance = 0;
+      dragStartTime = Date.now();
+      sections.forEach(sec => sec.style.transition = 'none'); // 实时响应拖拽
+    }
+
+    // 实时拖拽（最大化阻力感）
+    function onDragMove(e) {
+      if (!isDragging) return;
+      let currentY = 0;
+      if (e.type === 'touchmove') {
+        currentY = e.touches[0].clientY;
+      } else {
+        currentY = e.clientY;
+      }
+      dragDistance = currentY - startY;
+
+      // 阻力系数从0.4→0.2（拖拽极费力，移动幅度小）
+      sections.forEach((sec, index) => {
+        const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+        sec.style.transform = `translateY(${targetY}vh)`;
+      });
+    }
+
+    // 拖拽结束（最高阈值+最强阻尼）
+    function onDragEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      // 延长过渡时间+强阻尼曲线
+      sections.forEach(sec => sec.style.transition = 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)');
+
+      // 1. 切换阈值提高到40%视口（需要明显滑动才触发）
+      const threshold = window.innerHeight * 0.4; 
+      // 2. 速度阈值提高到0.7（快速滑动需要更快速度）
+      const dragTime = Date.now() - dragStartTime;
+      const speed = Math.abs(dragDistance) / dragTime;
+
+      // 判定切换
+      if (dragDistance < 0) { // 向下滑→下一页
+        if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+        }
+      } else { // 向上滑→上一页
+        if (dragDistance > threshold || speed > 0.7) {
+          currentIndex = Math.max(currentIndex - 1, 0);
+        }
+      }
+
+      // 更新位置
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+      });
+      syncSidebar();
+    }
+
+    // 绑定事件
+    const content = document.querySelector('.content');
+    // 触摸事件
+    content.addEventListener('touchstart', onDragStart);
+    content.addEventListener('touchmove', onDragMove);
+    content.addEventListener('touchend', onDragEnd);
+    // 鼠标事件
+    content.addEventListener('mousedown', onDragStart);
+    content.addEventListener('mousemove', onDragMove);
+    content.addEventListener('mouseup', onDragEnd);
+    content.addEventListener('mouseleave', onDragEnd);
+    // 滚轮事件
+    content.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY > 0) {
+        currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+      } else {
+        currentIndex = Math.max(currentIndex - 1, 0);
+      }
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+      });
+      syncSidebar();
+    });
+    // 左侧导航点击
+    sidebarLinks.forEach((link, index) => {
+      link.addEventListener('click', () => {
+        currentIndex = index;
+        sections.forEach((sec, i) => {
+          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+        });
+        syncSidebar();
+      });
+    });
+  </script>
+</body>
 </html>
