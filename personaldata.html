@@ -26,7 +26,6 @@
       --sidebar-bg: rgba(248, 249, 250, 0.9);
       --content-bg: rgba(255, 255, 255, 0.7);
       --sidebar-width: 260px;
-      --sidebar-collapsed-width: 70px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -78,6 +77,12 @@
     .logo {
       height: 45px;
       width: auto;
+    }
+    .logo-link {
+      text-decoration: none;
+    }
+    .logo-link .site-title {
+      color: inherit;
     }
     .site-title {
       position: relative;
@@ -140,7 +145,7 @@
       height: calc(100vh - 70px);
     }
 
-    /* 左侧导航栏 */
+    /* 左侧导航栏（优化悬浮动画） */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -165,25 +170,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 25px;
+      padding: 16px 25px; /* 减少内边距，更紧凑 */
       width: 100%;
       font-size: 16px;
       background: none;
       border: none;
       cursor: pointer;
       color: var(--text-secondary);
-      transition: all 0.3s ease;
+      transition: all 0.3s ease; /* 统一过渡动画 */
       position: relative;
     }
+    /* 强化悬浮动画：背景色+位移+阴影 */
     .sidebar-link:hover {
       background: var(--accent-light);
       color: var(--text-primary);
-      transform: translateX(8px);
+      transform: translateX(6px); /* 位移减小，更自然 */
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15); /* 新增悬浮阴影 */
     }
     .sidebar-link.active {
       background: var(--accent-light);
       color: var(--accent-color);
-      transform: translateX(8px);
+      transform: translateX(6px);
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.2);
     }
     .sidebar-link.active::before {
       content: '';
@@ -213,14 +221,14 @@
     }
     .sidebar-item.expanded .function-intro {
       max-height: 100px;
-      padding: 12px 25px 16px;
+      padding: 10px 25px 14px; /* 减少内边距 */
     }
 
-    /* 右侧内容区 */
+    /* 右侧内容区（修复滚动问题） */
     .content {
       flex: 1;
       position: relative;
-      overflow: hidden;
+      overflow: auto; /* 允许纵向滚动，显示全部内容 */
       background: var(--content-bg);
       transition: margin-left 0.3s ease;
     }
@@ -229,19 +237,19 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%; 
-      padding: 40px 30px;
+      min-height: 100%; /* 确保高度足够包裹内容 */
+      padding: 35px 30px; /* 减少顶部内边距 */
       transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
       color: var(--text-primary);
-      overflow-y: auto;
+      overflow-y: auto; /* 内容区自身也允许滚动 */
     }
     .content-section h2 {
-      font-size: 32px;
-      margin-bottom: 25px;
+      font-size: 30px;
+      margin-bottom: 18px; /* 减少标题下方间距 */
       color: var(--text-primary);
       text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
       position: relative;
-      padding-bottom: 15px;
+      padding-bottom: 12px;
     }
     .content-section h2::after {
       content: '';
@@ -255,23 +263,25 @@
     }
     .content-section .section-desc {
       color: var(--text-secondary);
-      margin-bottom: 30px;
+      margin-bottom: 25px; /* 减少描述文本间距 */
       font-style: italic;
+      font-size: 15px;
     }
 
-    /* 基础信息样式 */
+    /* 基础信息样式（优化显示不全问题） */
     .info-card {
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
-      padding: 25px;
-      margin-bottom: 30px;
+      padding: 22px; /* 减少内边距 */
+      margin-bottom: 25px; /* 减少卡片间距 */
       border: 1px solid var(--border-color);
+      overflow-x: auto; /* 横向滚动支持长内容 */
     }
     .info-item {
       display: flex;
-      margin-bottom: 18px;
-      padding-bottom: 18px;
+      margin-bottom: 15px; /* 减少信息项间距 */
+      padding-bottom: 15px;
       border-bottom: 1px dashed var(--border-color);
     }
     .info-item:last-child {
@@ -280,15 +290,23 @@
       border-bottom: none;
     }
     .info-label {
-      width: 120px;
+      width: 110px; /* 稍窄标签宽度 */
       flex-shrink: 0;
       font-weight: bold;
       color: var(--text-primary);
+      font-size: 15px;
     }
     .info-value {
       flex: 1;
       color: var(--text-secondary);
       word-break: break-word;
+      font-size: 15px;
+      line-height: 1.6; /* 优化行高，提升可读性 */
+    }
+    .info-loading, .info-empty, .info-error {
+      color: var(--text-secondary);
+      padding: 20px 0;
+      text-align: center;
     }
 
     /* 认证信息样式 */
@@ -301,41 +319,42 @@
       padding: 20px;
     }
     .auth-message {
-      font-size: 20px;
+      font-size: 18px; /* 稍小字体 */
       color: var(--text-secondary);
       max-width: 600px;
-      padding: 30px;
+      padding: 25px; /* 减少内边距 */
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
     }
 
-    /* 反馈问题样式 */
+    /* 反馈问题样式（优化元素间距） */
     .feedback-form {
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
-      padding: 25px;
+      padding: 22px; /* 减少内边距 */
       border: 1px solid var(--border-color);
       max-width: 800px;
     }
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 18px; /* 减少表单组间距 */
     }
     .form-label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 6px; /* 减少标签间距 */
       font-weight: bold;
       color: var(--text-primary);
+      font-size: 15px;
     }
     .form-control {
       width: 100%;
-      padding: 12px 15px;
+      padding: 10px 14px; /* 减少输入框内边距 */
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px; /* 稍小字体 */
       color: var(--text-primary);
       transition: all 0.3s ease;
     }
@@ -345,18 +364,18 @@
       box-shadow: 0 0 0 3px var(--accent-light);
     }
     textarea.form-control {
-      min-height: 100px;
+      min-height: 90px; /* 减少文本框高度 */
       resize: vertical;
     }
     .btn-group {
       display: flex;
-      gap: 15px;
-      margin-top: 30px;
+      gap: 12px; /* 减少按钮间距 */
+      margin-top: 25px; /* 减少按钮组上间距 */
     }
     .btn {
-      padding: 12px 25px;
+      padding: 10px 22px; /* 减少按钮内边距 */
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px; /* 稍小字体 */
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -368,7 +387,7 @@
       box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
     }
     .btn-primary:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px); /* 减少悬浮位移 */
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
     .btn-secondary {
@@ -380,12 +399,15 @@
       background: var(--accent-light);
     }
     .feedback-note {
-      margin-top: 20px;
-      padding: 15px;
+      margin-top: 18px; /* 减少提示框上间距 */
+      padding: 12px 15px; /* 减少提示框内边距 */
       background: var(--accent-light);
       border-radius: 8px;
       color: var(--accent-color);
-      font-size: 14px;
+      font-size: 13px; /* 稍小字体 */
+      line-height: 1.6;
+      max-height: 120px; /* 限制最大高度 */
+      overflow-y: auto; /* 长文本可滚动 */
     }
 
     /* 初始堆叠 */
@@ -421,7 +443,7 @@
       }
       
       .sidebar-link {
-        padding: 15px 20px;
+        padding: 14px 20px;
         font-size: 15px;
       }
       
@@ -431,7 +453,7 @@
       }
       
       .sidebar-item.expanded .function-intro {
-        padding: 10px 20px 14px;
+        padding: 8px 20px 12px;
       }
       
       .content {
@@ -439,11 +461,11 @@
       }
       
       .content-section {
-        padding: 30px 20px;
+        padding: 25px 15px;
       }
       
       .content-section h2 {
-        font-size: 26px;
+        font-size: 24px;
       }
       
       .info-item {
@@ -455,8 +477,8 @@
       }
       
       .auth-message {
-        font-size: 16px;
-        padding: 20px;
+        font-size: 15px;
+        padding: 18px;
       }
       
       .btn-group {
@@ -493,15 +515,17 @@
         <span></span>
         <span></span>
       </button>
-      <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
-      <div class="site-title">
-        <span class="web-badge">Web端</span>
-        神界阁
-      </div>
+      <!-- 主页面跳转链接 -->
+      <a href="https://godlive-web.github.io" class="logo-link" style="display: flex; align-items: center; text-decoration: none;">
+        <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
+        <div class="site-title">
+          <span class="web-badge">Web端</span>
+          神界阁
+        </div>
+      </a>
     </div>
     <div class="header-right">个人信息</div>
   </header>
-
   <!-- 主容器 -->
   <div class="main-container">
     <!-- 左侧导航 -->
@@ -577,11 +601,11 @@
           
           <div class="form-group">
             <label for="expectedValue" class="form-label">希望的数据（选填）</label>
-            <textarea id="expectedValue" class="form-control" placeholder="请输入您希望修改后的数据..."></textarea>
+            <textarea id="expectedValue" class="form-control" placeholder="请输入您希望修改后的数据"></textarea>
           </div>
           
           <div class="feedback-note">
-            提交后将转跳至QQ秋风的个人账号聊天框，请将剪切板中的内容粘贴后发送给秋风。
+            提交后将转跳至QQ秋风的个人账号聊天框，请将剪切板中的内容粘贴后发送给秋风。若未跳转，请手动打开QQ。
           </div>
           
           <div class="btn-group">
@@ -616,12 +640,11 @@
     function checkLoginStatus() {
       const userCookie = getCookie('user');
       if (!userCookie || userCookie === '0') {
-        // 未登录，跳转登录页
         window.location.href = 'https://godlive-web.github.io/login';
       }
     }
 
-    // 加载并显示基础信息
+    // 加载并显示基础信息（新增账号状态转换）
     function loadBasicInfo() {
       const infoCard = document.getElementById('basicInfoCard');
       const userDataStr = getCookie('userData');
@@ -643,13 +666,17 @@
           { key: '入圈时间', label: '入圈时间' },
           { key: '模糊住址', label: '模糊住址' },
           { key: '出生日期', label: '出生日期' },
-          { key: '账号状态', label: '账号状态' },
+          { key: '账号状态', label: '账号状态' }, // 重点处理此字段
           { key: '个人介绍', label: '个人介绍' }
         ];
         
-        // 生成信息项HTML
+        // 生成信息项HTML（处理账号状态转换）
         fields.forEach(field => {
-          const value = userData[field.key] || '未填写';
+          let value = userData[field.key] || '未填写';
+          // 账号状态：值为0时显示"正常"，其他值保持原样
+          if (field.key === '账号状态' && value === 0) {
+            value = '正常';
+          }
           infoHtml += `
             <div class="info-item">
               <div class="info-label">${field.label}</div>
@@ -687,15 +714,14 @@
         if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
           // 复制到剪贴板
           navigator.clipboard.writeText(feedbackText).then(() => {
-            // 尝试打开QQ（这里假设QQ协议链接）
-            // 替换为无sigT的官方协议，只需填写目标QQ号
-            const contactQQ = '458299675'; // 替换为你的客服QQ号
+            // 跳转至指定QQ
+            const contactQQ = '458299675'; // 目标QQ号
             window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
 
             alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
           }).catch(err => {
             console.error('复制失败:', err);
-            alert('反馈提交成功，但复制内容失败，请手动复制：\n' + feedbackText);
+            alert('复制内容失败，请手动复制：\n' + feedbackText);
           });
         }
       });
@@ -872,16 +898,9 @@
 
     // 页面加载完成后初始化
     document.addEventListener('DOMContentLoaded', function() {
-      // 检查登录状态
       checkLoginStatus();
-      
-      // 加载基础信息
       loadBasicInfo();
-      
-      // 初始化反馈功能
       setupFeedback功能();
-      
-      // 初始化导航功能
       setupNavigation();
     });
   </script>
