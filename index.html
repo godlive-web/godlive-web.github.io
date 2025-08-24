@@ -421,7 +421,7 @@
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta1.0.1</div>
+    <div class="header-right">Beta1.0.2</div>
   </header>
 
   <!-- 主容器 -->
@@ -574,17 +574,23 @@
       setCookie('user', '0', 30);
     }
 
-    // 更新登录按钮文本
+    // 更新登录按钮文本和跳转链接
     function updateLoginButton() {
       const userCookie = getCookie('user');
       const loginText = document.getElementById('loginText');
-      
+      const loginButton = document.getElementById('loginButton'); // 获取按钮元素
+  
       if (userCookie && userCookie !== '0') {
+        // 已登录：显示用户名，跳转个人资料页
         loginText.textContent = userCookie;
+        loginButton.href = 'https://godlive-web.github.io/personaldata'; // 个人资料页链接
       } else {
+        // 未登录：显示"点击登录"，跳转登录页
         loginText.textContent = '点击登录';
+        loginButton.href = 'https://godlive-web.github.io/login'; // 登录页链接
       }
     }
+
 
     // 全局状态
     const sections = document.querySelectorAll('.content-section');
