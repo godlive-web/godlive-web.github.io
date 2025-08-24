@@ -140,7 +140,7 @@
       height: calc(100vh - 70px);
     }
 
-    /* 左侧导航栏 */
+    /* 左侧导航栏 - 调整高度 */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -150,12 +150,12 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      padding-bottom: 70px; /* 为固定登录按钮留出空间 */
+      padding-bottom: 70px;
       transition: transform 0.3s ease, width 0.3s ease;
       z-index: 998;
     }
     .sidebar-nav {
-      padding: 15px 0;
+      padding: 12px 0; /* 减少内边距 */
       flex: 1;
     }
     .sidebar-item {
@@ -165,7 +165,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 25px;
+      padding: 14px 25px; /* 减少高度 */
       width: 100%;
       font-size: 16px;
       background: none;
@@ -214,7 +214,7 @@
     }
     .sidebar-item.expanded .function-intro {
       max-height: 100px;
-      padding: 12px 25px 16px;
+      padding: 10px 25px 14px; /* 减少内边距 */
     }
     
     /* 登录按钮区域 - 固定在左下角 */
@@ -336,7 +336,7 @@
       }
       
       .sidebar-link {
-        padding: 15px 20px;
+        padding: 12px 20px; /* 移动端也减少高度 */
         font-size: 15px;
       }
       
@@ -346,7 +346,7 @@
       }
       
       .sidebar-item.expanded .function-intro {
-        padding: 10px 20px 14px;
+        padding: 8px 20px 12px; /* 减少内边距 */
       }
       
       .login-section {
@@ -396,7 +396,7 @@
       }
       
       .sidebar-link {
-        padding: 12px 15px;
+        padding: 10px 15px; /* 进一步减少高度 */
         font-size: 14px;
       }
       
@@ -577,20 +577,28 @@
     // 更新登录按钮文本和跳转链接
     function updateLoginButton() {
       const userCookie = getCookie('user');
+      const userDataStr = getCookie('userData');
       const loginText = document.getElementById('loginText');
-      const loginButton = document.getElementById('loginButton'); // 获取按钮元素
-  
-      if (userCookie && userCookie !== '0') {
-        // 已登录：显示用户名，跳转个人资料页
-        loginText.textContent = userCookie;
-        loginButton.href = 'https://godlive-web.github.io/personaldata'; // 个人资料页链接
+      const loginButton = document.getElementById('loginButton');
+      
+      if (userCookie && userCookie !== '0' && userDataStr) {
+        try {
+          // 解析userData cookie
+          const userData = JSON.parse(userDataStr);
+          // 显示账号名称
+          loginText.textContent = userData['账号名称'] || userCookie;
+          // 更新跳转链接到个人资料页
+          loginButton.href = 'https://godlive-web.github.io/personaldata';
+        } catch (e) {
+          console.error('解析userData失败:', e);
+          loginText.textContent = userCookie;
+          loginButton.href = 'https://godlive-web.github.io/personaldata';
+        }
       } else {
-        // 未登录：显示"点击登录"，跳转登录页
         loginText.textContent = '点击登录';
-        loginButton.href = 'https://godlive-web.github.io/login'; // 登录页链接
+        loginButton.href = 'https://godlive-web.github.io/login';
       }
     }
-
 
     // 全局状态
     const sections = document.querySelectorAll('.content-section');
