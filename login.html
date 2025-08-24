@@ -439,6 +439,10 @@
   
           // 只设置必要的user Cookie（不存储userData）
           setCookie('user', userId, 30);
+
+          // 2. 新增：存储 userData Cookie（过滤敏感信息）
+          const { 密码, ...safeData } = foundUser; // 排除密码等敏感字段
+          setCookie('userData', JSON.stringify(safeData), 30); // 存储安全数据
   
           // 延迟跳转，让用户看到成功消息
           setTimeout(() => {
