@@ -591,7 +591,7 @@
       <section class="content-section" data-index="0">
         <h2>基础信息</h2>
         <p class="section-desc" id="welcomeMessage">
-          欢迎您，加载中...。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，请点击<span class="logout-link" id="logoutLink">注销</span>
+          欢迎您，加载中...。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">注销</span>
         </p>
         
         <div class="info-card" id="basicInfoCard">
@@ -716,7 +716,7 @@
       
       // 更新欢迎消息
       const userName = userData['账号名称'] || '用户';
-      welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，请点击<span class="logout-link" id="logoutLink">请点击</span>`;
+        welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">请点击</span>`;
       setupLogoutFunction(); // 绑定注销事件
       
       setTimeout(() => {
