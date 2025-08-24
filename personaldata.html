@@ -52,7 +52,7 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    /* 顶部导航 - 修复对齐问题 */
+    /* 顶部导航 */
     .header {
       position: fixed;
       top: 0;
@@ -145,7 +145,7 @@
       height: calc(100vh - 70px);
     }
 
-    /* 左侧导航栏（优化悬浮动画） */
+    /* 左侧导航栏 */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -170,22 +170,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px 25px; /* 减少内边距，更紧凑 */
+      padding: 16px 25px;
       width: 100%;
       font-size: 16px;
       background: none;
       border: none;
       cursor: pointer;
       color: var(--text-secondary);
-      transition: all 0.3s ease; /* 统一过渡动画 */
+      transition: all 0.3s ease;
       position: relative;
     }
-    /* 强化悬浮动画：背景色+位移+阴影 */
+    /* 鼠标悬停动画 */
     .sidebar-link:hover {
       background: var(--accent-light);
       color: var(--text-primary);
-      transform: translateX(6px); /* 位移减小，更自然 */
-      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15); /* 新增悬浮阴影 */
+      transform: translateX(6px);
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15);
     }
     .sidebar-link.active {
       background: var(--accent-light);
@@ -221,14 +221,14 @@
     }
     .sidebar-item.expanded .function-intro {
       max-height: 100px;
-      padding: 10px 25px 14px; /* 减少内边距 */
+      padding: 10px 25px 14px;
     }
 
-    /* 右侧内容区（修复显示不全问题） */
+    /* 右侧内容区（恢复滑动效果） */
     .content {
       flex: 1;
       position: relative;
-      overflow: auto; /* 允许纵向滚动，显示全部内容 */
+      overflow: hidden; /* 主内容区隐藏溢出，确保滑动效果正常 */
       background: var(--content-bg);
       transition: margin-left 0.3s ease;
     }
@@ -237,16 +237,20 @@
       top: 0;
       left: 0;
       width: 100%;
-      min-height: 100%; /* 确保高度足够包裹内容 */
-      padding: 35px 30px; /* 减少顶部内边距 */
-      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+      height: 100%; /* 内容区高度占满视口 */
+      padding: 35px 30px;
+      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* 阻尼感过渡 */
       color: var(--text-primary);
-      overflow-y: auto; /* 内容区自身也允许滚动 */
-      box-sizing: border-box;
+      overflow: hidden; /* 内容区自身不滚动，由整体滑动控制 */
     }
+    /* 初始堆叠位置 */
+    .content-section:nth-child(1) { transform: translateY(0); }
+    .content-section:nth-child(2) { transform: translateY(100vh); }
+    .content-section:nth-child(3) { transform: translateY(200vh); }
+
     .content-section h2 {
       font-size: 30px;
-      margin-bottom: 18px; /* 减少标题下方间距 */
+      margin-bottom: 18px;
       color: var(--text-primary);
       text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
       position: relative;
@@ -264,26 +268,36 @@
     }
     .content-section .section-desc {
       color: var(--text-secondary);
-      margin-bottom: 25px; /* 减少描述文本间距 */
+      margin-bottom: 25px;
       font-style: italic;
       font-size: 15px;
     }
+    .logout-link {
+      color: var(--accent-color);
+      cursor: pointer;
+      text-decoration: underline;
+      transition: all 0.3s ease;
+    }
+    .logout-link:hover {
+      color: #6a11cb;
+      text-shadow: 0 0 5px rgba(106, 17, 203, 0.3);
+    }
 
-    /* 基础信息样式（优化显示不全问题） */
+    /* 基础信息样式（禁用表格自身滑动干扰） */
     .info-card {
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
-      padding: 22px; /* 减少内边距 */
-      margin-bottom: 25px; /* 减少卡片间距 */
+      padding: 22px;
+      margin-bottom: 25px;
       border: 1px solid var(--border-color);
-      overflow-x: auto; /* 横向滚动支持长内容 */
-      max-height: calc(100vh - 250px); /* 限制最大高度 */
-      overflow-y: auto; /* 允许垂直滚动 */
+      max-height: calc(100% - 120px); /* 限制表格高度 */
+      overflow-y: auto; /* 表格内部可滚动，不影响页面滑动 */
+      overflow-x: hidden; /* 禁用水平滑动 */
     }
     .info-item {
       display: flex;
-      margin-bottom: 15px; /* 减少信息项间距 */
+      margin-bottom: 15px;
       padding-bottom: 15px;
       border-bottom: 1px dashed var(--border-color);
     }
@@ -293,7 +307,7 @@
       border-bottom: none;
     }
     .info-label {
-      width: 110px; /* 稍窄标签宽度 */
+      width: 110px;
       flex-shrink: 0;
       font-weight: bold;
       color: var(--text-primary);
@@ -304,7 +318,7 @@
       color: var(--text-secondary);
       word-break: break-word;
       font-size: 15px;
-      line-height: 1.6; /* 优化行高，提升可读性 */
+      line-height: 1.6;
     }
     .info-loading, .info-empty, .info-error {
       color: var(--text-secondary);
@@ -322,42 +336,44 @@
       padding: 20px;
     }
     .auth-message {
-      font-size: 18px; /* 稍小字体 */
+      font-size: 18px;
       color: var(--text-secondary);
       max-width: 600px;
-      padding: 25px; /* 减少内边距 */
+      padding: 25px;
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
     }
 
-    /* 反馈问题样式（优化元素间距） */
+    /* 反馈问题样式 */
     .feedback-form {
       background: var(--card-bg);
       border-radius: 12px;
       box-shadow: var(--shadow);
-      padding: 22px; /* 减少内边距 */
+      padding: 22px;
       border: 1px solid var(--border-color);
       max-width: 800px;
+      max-height: calc(100% - 120px);
+      overflow-y: auto;
     }
     .form-group {
-      margin-bottom: 18px; /* 减少表单组间距 */
+      margin-bottom: 18px;
     }
     .form-label {
       display: block;
-      margin-bottom: 6px; /* 减少标签间距 */
+      margin-bottom: 6px;
       font-weight: bold;
       color: var(--text-primary);
       font-size: 15px;
     }
     .form-control {
       width: 100%;
-      padding: 10px 14px; /* 减少输入框内边距 */
+      padding: 10px 14px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 15px; /* 稍小字体 */
+      font-size: 15px;
       color: var(--text-primary);
       transition: all 0.3s ease;
     }
@@ -367,18 +383,18 @@
       box-shadow: 0 0 0 3px var(--accent-light);
     }
     textarea.form-control {
-      min-height: 90px; /* 减少文本框高度 */
+      min-height: 90px;
       resize: vertical;
     }
     .btn-group {
       display: flex;
-      gap: 12px; /* 减少按钮间距 */
-      margin-top: 25px; /* 减少按钮组上间距 */
+      gap: 12px;
+      margin-top: 25px;
     }
     .btn {
-      padding: 10px 22px; /* 减少按钮内边距 */
+      padding: 10px 22px;
       border-radius: 8px;
-      font-size: 15px; /* 稍小字体 */
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -390,7 +406,7 @@
       box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
     }
     .btn-primary:hover {
-      transform: translateY(-2px); /* 减少悬浮位移 */
+      transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
     .btn-secondary {
@@ -402,23 +418,18 @@
       background: var(--accent-light);
     }
     .feedback-note {
-      margin-top: 18px; /* 减少提示框上间距 */
-      padding: 12px 15px; /* 减少提示框内边距 */
+      margin-top: 18px;
+      padding: 12px 15px;
       background: var(--accent-light);
       border-radius: 8px;
       color: var(--accent-color);
-      font-size: 13px; /* 稍小字体 */
+      font-size: 13px;
       line-height: 1.6;
-      max-height: 120px; /* 限制最大高度 */
-      overflow-y: auto; /* 长文本可滚动 */
+      max-height: 120px;
+      overflow-y: auto;
     }
 
-    /* 初始堆叠 */
-    .content-section:nth-child(1) { transform: translateY(0); }
-    .content-section:nth-child(2) { transform: translateY(100vh); }
-    .content-section:nth-child(3) { transform: translateY(200vh); }
-
-    /* 移动端样式 - 修复滑动问题 */
+    /* 移动端样式 */
     @media (max-width: 768px) {
       .header {
         padding: 0 15px;
@@ -461,20 +472,10 @@
       
       .content {
         margin-left: 0 !important;
-        overflow: visible;
       }
       
       .content-section {
         padding: 25px 15px;
-        position: relative;
-        height: auto;
-        min-height: 100%;
-        transform: none !important;
-        display: none;
-      }
-      
-      .content-section.active {
-        display: block;
       }
       
       .content-section h2 {
@@ -487,11 +488,6 @@
       .info-label {
         width: 100%;
         margin-bottom: 5px;
-      }
-      
-      .info-card {
-        max-height: none;
-        overflow: visible;
       }
       
       .auth-message {
@@ -592,9 +588,11 @@
     <!-- 右侧内容区 -->
     <main class="content">
       <!-- 基础信息区 -->
-      <section class="content-section active" data-index="0">
+      <section class="content-section" data-index="0">
         <h2>基础信息</h2>
-        <p class="section-desc">展示您设置的信息，请前往APP端修改</p>
+        <p class="section-desc" id="welcomeMessage">
+          欢迎您，加载中...。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，请点击<span class="logout-link" id="logoutLink">注销</span>
+        </p>
         
         <div class="info-card" id="basicInfoCard">
           <!-- 信息将通过JS动态生成 -->
@@ -662,6 +660,20 @@
       return null;
     }
 
+    // 注销功能
+    function setupLogoutFunction() {
+      const logoutLink = document.getElementById('logoutLink');
+      logoutLink.addEventListener('click', function() {
+        if (confirm('确定要注销账号吗？注销后将返回登录页')) {
+          // 清空userData并设置user为0
+          setCookie('userData', '', -1); // 立即过期
+          setCookie('user', '0', 30);
+          // 跳转登录页
+          window.location.href = 'https://godlive-web.github.io/login';
+        }
+      });
+    }
+
     // 检查登录状态，如果未登录则跳转
     function checkLoginStatus() {
       const userCookie = getCookie('user');
@@ -670,45 +682,64 @@
       }
     }
 
-    // 加载并显示基础信息（新增账号状态转换）
+    // 加载并显示基础信息（优先读取cookie数据）
     function loadBasicInfo() {
       const infoCard = document.getElementById('basicInfoCard');
+      const welcomeMessage = document.getElementById('welcomeMessage');
       const userDataStr = getCookie('userData');
+      let userData = null;
       
-      // 模拟用户数据 - 实际应用中应从cookie或API获取
-      const userData = {
-        'user': '123456',
-        '账号名称': '神界用户',
-        '自设名称': '神秘使者',
-        '入圈时间': '2023-01-15',
-        '模糊住址': '神界大陆东部区域',
-        '出生日期': '2000-05-20',
-        '账号状态': 0,
-        '个人介绍': '一位热爱探索神界奥秘的旅行者，喜欢结交志同道合的朋友'
-      };
+      // 尝试从cookie获取用户数据（实际数据）
+      if (userDataStr) {
+        try {
+          userData = JSON.parse(userDataStr);
+          console.log('成功读取userData:', userData);
+        } catch (e) {
+          console.error('解析userData失败:', e);
+        }
+      }
+      
+      // 如果没有获取到数据，使用默认数据（仅用于测试）
+      if (!userData) {
+        console.warn('未获取到userData，使用默认数据');
+        userData = {
+          'user': '123456',
+          '账号名称': '神界用户',
+          '自设名称': '神秘使者',
+          '入圈时间': '2023-01-15',
+          '模糊住址': '神界大陆东部区域',
+          '出生日期': '2000-05-20',
+          '账号状态': 0,
+          '个人介绍': '一位热爱探索神界奥秘的旅行者，喜欢结交志同道合的朋友'
+        };
+      }
+      
+      // 更新欢迎消息
+      const userName = userData['账号名称'] || '用户';
+      welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，请点击<span class="logout-link" id="logoutLink">请点击</span>`;
+      setupLogoutFunction(); // 绑定注销事件
       
       setTimeout(() => {
         try {
           let infoHtml = '';
           
-          // 定义需要显示的字段和对应标签
+          // 定义需要显示的字段（已删除账号名称）
           const fields = [
             { key: 'user', label: 'ID' },
-            { key: '账号名称', label: '账号名称' },
             { key: '自设名称', label: '自设名称' },
             { key: '入圈时间', label: '入圈时间' },
             { key: '模糊住址', label: '模糊住址' },
             { key: '出生日期', label: '出生日期' },
-            { key: '账号状态', label: '账号状态' }, // 重点处理此字段
+            { key: '账号状态', label: '账号状态' },
             { key: '个人介绍', label: '个人介绍' }
           ];
           
-          // 生成信息项HTML（处理账号状态转换）
+          // 生成信息项HTML
           fields.forEach(field => {
             let value = userData[field.key] || '未填写';
-            // 账号状态：值为0时显示"正常"，其他值保持原样
-            if (field.key === '账号状态' && value === 0) {
-              value = '正常';
+            // 账号状态转换
+            if (field.key === '账号状态') {
+              value = value === 0 ? '正常' : value;
             }
             infoHtml += `
               <div class="info-item">
@@ -723,7 +754,7 @@
           console.error('解析用户信息失败:', error);
           infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
         }
-      }, 800); // 模拟加载延迟
+      }, 800);
     }
 
     // 反馈问题功能
@@ -749,7 +780,7 @@
           // 复制到剪贴板
           navigator.clipboard.writeText(feedbackText).then(() => {
             // 跳转至指定QQ
-            const contactQQ = '458299675'; // 目标QQ号
+            const contactQQ = '458299675';
             window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
 
             alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
@@ -767,7 +798,7 @@
       });
     }
 
-    // 导航切换功能
+    // 导航和滑动功能（恢复滑动效果）
     function setupNavigation() {
       const sections = document.querySelectorAll('.content-section');
       const sidebarLinks = document.querySelectorAll('.sidebar-link');
@@ -775,11 +806,12 @@
       const hamburgerMenu = document.getElementById('hamburgerMenu');
       const sidebar = document.getElementById('sidebar');
       
-      let currentIndex = 0;
-      let startY = 0;
-      let isDragging = false;
-      let dragDistance = 0;
-      let dragStartTime = 0;
+      // 全局滑动状态
+      let currentIndex = 0;      // 当前激活索引
+      let startY = 0;            // 拖拽起始Y坐标
+      let isDragging = false;    // 拖拽中标记
+      let dragDistance = 0;      // 拖拽距离
+      let dragStartTime = 0;     // 拖拽开始时间
 
       // 同步侧边栏状态
       function syncSidebar() {
@@ -795,11 +827,11 @@
 
       // 切换内容区
       function switchContent(index) {
-        sections.forEach(section => {
-          section.classList.remove('active');
-        });
-        sections[index].classList.add('active');
         currentIndex = index;
+        // 更新所有内容区位置
+        sections.forEach((sec, i) => {
+          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+        });
         syncSidebar();
       }
 
@@ -850,31 +882,6 @@
       
       hamburgerMenu.addEventListener('click', toggleSidebar);
 
-      // 绑定鼠标和触摸事件
-      const content = document.querySelector('.content');
-      
-      // 只在桌面端启用滑动切换
-      if (window.innerWidth > 768) {
-        content.addEventListener('touchstart', onDragStart);
-        content.addEventListener('touchmove', onDragMove);
-        content.addEventListener('touchend', onDragEnd);
-        content.addEventListener('mousedown', onDragStart);
-        content.addEventListener('mousemove', onDragMove);
-        content.addEventListener('mouseup', onDragEnd);
-        content.addEventListener('mouseleave', onDragEnd);
-        
-        // 滚轮事件
-        content.addEventListener('wheel', (e) => {
-          e.preventDefault();
-          
-          if (e.deltaY > 0) {
-            switchContent(Math.min(currentIndex + 1, sections.length - 1));
-          } else {
-            switchContent(Math.max(currentIndex - 1, 0));
-          }
-        });
-      }
-
       // 拖拽开始
       function onDragStart(e) {
         if (e.type === 'touchstart') {
@@ -885,10 +892,10 @@
         isDragging = true;
         dragDistance = 0;
         dragStartTime = Date.now();
-        sections.forEach(sec => sec.style.transition = 'none');
+        sections.forEach(sec => sec.style.transition = 'none'); // 实时响应拖拽
       }
 
-      // 拖拽中
+      // 拖拽中（带阻尼感）
       function onDragMove(e) {
         if (!isDragging) return;
         let currentY = 0;
@@ -899,36 +906,67 @@
         }
         dragDistance = currentY - startY;
 
+        // 阻力系数控制滑动幅度（0.2表示拖拽距离的20%用于内容移动）
         sections.forEach((sec, index) => {
           const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
           sec.style.transform = `translateY(${targetY}vh)`;
         });
       }
 
-      // 拖拽结束
+      // 拖拽结束（阻尼过渡效果）
       function onDragEnd() {
         if (!isDragging) return;
         isDragging = false;
+        // 恢复过渡动画（带阻尼曲线）
         sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
 
+        // 滑动阈值判定（40%视口高度或快速滑动）
         const threshold = window.innerHeight * 0.4;
         const dragTime = Date.now() - dragStartTime;
         const speed = Math.abs(dragDistance) / dragTime;
 
-        if (dragDistance < 0) {
+        if (dragDistance < 0) { // 向下滑→下一页
           if (Math.abs(dragDistance) > threshold || speed > 0.7) {
             switchContent(Math.min(currentIndex + 1, sections.length - 1));
+          } else {
+            // 未达阈值，回弹到原位置
+            switchContent(currentIndex);
           }
-        } else {
+        } else { // 向上滑→上一页
           if (dragDistance > threshold || speed > 0.7) {
             switchContent(Math.max(currentIndex - 1, 0));
+          } else {
+            // 未达阈值，回弹到原位置
+            switchContent(currentIndex);
           }
         }
-
-        sections.forEach((sec, index) => {
-          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-        });
       }
+
+      // 绑定触摸和鼠标事件（恢复滑动）
+      const content = document.querySelector('.content');
+      // 触摸事件
+      content.addEventListener('touchstart', onDragStart);
+      content.addEventListener('touchmove', onDragMove);
+      content.addEventListener('touchend', onDragEnd);
+      // 鼠标事件
+      content.addEventListener('mousedown', onDragStart);
+      content.addEventListener('mousemove', onDragMove);
+      content.addEventListener('mouseup', onDragEnd);
+      content.addEventListener('mouseleave', onDragEnd);
+      
+      // 修复鼠标滚轮事件
+      content.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        
+        // 滚轮方向处理：向下滚动→下一页，向上滚动→上一页
+        if (e.deltaY > 0) {
+          // 向下滚动
+          switchContent(Math.min(currentIndex + 1, sections.length - 1));
+        } else {
+          // 向上滚动
+          switchContent(Math.max(currentIndex - 1, 0));
+        }
+      });
 
       // 初始化导航状态
       syncSidebar();
