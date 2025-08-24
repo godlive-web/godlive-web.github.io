@@ -723,23 +723,24 @@
         try {
           let infoHtml = '';
           
-          // 定义需要显示的字段（已删除账号名称）
+          // 定义需要显示的字段（已删除账号名称，互换账号状态和个人介绍位置）
           const fields = [
             { key: 'user', label: 'ID' },
             { key: '自设名称', label: '自设名称' },
             { key: '入圈时间', label: '入圈时间' },
             { key: '模糊住址', label: '模糊住址' },
             { key: '出生日期', label: '出生日期' },
-            { key: '账号状态', label: '账号状态' },
-            { key: '个人介绍', label: '个人介绍' }
+            { key: '个人介绍', label: '个人介绍' },  // 个人介绍移到前面
+            { key: '账号状态', label: '账号状态' }   // 账号状态移到后面
           ];
           
           // 生成信息项HTML
           fields.forEach(field => {
             let value = userData[field.key] || '未填写';
-            // 账号状态转换
+            // 账号状态转换（兼容数字0和字符串"0"）
             if (field.key === '账号状态') {
-              value = value === 0 ? '正常' : value;
+              // 将value转换为数字后判断，确保0或"0"都显示为"正常"
+              value = Number(value) === 0 ? '正常' : value;
             }
             infoHtml += `
               <div class="info-item">
