@@ -434,18 +434,19 @@
             return;
           }
 
-          // 步骤4：检测账号状态
-          if (foundUser.账号状态 !== 0) { 
-            // 账号状态不为0时，显示问题提示
-            showMessage(`您的账号目前存在问题：${foundUser.账号状态}，请尽快联系秋风解决`, 'error');
-            resetLoginButton(); // 重置登录按钮
-            return; // 阻止后续登录流程
+          // 步骤4：检测账号状态（修复类型不匹配问题）
+          const accountStatus = Number(foundUser.账号状态); // 强制转换为数字
+          if (accountStatus !== 0) { 
+            showMessage(`您的账号目前存在问题：${accountStatus}，请尽快联系秋风解决`, 'error');
+            resetLoginButton(); 
+            return; 
           }
+
   
           // 所有验证通过，登录成功
           showMessage('登录成功，正在跳转...', 'success');
   
-          // 只设置必要的user Cookie（不存储userData）
+          // 只设置必要的user Cookie
           setCookie('user', userId, 30);
 
           // 2. 新增：存储 userData Cookie（过滤敏感信息）
