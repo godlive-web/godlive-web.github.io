@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>神界阁－更新日志</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :root {
+      /* 浅色主题变量 */
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --accent-color: #6f42c1;
+      --accent-light: #e0d6ff;
+      --border-color: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --card-bg: #ffffff;
+      --header-bg: rgba(255, 255, 255, 0.95);
+      --sidebar-bg: rgba(248, 249, 250, 0.9);
+      --content-bg: rgba(255, 255, 255, 0.7);
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 70px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        /* 深色主题变量 */
+        --bg-primary: #0c0c1e;
+        --bg-secondary: #1a1a3a;
+        --text-primary: #e0e0ff;
+        --text-secondary: #a0a0ff;
+        --accent-color: #8a63d2;
+        --accent-light: rgba(100, 80, 255, 0.2);
+        --border-color: rgba(100, 80, 255, 0.3);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        --card-bg: rgba(20, 20, 45, 0.8);
+        --header-bg: rgba(15, 15, 35, 0.95);
+        --sidebar-bg: rgba(20, 20, 45, 0.8);
+        --content-bg: rgba(15, 15, 30, 0.5);
+      }
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    /* 顶部导航（Logo+标题可跳转主页） */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 25px;
+      background: var(--header-bg);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer; /* 提示可点击 */
+    }
+    .logo {
+      height: 45px;
+      width: auto;
+    }
+    .site-title {
+      position: relative;
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--text-primary);
+      text-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
+    }
+    .web-badge {
+      position: absolute;
+      top: -8px;
+      left: -20px;
+      font-size: 10px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      padding: 2px 6px;
+      border-radius: 4px;
+      transform: rotate(-15deg);
+      color: white;
+    }
+    .header-right {
+      font-size: 16px;
+      color: var(--text-secondary);
+      font-weight: bold;
+    }
+
+    /* 汉堡菜单按钮 (移动端) */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 30px;
+      height: 25px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 1000;
+    }
+    .hamburger-menu span {
+      width: 100%;
+      height: 3px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger-menu.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger-menu.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-menu.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    /* 主容器 */
+    .main-container {
+      display: flex;
+      margin-top: 70px;
+      height: calc(100vh - 70px);
+    }
+
+    /* 左侧导航栏 - 可滚动+无展开功能 */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto; /* 开启垂直滚动（版本多了能下滑查看） */
+      max-height: calc(100vh - 70px); /* 限制高度=主容器高度，避免超出 */
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.3s ease, width 0.3s ease;
+      z-index: 998;
+    }
+    .sidebar-title {
+      padding: 16px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-nav {
+      padding: 12px 0;
+      flex: 1;
+    }
+    .sidebar-item {
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      padding: 14px 25px;
+      width: 100%;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+      position: relative;
+      text-align: left; /* 文字左对齐 */
+    }
+    /* 悬停+激活效果（与主页面一致） */
+    .sidebar-link:hover {
+      background: var(--accent-light);
+      color: var(--text-primary);
+      transform: translateX(8px);
+    }
+    .sidebar-link.active {
+      background: var(--accent-light);
+      color: var(--accent-color);
+      transform: translateX(8px);
+    }
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(to bottom, #6a11cb, #2575fc);
+    }
+
+    /* 右侧版本内容区 - 拖拽/滚轮切换版本（逻辑统一） */
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: var(--content-bg);
+      transition: margin-left 0.3s ease;
+    }
+    .version-section {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; 
+      padding: 40px 30px;
+      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* 统一过渡动画 */
+      color: var(--text-primary);
+    }
+    .version-section h2 {
+      font-size: 32px;
+      margin-bottom: 25px;
+      color: var(--accent-color); /* 版本号标题用强调色 */
+      text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
+      position: relative;
+      padding-bottom: 15px;
+    }
+    .version-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      border-radius: 3px;
+    }
+    .version-section .update-time {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 30px;
+    }
+    .version-section .update-content {
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .version-section .update-content p {
+      margin-bottom: 15px;
+    }
+    .version-section .update-content strong {
+      color: var(--text-primary);
+    }
+    /* 初始堆叠位置（与主页面逻辑一致） */
+    .version-section:nth-child(1) { transform: translateY(0); }
+    .version-section:nth-child(2) { transform: translateY(100vh); }
+    .version-section:nth-child(3) { transform: translateY(200vh); }
+
+    /* 移动端样式（适配小屏幕） */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0 15px;
+      }
+      
+      .hamburger-menu {
+        display: flex;
+        margin-right: 15px;
+      }
+      
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        height: calc(100vh - 70px);
+        transform: translateX(-100%);
+        width: 80%;
+        max-width: 300px;
+        z-index: 997;
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .sidebar-link {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+      
+      .content {
+        margin-left: 0 !important;
+      }
+      
+      .version-section {
+        padding: 30px 20px;
+      }
+      
+      .version-section h2 {
+        font-size: 26px;
+      }
+      
+      .version-section .update-content {
+        font-size: 15px;
+      }
+    }
+
+    /* 小屏幕手机样式（进一步适配） */
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 85%;
+      }
+      
+      .sidebar-link {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航（Logo+标题点击跳转主页） -->
+  <header class="header">
+    <a href="https://godlive-web.github.io" class="header-left" style="text-decoration: none;">
+      <button class="hamburger-menu" id="hamburgerMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
+      <div class="site-title">
+        <span class="web-badge">Web端</span>
+        神界阁
+      </div>
+    </a>
+    <div class="header-right">更新日志</div>
+  </header>
+
+  <!-- 主容器 -->
+  <div class="main-container">
+    <!-- 左侧导航栏（可滚动+切换版本） -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-title">切换版本更新内容</div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-item" data-index="0">
+          <button class="sidebar-link">Beta1.1.1</button>
+        </div>
+        <div class="sidebar-item" data-index="1">
+          <button class="sidebar-link">Beta1.1.0</button>
+        </div>
+        <!-- 新增版本直接复制下方结构 -->
+        <div class="sidebar-item" data-index="2">
+          <button class="sidebar-link">Beta1.0.1</button>
+        </div>
+        <div class="sidebar-item" data-index="3">
+          <button class="sidebar-link">Beta1.0</button>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 右侧版本内容区（拖拽/滚轮切换） -->
+    <main class="content">
+      <!-- Beta1.1.1 版本内容 -->
+      <section class="version-section" data-index="0">
+        <h2>Beta1.1.1</h2>
+        <div class="update-time">更新时间：2024年8月25日</div>
+        <div class="update-content">
+          <p><strong>神界阁Web端（Beta1.1.1）</strong></p>
+          <p>新增 “关于我们”内容</p>
+          <p>新增 更新日志页面</p>
+        </div>
+      </section>
+      
+      <!-- Beta1.1.0 版本内容 -->
+      <section class="version-section" data-index="1">
+        <h2>Beta1.1.0</h2>
+        <div class="update-time">更新时间：2024年8月24日</div>
+        <div class="update-content">
+          <p><strong>神界阁Web端（Beta1.1.0）</strong></p>
+          <p>上线 登录功能</p>
+          <p>新增 个人信息界面</p>
+          <p>优化 首页移动端与PC端的使用体验</p>
+          <p>修复 登录功能与json库存在的已知问题</p>
+          
+          <p><strong>Chung UI（V1.0.2）</strong></p>
+          <p>优化 首页UI，调整左侧导航栏宽度</p>
+          <p>优化 个人界面的信息显示逻辑</p>
+        </div>
+      </section>
+
+      <!-- Beta1.0.1 版本内容 -->
+      <section class="version-section" data-index="2">
+        <h2>Beta1.0.1</h2>
+        <div class="update-time">更新时间：2024年8月22日</div>
+        <div class="update-content">
+          <p><strong>神界阁Web端（Beta1.0.1）</strong></p>
+          <p>新增 登录功能</p>
+          <p>优化 UI界面，现在可根据昼夜状态切换页面样式</p>
+          <p>优化 首页移动端与PC端的滑动体验</p>
+          <p>优化 PC端显示体验</p>
+          <p>优化 登录按钮的显示位置</p>
+          
+          <p><strong>ChunG UI（V1.0.0）</strong></p>
+          <p>ChunG UI(GodLive Use)正式入驻神界阁Web端，今后也将继续为神界阁的界面交互效果努力！</p>
+
+          <p><strong>补丁包</strong></p>
+          <p>修复 鼠标滚轮方向错误
+          <p>优化 鼠标滑动流畅度</p>
+          <p>优化 手机端显示效果，优先保证功能区的内容显示</p>
+          <p>调整 登录按钮显示位置</p>
+        </div>
+      </section>
+
+      <!-- Beta1.0 版本内容 -->
+      <section class="version-section" data-index="3">
+        <h2>Beta1.0</h2>
+        <div class="update-time">更新时间：2025年8月22日</div>
+        <div class="update-content">
+          <p><strong>无详细更新内容</strong></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // 全局状态（版本切换核心逻辑，无冗余代码）
+    const sections = document.querySelectorAll('.version-section');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+    let currentIndex = 0;      // 当前激活版本索引
+    let startY = 0;            // 拖拽起始Y坐标
+    let isDragging = false;    // 拖拽中标记
+    let dragDistance = 0;      // 拖拽距离
+    let dragStartTime = 0;     // 拖拽开始时间
+
+    // 同步左侧导航激活状态（点击/切换时同步）
+    function syncSidebar() {
+      sidebarLinks.forEach((link, index) => {
+        link.classList.remove('active');
+        if (index === currentIndex) {
+          link.classList.add('active');
+        }
+      });
+    }
+    syncSidebar(); // 初始加载时激活第一个版本
+
+    // -------------------------- 统一拖拽逻辑（鼠标+触控共用） --------------------------
+    // 拖拽开始（鼠标mousedown / 触控touchstart）
+    function onDragStart(e) {
+      // 区分鼠标和触控的Y坐标获取方式，逻辑统一
+      startY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+      isDragging = true;
+      dragDistance = 0;
+      dragStartTime = Date.now();
+      sections.forEach(sec => sec.style.transition = 'none'); // 拖拽时实时响应，无延迟
+    }
+
+    // 拖拽中（鼠标mousemove / 触控touchmove）
+    function onDragMove(e) {
+      if (!isDragging) return;
+      // 统一获取当前Y坐标
+      const currentY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+      dragDistance = currentY - startY;
+
+      // 统一阻力系数（0.2），与主页面一致，避免操作感差异
+      sections.forEach((sec, index) => {
+        const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+        sec.style.transform = `translateY(${targetY}vh)`;
+      });
+    }
+
+    // 拖拽结束（鼠标mouseup/mouseleave / 触控touchend）
+    function onDragEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      // 统一过渡动画（0.8s，与主页面曲线一致）
+      sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+
+      // 统一切换阈值（40%视口高度+0.7速度阈值），避免误触
+      const threshold = window.innerHeight * 0.4; 
+      const dragTime = Date.now() - dragStartTime;
+      const speed = Math.abs(dragDistance) / dragTime;
+
+      // 统一切换逻辑：向下滑→下版本，向上滑→上版本
+      if (dragDistance < 0) { 
+        currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+      } else { 
+        currentIndex = Math.max(currentIndex - 1, 0);
+      }
+
+      // 更新版本位置+同步导航
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+      });
+      syncSidebar();
+    }
+
+    // -------------------------- 绑定交互事件（鼠标+触控全覆盖） --------------------------
+    const content = document.querySelector('.content');
+    // 触控事件（手机/平板）
+    content.addEventListener('touchstart', onDragStart);
+    content.addEventListener('touchmove', onDragMove);
+    content.addEventListener('touchend', onDragEnd);
+    // 鼠标事件（PC）
+    content.addEventListener('mousedown', onDragStart);
+    content.addEventListener('mousemove', onDragMove);
+    content.addEventListener('mouseup', onDragEnd);
+    content.addEventListener('mouseleave', onDragEnd); // 鼠标移出区域也结束拖拽
+    
+    // 滚轮事件（PC端快速切换，逻辑与拖拽一致）
+    content.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      // 向下滚动→下版本，向上滚动→上版本（与拖拽方向统一）
+      currentIndex = e.deltaY > 0 
+        ? Math.min(currentIndex + 1, sections.length - 1) 
+        : Math.max(currentIndex - 1, 0);
+      
+      // 更新位置+同步导航
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+      });
+      syncSidebar();
+    });
+    
+    // 左侧导航点击切换版本（与拖拽/滚轮切换逻辑同步）
+    sidebarLinks.forEach((link, index) => {
+      link.addEventListener('click', () => {
+        currentIndex = index;
+        sections.forEach((sec, i) => {
+          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+        });
+        syncSidebar();
+        
+        // 移动端点击后关闭侧边栏（体验优化）
+        if (window.innerWidth <= 768) {
+          toggleSidebar();
+        }
+      });
+    });
+
+    // -------------------------- 移动端汉堡菜单（与主页面一致） --------------------------
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+    const sidebar = document.getElementById('sidebar');
+    
+    function toggleSidebar() {
+      hamburgerMenu.classList.toggle('active');
+      sidebar.classList.toggle('active');
+      
+      // 遮罩层（点击关闭侧边栏）
+      if (sidebar.classList.contains('active')) {
+        const overlay = document.createElement('div');
+        overlay.id = 'sidebar-overlay';
+        overlay.style.cssText = `
+          position: fixed; top:70px; left:0; width:100%; height:calc(100vh -70px);
+          background:rgba(0,0,0,0.5); z-index:996;
+        `;
+        overlay.addEventListener('click', toggleSidebar);
+        document.body.appendChild(overlay);
+      } else {
+        const overlay = document.getElementById('sidebar-overlay');
+        overlay && document.body.removeChild(overlay);
+      }
+    }
+    
+    hamburgerMenu.addEventListener('click', toggleSidebar);
+  </script>
+</body>
+</html>
