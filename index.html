@@ -299,6 +299,108 @@
       line-height: 1.7;
       color: var(--text-secondary);
     }
+    /* ========== 关于我们区域优化 ========== */
+    .about-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* 内容水平居中 */
+    }
+
+    /* 图片容器：PC 端限制宽度，手机端自适应 */
+    .about-img-wrapper {
+      width: 100%;
+      max-width: 600px; /* PC 端最大宽度，避免拉伸变形 */
+      margin: 20px 0;
+    }
+    /* 图片样式：圆角 + 阴影 + 边框，适配主题 */
+    .about-img {
+      width: 100%;
+      border-radius: 12px; /* 圆角大小可微调 */
+      box-shadow: var(--shadow); /* 复用页面阴影，和整体风格统一 */
+      border: 1px solid var(--border-color); /* 细边框，贴合设计质感 */
+    }
+    /* 信息列表：规整排版（标签+内容对齐） */
+    .about-info {
+      width: 100%;
+      max-width: 600px; /* 与图片同宽，视觉统一 */
+      margin-bottom: 20px;
+    }
+    .about-info dl {
+      display: grid;
+      grid-template-columns: max-content 1fr; /* 标签固定宽度，内容自适应 */
+      gap: 8px 20px; /* 行间距 + 列间距 */
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+    .about-info dt {
+      font-weight: 600;
+      color: var(--text-primary); /* 标签更突出 */
+    }
+    /* 更新日志：标题下划线呼应页面 h2 风格 */
+    .about-changelog {
+      width: 100%;
+      max-width: 600px;
+    }
+    .about-changelog .changelog-link {
+      display: block; /* 保持块级布局，占满整行 */
+      font-size: 20px;
+      color: var(--text-primary);
+      padding-bottom: 10px;
+      position: relative;
+      margin-bottom: 15px;
+      text-decoration: none; /* 去除默认下划线 */
+      cursor: pointer; /* 鼠标悬停显示手型，提示可点击 */
+      transition: all 0.3s ease;
+    }
+    /* 下划线（继承原设计，保持视觉统一） */
+    .about-changelog .changelog-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      border-radius: 3px;
+      transition: width 0.3s ease; /* 下划线长度过渡动画 */
+    }
+    /* 交互反馈：悬停下划线扩展，强化点击提示 */
+    .about-changelog .changelog-link:hover::after {
+      width: 80px; /* 下划线变长，提示可点击 */
+    }
+    /* ========== 移动端适配（保持连贯） ========== */
+    @media (max-width: 768px) {
+      .about-changelog .changelog-link {
+        font-size: 18px; /* 适配手机端字号 */
+      }
+    }
+    .about-changelog p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+    /* ========== 移动端适配（768px 以下） ========== */
+    @media (max-width: 768px) {
+      .about-img-wrapper {
+        max-width: 100%; /* 手机端满宽显示 */
+        margin: 15px 0; /* 减少间距，避免拥挤 */
+      }
+      .about-info, .about-changelog {
+        max-width: 100%;
+        padding: 0 10px; /* 手机端左右留空，提升阅读体验 */
+      }
+      .about-info dl {
+        gap: 6px 15px; /* 缩小间距 */
+        font-size: 15px;
+      }
+      .about-changelog h3 {
+        font-size: 18px; /* 缩小标题 */
+      }
+      .about-changelog p {
+        font-size: 14px; /* 缩小正文 */
+      }
+    }
     /* 初始堆叠 */
     .content-section:nth-child(1) { transform: translateY(0); }
     .content-section:nth-child(2) { transform: translateY(100vh); }
@@ -421,7 +523,7 @@
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta1.1.0</div>
+    <div class="header-right">Beta1.1.1</div>
   </header>
 
   <!-- 主容器 -->
@@ -545,7 +647,38 @@
 
       <section class="content-section" data-index="6">
         <h2>关于我们</h2>
-        <p> </p>
+        <div class="about-section">
+          <!-- 横幅图片 -->
+          <div class="about-img-wrapper">
+            <img 
+              src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" 
+              alt="ChunG UI" 
+              class="about-img"
+            >
+          </div>
+          <!-- 开发者信息（规整列表） -->
+          <div class="about-info">
+            <dl>
+              <dt>开发：</dt>
+              <dd>Auting网页工作组</dd>
+              <dt>支持：</dt>
+              <dd>Github Pages</dd>
+              <dt>UI系统：</dt>
+              <dd>ChunG UI 2.0</dd>
+              <dt>Web版本：</dt>
+              <dd>Beta1.1</dd>
+              <dt>鸣谢：</dt>
+              <dd>春国工作室</dd>
+            </dl>
+          </div>
+          <!-- 更新日志（带下划线标题） -->
+          <div class="about-changelog">
+            <a href="https://godlive-web.github.io/update" class="changelog-link">更新日志</a>
+            <p>ChunG UI version: 2.0（1.0.2）</p>
+            <p>made by Github Pages丨豆包×DeepSeek</p>
+            <p>Copyright©秋风Auting_2025-至今</p>
+          </div>
+        </div>
       </section>
     </main>
   </div>
