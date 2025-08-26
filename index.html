@@ -383,7 +383,7 @@
     /* UI图片样式：缩至原大小1/3 + 左对齐 + 适配主题 */
     .about-changelog .image-ui {
       width: 33%; /* 缩至原大小1/3（PC端） */
-      max-width: 200px; /* 移动端最大宽度限制，避免过小 */
+      max-width: none; /* 移动端最大宽度限制，避免过小 */
       display: block; /* 确保左对齐（块级元素默认左对齐） */
       margin: 15px 0; /* 上下留间距，与文字区分 */
       border-radius: 8px; /* 保持圆角，贴合主题 */
@@ -394,6 +394,7 @@
     @media (max-width: 768px) {
       .about-changelog .image-ui {
         width: 100%; /* 手机端图片满宽显示 */
+        max-width: 300px;
       }
     }
     /* ========== 移动端适配（768px 以下） ========== */
@@ -663,11 +664,12 @@
 
       <section class="content-section" data-index="6">
         <h2>关于我们</h2>
+        <!-- 1. 新增图片容器：放标题下方，所有元素最上方 -->
+        <div class="about-top-img">
+          <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI界面" class="image-ui">
+        </div>
+        <!-- 2. 原有内容（开发者信息、更新日志等）保持不变 -->
         <div class="about-section">
-          <!-- 横幅图片 -->
-          <div class="about-img-wrapper">
-            <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI" class="image-ui">
-          </div>
           <!-- 开发者信息（规整列表） -->
           <div class="about-info">
             <dl>
