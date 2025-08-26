@@ -380,40 +380,34 @@
       line-height: 1.6;
       margin: 8px 0;
     }
-    /* UI图片样式：缩至原大小1/3 + 左对齐 + 适配主题 */
-    .about-changelog .image-ui {
-      width: 33%; /* 缩至原大小1/3（PC端） */
-      max-width: none; /* 移动端最大宽度限制，避免过小 */
-      display: block; /* 确保左对齐（块级元素默认左对齐） */
-      margin: 15px 0; /* 上下留间距，与文字区分 */
-      border-radius: 8px; /* 保持圆角，贴合主题 */
-      border: 1px solid var(--border-color); /* 主题边框 */
-      box-shadow: var(--shadow); /* 主题阴影 */
+     /* 1. 图片父容器：控制“和文字左对齐+上移+下方间距”（核心对齐逻辑） */
+    .about-top-img {
+      max-width: 600px; /* 和下方文字容器（.about-info/.about-changelog）同宽，确保图片跟文字左对齐 */
+      margin: -10px 0 20px 0; /* -10px：向上挪10px（可改）；20px：和下方文字留间距；左右margin 0：左对齐基准 */
+      padding: 0; /* 清除多余内边距，避免偏移 */
     }
-    /* 核心：图片本身的样式（PC端1/3大小+适配主题） */
+    /* 2. 图片本身：控制大小+风格（PC端1/3，圆角阴影等） */
     .about-top-img .image-ui {
-      width: 33%; /* 强制PC端占父容器（.about-top-img）的1/3宽度，优先级最高 */
-      max-width: none; /* 关键：取消任何“最大宽度限制”，避免图片被强制拉宽（之前没效果的核心原因） */
-      min-width: 150px; /* 可选：防止PC端屏幕过小时图片太窄，低于150px时不再缩小 */
-      height: auto; /* 保持图片宽高比，避免拉伸变形 */
-      display: block; /* 确保样式生效，避免行内元素干扰 */
-      border-radius: 8px; /* 圆角（和主题统一） */
+      width: 33%; /* PC端1/3大小（基于父容器600px计算，不是满宽） */
+      max-width: none; /* 取消最大宽度限制，确保33%生效 */
+      min-width: 150px; /* 防止PC端屏幕过小，图片太窄（可选，想要更小可以删） */
+      height: auto; /* 保持宽高比，不拉伸变形 */
+      display: block; /* 块级元素，确保左对齐和样式生效 */
+      border-radius: 8px; /* 圆角，贴合主题 */
       border: 1px solid var(--border-color); /* 主题边框 */
       box-shadow: var(--shadow); /* 主题阴影 */
-      margin: 0; /* 取消默认margin，由父容器控制间距 */
+      margin: 0; /* 间距交给父容器控制，避免双重margin冲突 */
     }
-    /* 移动端适配：图片满宽（避免33%太窄） */
+    /* 3. 移动端适配：和文字同宽+满宽显示 */
     @media (max-width: 768px) {
-      .about-top-img .image-ui {
-        width: 100%; /* 手机端占满父容器宽度 */
-        max-width: 300px; /* 限制移动端最大宽度，避免图片过大超出屏幕 */
+      .about-top-img {
+        max-width: 100%; /* 移动端和文字容器同宽（满宽） */
+        padding: 0 10px; /* 和文字容器的左右内边距一致，确保对齐不贴边 */
       }
-    }
-    /* 移动端适配：图片满宽（避免33%太窄） */
-    @media (max-width: 768px) {
-      .about-changelog .image-ui {
-        width: 100%; /* 手机端图片满宽显示 */
-        max-width: 300px;
+      .about-top-img .image-ui {
+        width: 100%; /* 移动端满宽 */
+        max-width: 300px; /* 限制最大宽度，避免图片过大 */
+        min-width: unset; /* 取消PC端最小宽度，适配小屏幕 */
       }
     }
     /* ========== 移动端适配（768px 以下） ========== */
