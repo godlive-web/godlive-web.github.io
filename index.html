@@ -314,7 +314,7 @@
     }
     /* 图片样式：圆角 + 阴影 + 边框，适配主题 */
     .about-img {
-      width: 50%;
+      width: 100%;
       border-radius: 12px; /* 圆角大小可微调 */
       box-shadow: var(--shadow); /* 复用页面阴影，和整体风格统一 */
       border: 1px solid var(--border-color); /* 细边框，贴合设计质感 */
@@ -389,6 +389,25 @@
       border-radius: 8px; /* 保持圆角，贴合主题 */
       border: 1px solid var(--border-color); /* 主题边框 */
       box-shadow: var(--shadow); /* 主题阴影 */
+    }
+    /* 核心：图片本身的样式（PC端1/3大小+适配主题） */
+    .about-top-img .image-ui {
+      width: 33%; /* 强制PC端占父容器（.about-top-img）的1/3宽度，优先级最高 */
+      max-width: none; /* 关键：取消任何“最大宽度限制”，避免图片被强制拉宽（之前没效果的核心原因） */
+      min-width: 150px; /* 可选：防止PC端屏幕过小时图片太窄，低于150px时不再缩小 */
+      height: auto; /* 保持图片宽高比，避免拉伸变形 */
+      display: block; /* 确保样式生效，避免行内元素干扰 */
+      border-radius: 8px; /* 圆角（和主题统一） */
+      border: 1px solid var(--border-color); /* 主题边框 */
+      box-shadow: var(--shadow); /* 主题阴影 */
+      margin: 0; /* 取消默认margin，由父容器控制间距 */
+    }
+    /* 移动端适配：图片满宽（避免33%太窄） */
+    @media (max-width: 768px) {
+      .about-top-img .image-ui {
+        width: 100%; /* 手机端占满父容器宽度 */
+        max-width: 300px; /* 限制移动端最大宽度，避免图片过大超出屏幕 */
+      }
     }
     /* 移动端适配：图片满宽（避免33%太窄） */
     @media (max-width: 768px) {
