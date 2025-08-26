@@ -299,7 +299,6 @@
       line-height: 1.7;
       color: var(--text-secondary);
     }
-    
     /* ========== 关于我们区域优化 ========== */
     .about-section {
       display: flex;
@@ -308,22 +307,18 @@
     }
 
     /* 图片容器：PC 端限制宽度，手机端自适应 */
-    .about-top-img {
+    .about-img-wrapper {
       width: 100%;
-      display: flex;
-      justify-content: center;
+      max-width: 600px; /* PC 端最大宽度，避免拉伸变形 */
       margin: 20px 0;
     }
-    
     /* 图片样式：圆角 + 阴影 + 边框，适配主题 */
-    .about-top-img .image-ui {
-      width: 60%; /* 调整图片宽度为60% */
-      max-width: 400px; /* 设置最大宽度 */
+    .about-img {
+      width: 50%;
       border-radius: 12px; /* 圆角大小可微调 */
       box-shadow: var(--shadow); /* 复用页面阴影，和整体风格统一 */
       border: 1px solid var(--border-color); /* 细边框，贴合设计质感 */
     }
-    
     /* 信息列表：规整排版（标签+内容对齐） */
     .about-info {
       width: 100%;
@@ -341,7 +336,6 @@
       font-weight: 600;
       color: var(--text-primary); /* 标签更突出 */
     }
-    
     /* 更新日志：标题下划线呼应页面 h2 风格 */
     .about-changelog {
       width: 100%;
@@ -374,21 +368,41 @@
     .about-changelog .changelog-link:hover::after {
       width: 80px; /* 下划线变长，提示可点击 */
     }
-    
+    /* ========== 移动端适配（保持连贯） ========== */
+    @media (max-width: 768px) {
+      .about-changelog .changelog-link {
+        font-size: 18px; /* 适配手机端字号 */
+      }
+    }
     .about-changelog p {
       font-size: 15px;
       color: var(--text-secondary);
       line-height: 1.6;
       margin: 8px 0;
     }
-    
+    /* UI图片样式：缩至原大小1/3 + 左对齐 + 适配主题 */
+    .about-changelog .image-ui {
+      width: 33%; /* 缩至原大小1/3（PC端） */
+      max-width: none; /* 移动端最大宽度限制，避免过小 */
+      display: block; /* 确保左对齐（块级元素默认左对齐） */
+      margin: 15px 0; /* 上下留间距，与文字区分 */
+      border-radius: 8px; /* 保持圆角，贴合主题 */
+      border: 1px solid var(--border-color); /* 主题边框 */
+      box-shadow: var(--shadow); /* 主题阴影 */
+    }
+    /* 移动端适配：图片满宽（避免33%太窄） */
+    @media (max-width: 768px) {
+      .about-changelog .image-ui {
+        width: 100%; /* 手机端图片满宽显示 */
+        max-width: 300px;
+      }
+    }
     /* ========== 移动端适配（768px 以下） ========== */
     @media (max-width: 768px) {
-      .about-top-img .image-ui {
-        width: 80%; /* 手机端图片宽度 */
-        max-width: 300px; /* 手机端最大宽度 */
+      .about-img-wrapper {
+        max-width: 100%; /* 手机端满宽显示 */
+        margin: 15px 0; /* 减少间距，避免拥挤 */
       }
-      
       .about-info, .about-changelog {
         max-width: 100%;
         padding: 0 10px; /* 手机端左右留空，提升阅读体验 */
@@ -397,14 +411,13 @@
         gap: 6px 15px; /* 缩小间距 */
         font-size: 15px;
       }
-      .about-changelog .changelog-link {
-        font-size: 18px; /* 适配手机端字号 */
+      .about-changelog h3 {
+        font-size: 18px; /* 缩小标题 */
       }
       .about-changelog p {
         font-size: 14px; /* 缩小正文 */
       }
     }
-    
     /* 初始堆叠 */
     .content-section:nth-child(1) { transform: translateY(0); }
     .content-section:nth-child(2) { transform: translateY(100vh); }
@@ -508,11 +521,6 @@
       
       .arrow {
         margin-left: 5px;
-      }
-      
-      .about-top-img .image-ui {
-        width: 90%; /* 小屏幕手机图片宽度 */
-        max-width: 280px; /* 小屏幕手机最大宽度 */
       }
     }
   </style>
@@ -654,36 +662,36 @@
         <p>了解神界圈的过往、来源、组织结构和未来发展。</p>
       </section>
 
-      <section class="content-section about-section" data-index="6">
+      <section class="content-section" data-index="6">
         <h2>关于我们</h2>
-        
-        <!-- 图片容器 -->
+        <!-- 1. 新增图片容器：放标题下方，所有元素最上方 -->
         <div class="about-top-img">
           <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI界面" class="image-ui">
         </div>
-        
-        <!-- 开发者信息（规整列表） -->
-        <div class="about-info">
-          <dl>
-            <dt>开发：</dt>
-            <dd>Auting网页工作组</dd>
-            <dt>支持：</dt>
-            <dd>Github Pages</dd>
-            <dt>UI系统：</dt>
-            <dd>ChunG UI 2.0</dd>
-            <dt>Web版本：</dt>
-            <dd>Beta1</dd>
-            <dt>鸣谢：</dt>
-            <dd>春国工作室</dd>
-          </dl>
-        </div>
-        
-        <!-- 更新日志（带下划线标题） -->
-        <div class="about-changelog">
-          <a href="https://godlive-web.github.io/update" class="changelog-link">更新日志</a>
-          <p>ChunG UI version: 2.0（1.0.3）</p>
-          <p>made by Github Pages丨豆包×DeepSeek</p>
-          <p>Copyright©秋风Auting_2025-至今</p>
+        <!-- 2. 原有内容（开发者信息、更新日志等）保持不变 -->
+        <div class="about-section">
+          <!-- 开发者信息（规整列表） -->
+          <div class="about-info">
+            <dl>
+              <dt>开发：</dt>
+              <dd>Auting网页工作组</dd>
+              <dt>支持：</dt>
+              <dd>Github Pages</dd>
+              <dt>UI系统：</dt>
+              <dd>ChunG UI 2.0</dd>
+              <dt>Web版本：</dt>
+              <dd>Beta1</dd>
+              <dt>鸣谢：</dt>
+              <dd>春国工作室</dd>
+            </dl>
+          </div>
+          <!-- 更新日志（带下划线标题） -->
+          <div class="about-changelog">
+            <a href="https://godlive-web.github.io/update" class="changelog-link">更新日志</a>
+            <p>ChunG UI version: 2.0（1.0.3）</p>
+            <p>made by Github Pages丨豆包×DeepSeek</p>
+            <p>Copyright©秋风Auting_2025-至今</p>
+          </div>
         </div>
       </section>
     </main>
@@ -893,12 +901,12 @@
       const overlay = document.createElement('div');
       overlay.id = 'sidebar-overlay';
       overlay.style.position = 'fixed';
-      overlay.style.top: '70px';
-      overlay.style.left: '0';
-      overlay.style.width: '100%';
-      overlay.style.height: 'calc(100vh - 70px)';
-      overlay.style.backgroundColor: 'rgba(0, 0, 0, 0.5)';
-      overlay.style.zIndex: '996';
+      overlay.style.top = '70px';
+      overlay.style.left = '0';
+      overlay.style.width = '100%';
+      overlay.style.height = 'calc(100vh - 70px)';
+      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      overlay.style.zIndex = '996';
       overlay.addEventListener('click', toggleSidebar);
       document.body.appendChild(overlay);
     }
