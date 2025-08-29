@@ -299,6 +299,27 @@
       line-height: 1.7;
       color: var(--text-secondary);
     }
+    /* 神界文件库代码 */
+    .doc-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .doc-btn {
+      padding: 12px 20px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+      transition: all 0.3s ease;
+    }
+    .doc-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+    }
     /* ========== 关于我们区域优化 ========== */
     .about-section {
       display: flex;
@@ -342,14 +363,14 @@
       max-width: 600px;
     }
     .about-changelog .changelog-link {
-      display: block; /* 保持块级布局，占满整行 */
+      display: block;
       font-size: 20px;
       color: var(--text-primary);
       padding-bottom: 10px;
       position: relative;
       margin-bottom: 15px;
-      text-decoration: none; /* 去除默认下划线 */
-      cursor: pointer; /* 鼠标悬停显示手型，提示可点击 */
+      text-decoration: none;
+      cursor: pointer;
       transition: all 0.3s ease;
     }
     /* 下划线（继承原设计，保持视觉统一） */
@@ -362,11 +383,27 @@
       height: 3px;
       background: linear-gradient(to right, #6a11cb, #2575fc);
       border-radius: 3px;
-      transition: width 0.3s ease; /* 下划线长度过渡动画 */
+      transition: width 0.3s ease;
     }
     /* 交互反馈：悬停下划线扩展，强化点击提示 */
     .about-changelog .changelog-link:hover::after {
-      width: 80px; /* 下划线变长，提示可点击 */
+      width: 80px;
+    }
+    /* 新增箭头动画 */
+    .about-changelog .changelog-link .login-arrow {
+      margin-left: 8px;
+      transition: transform 0.3s ease;
+    }
+    .about-changelog .changelog-link:hover .login-arrow {
+      transform: translateX(5px);
+    }
+    /* 更新日志说明文字样式 */
+    .changelog-description {
+      margin-top: 15px;
+    }
+    .changelog-description p {
+      font-size: 14px;
+      margin: 5px 0;
     }
     /* ========== 移动端适配（保持连贯） ========== */
     @media (max-width: 768px) {
@@ -668,6 +705,12 @@
       <section class="content-section" data-index="4">
         <h2>神界文件库</h2>
         <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
+        <p>查看神界规约体系：</p>
+        <div class="doc-buttons">
+          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">《神界宪章》</a>
+          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">《神界成员入圈标准指南》</a>
+          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">《神界纠纷处理办法》</a>
+        </div>
       </section>
 
       <section class="content-section" data-index="5">
@@ -700,13 +743,16 @@
           </div>
           <!-- 更新日志（带下划线标题） -->
           <div class="about-changelog">
-            <a href="https://godlive-web.github.io/update" class="changelog-link">更新日志</a>
-            <p>ChunG UI version: 2.0（1.0.3）</p>
-            <p>made by Github Pages丨豆包×DeepSeek</p>
-            <p>Copyright©秋风Auting_2025-至今</p>
-          </div>
-        </div>
-      </section>
+           <a href="https://godlive-web.github.io/update" class="changelog-link">
+             更新日志 <span class="login-arrow">→</span>
+           </a>
+           <div class="changelog-description">
+             <p>ChunG UI version: 2.0 (1.0.3)</p>
+             <p>made by Github Pages | 豆包×DeepSeek</p>
+             <p>Copyright©秋风Auting_2025-至今</p>
+           </div>
+         </div>
+       </section>
     </main>
   </div>
 
