@@ -10,9 +10,9 @@
       padding: 0;
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      font-style: normal;
     }
     :root {
-      /* 浅色主题变量 */
       --bg-primary: #f8f9fa;
       --bg-secondary: #ffffff;
       --text-primary: #212529;
@@ -26,11 +26,9 @@
       --sidebar-bg: rgba(248, 249, 250, 0.9);
       --content-bg: rgba(255, 255, 255, 0.7);
       --sidebar-width: 260px;
-      --sidebar-collapsed-width: 70px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
-        /* 深色主题变量 */
         --bg-primary: #0c0c1e;
         --bg-secondary: #1a1a3a;
         --text-primary: #e0e0ff;
@@ -51,7 +49,6 @@
       background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
       color: var(--text-primary);
       transition: background 0.3s ease, color 0.3s ease;
-      height: 100vh;
     }
 
     /* 顶部导航 */
@@ -141,7 +138,7 @@
       height: calc(100vh - 70px);
     }
 
-    /* 左侧导航栏 - 调整高度 */
+    /* 左侧导航栏 */
     .sidebar {
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
@@ -156,7 +153,7 @@
       z-index: 998;
     }
     .sidebar-nav {
-      padding: 12px 0; /* 减少内边距 */
+      padding: 12px 0;
       flex: 1;
     }
     .sidebar-item {
@@ -166,7 +163,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 25px; /* 减少高度 */
+      padding: 14px 25px;
       width: 100%;
       font-size: 16px;
       background: none;
@@ -176,7 +173,6 @@
       transition: all 0.3s ease;
       position: relative;
     }
-    /* 悬停效果 */
     .sidebar-link:hover {
       background: var(--accent-light);
       color: var(--text-primary);
@@ -215,7 +211,7 @@
     }
     .sidebar-item.expanded .function-intro {
       max-height: 100px;
-      padding: 10px 25px 14px; /* 减少内边距 */
+      padding: 10px 25px 14px;
     }
     
     /* 登录按钮区域 - 固定在左下角 */
@@ -244,7 +240,6 @@
       box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
       text-decoration: none;
     }
-    /* 登录按钮悬停效果 */
     .login-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
@@ -257,7 +252,7 @@
       text-decoration: none;
     }
 
-    /* 右侧拖拽区（强阻力+强阻尼） */
+    /* 右侧内容区 */
     .content {
       flex: 1;
       position: relative;
@@ -270,13 +265,21 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%; 
+      height: 100%;
       padding: 40px 30px;
-      /* 更平滑的阻尼曲线 */
       transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
       color: var(--text-primary);
-      overflow-y: auto; /* 允许内容区域内部滚动 */
+      overflow-y: auto; /* 允许内容区滚动 */
+      transform: translateY(calc(var(--section-index) * 100vh));
     }
+    .content-section[data-index="0"] { --section-index: 0; }
+    .content-section[data-index="1"] { --section-index: 1; }
+    .content-section[data-index="2"] { --section-index: 2; }
+    .content-section[data-index="3"] { --section-index: 3; }
+    .content-section[data-index="4"] { --section-index: 4; }
+    .content-section[data-index="5"] { --section-index: 5; }
+    .content-section[data-index="6"] { --section-index: 6; }
+
     .content-section h2 {
       font-size: 32px;
       margin-bottom: 25px;
@@ -284,6 +287,7 @@
       text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
       position: relative;
       padding-bottom: 15px;
+      font-weight: bold;
     }
     .content-section h2::after {
       content: '';
@@ -301,26 +305,36 @@
       line-height: 1.7;
       color: var(--text-secondary);
     }
-    
-    /* ===== 神界议案库样式 ===== */
-    .bill-search-container {
+    /* 议案库说明文字隐藏类 */
+    .bill-desc-hidden {
+      display: none;
+    }
+
+    /* ============= 神界议案库（手机端严格两列，桌面端四列） ============= */
+    .bill-search-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 180px;
+      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin-bottom: 40px; /* 初始状态增加底部间距，让搜索区更靠下 */
+    }
+    .bill-search-center.active {
+      margin-top: -30px; /* 减小上移幅度，避免过于靠上 */
+      margin-bottom: 20px;
+      min-height: 120px;
+      opacity: 0.95;
+    }
+    .bill-search {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
-      padding: 20px;
-      transition: all 0.3s ease;
-    }
-
-    .bill-search-form {
-      display: flex;
       gap: 15px;
-      width: 100%;
-      max-width: 600px;
+      max-width: 500px;
+      width: 90%;
     }
-
     #billSearchInput {
-      flex: 1;
+      width: 100%;
       padding: 12px 20px;
       border: 2px solid #6f42c1;
       border-radius: 50px;
@@ -328,13 +342,11 @@
       box-shadow: 0 4px 10px rgba(111, 66, 193, 0.2);
       transition: all 0.3s ease;
     }
-
     #billSearchInput:focus {
       outline: none;
       border-color: #2575fc;
       box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
     }
-
     #billSearchBtn {
       padding: 12px 25px;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -349,87 +361,104 @@
       align-items: center;
       gap: 8px;
     }
-
     #billSearchBtn:hover {
       transform: translateY(-3px);
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
 
-    /* 搜索结果区域 */
-    .bill-results {
+    /* 结果容器：删除白色背景，桌面四列/手机两列，支持换行 */
+    .bill-results-container {
+      display: none;
       width: 100%;
-      max-width: 1200px;
+      max-width: 1200px; /* 扩大最大宽度，适配四列 */
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-      padding: 10px;
-      max-height: 60vh;
-      overflow-y: auto;
+      padding: 15px;
+      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+      opacity: 0;
+      transform: translateY(30px);
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px; /* 合理间距，适配多列换行 */
+      max-height: none; /* 取消高度限制，支持无限换行 */
+      overflow: visible; /* 允许滚动（继承content-section的overflow-y:auto） */
+    }
+    .bill-results-container.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
     }
 
+    /* 桌面端四列，手机端严格两列 */
     .bill-card {
       background: var(--bg-secondary);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
+      width: calc(25% - 12px); /* 桌面四列：总间距15px，单卡片间距12px（15*(4-1)/4） */
+      min-width: 220px; /* 桌面最小宽度，确保卡片完整性 */
+      margin: 0;
     }
-
+    /* 手机端强制两列 */
+    @media (max-width: 768px) {
+      .bill-card {
+        width: calc(50% - 8px); /* 手机两列：总间距15px，单卡片间距8px（15*(2-1)/2） */
+        min-width: 140px; /* 适配小屏手机 */
+      }
+    }
     .bill-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     }
-
     .bill-card-header {
+      padding: 12px 15px;
       background: linear-gradient(135deg, rgba(106, 17, 203, 0.2) 0%, rgba(37, 117, 252, 0.2) 100%);
-      padding: 15px;
     }
-
     .bill-card-id {
       font-size: 18px;
       font-weight: bold;
       color: var(--accent-color);
     }
-
     .bill-card-title {
       font-size: 16px;
       margin-top: 5px;
       color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
     .bill-card-content {
-      padding: 15px;
+      padding: 12px 15px;
       font-size: 14px;
       color: var(--text-secondary);
       line-height: 1.6;
-      flex: 1;
+      max-height: 90px;
       overflow: hidden;
+      text-overflow: ellipsis;
       display: -webkit-box;
-      -webkit-line-clamp: 4;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
     }
-
-    .bill-card-footer {
-      padding: 12px 15px;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border-color);
+    .bill-card-publish {
+      padding: 8px 15px;
       font-size: 12px;
       color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
     }
 
-    .no-results {
-      grid-column: 1 / -1;
+    .bill-error, .bill-loading {
       text-align: center;
-      padding: 20px;
-      color: #dc3545;
+      padding: 30px 20px;
+      color: var(--text-secondary);
+      font-size: 16px;
+      width: 100%;
+    }
+    .bill-loading {
+      color: var(--accent-color);
     }
 
-    /* 议案详情模态框 */
+    /* ============= 议案详情模态框样式 ============= */
     .bill-modal {
       display: none;
       position: fixed;
@@ -441,20 +470,19 @@
       z-index: 1000;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
-
     .bill-modal-content {
       background: var(--bg-secondary);
       border-radius: 15px;
       max-width: 800px;
       width: 90%;
-      max-height: 90vh;
+      max-height: 80vh;
       overflow-y: auto;
       padding: 25px;
       position: relative;
       box-shadow: var(--shadow);
     }
-
     .bill-modal-close {
       position: absolute;
       top: 15px;
@@ -464,55 +492,319 @@
       font-size: 24px;
       cursor: pointer;
       color: var(--text-secondary);
+      transition: color 0.3s ease;
     }
-
+    .bill-modal-close:hover {
+      color: var(--accent-color);
+    }
     .bill-modal-id {
       font-size: 22px;
       font-weight: bold;
       color: var(--accent-color);
       margin-bottom: 10px;
     }
-
     .bill-modal-title {
       font-size: 18px;
       margin-bottom: 15px;
       color: var(--text-primary);
     }
-
     .bill-modal-body {
       font-size: 15px;
       line-height: 1.7;
       margin-bottom: 20px;
       color: var(--text-secondary);
     }
-
     .bill-modal-publish {
       font-size: 14px;
       color: var(--text-secondary);
-      font-style: italic;
     }
 
-    /* 移动端适配 */
+    /* ============= 神界文件库（手机端竖向3个按钮，不重叠） ============= */
+    .doc-buttons {
+      display: flex;
+      flex-direction: column; /* 改为竖向排列 */
+      align-items: center; /* 按钮居中 */
+      gap: 12px; /* 按钮间间距 */
+      margin-top: 25px;
+    }
+    .doc-btn {
+      position: relative;
+      padding: 16px 24px; /* 增大内边距，让按钮更饱满 */
+      border-radius: 12px; /* 更大圆角，视觉更柔和 */
+      /* 径向渐变：从紫到蓝的中心扩散，层次更丰富 */
+      background: radial-gradient(circle at 30% 20%, #7c4dff, #2575fc);
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      /* 多层阴影：外层模糊+内层紧凑，模拟立体浮感 */
+      box-shadow: 0 6px 16px rgba(124, 77, 255, 0.3), 
+                  0 3px 6px rgba(37, 117, 252, 0.2);
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      overflow: hidden;
+      z-index: 1;
+      min-width: 220px;
+      text-align: center;
+      width: 100%;
+      max-width: 360px; /* 调整最大宽度，比例更协调 */
+      display: flex; /* 让图标+文字对齐更灵活 */
+      align-items: center;
+      justify-content: center;
+      gap: 8px; /* 图标与文字的间距 */
+    }
+    .doc-btn::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      /* 透明锥形渐变，hover 时旋转动效 */
+      background: conic-gradient(
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent 30%
+      );
+      animation: rotate 4s linear infinite; /* 旋转动画 */
+      z-index: -1;
+      opacity: 0; /* 初始隐藏 */
+      transition: opacity 0.3s ease;
+    }
+    .doc-btn:hover::before {
+      opacity: 1; /* hover 时显示 */
+    }
+    /* 锥形渐变的旋转动画 */
+    @keyframes rotate {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    .doc-btn:hover {
+      transform: translateY(-5px) scale(1.03);
+      box-shadow: 0 8px 25px rgba(124, 77, 255, 0.35);
+    }
+    .doc-icon {
+      margin-right: 8px;
+      font-size: 18px;
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    .doc-btn:hover .doc-icon {
+      transform: scale(1.2) rotate(5deg);
+    }
+    /* 手机端强制竖向排列 */
     @media (max-width: 768px) {
-      .bill-search-form {
+      .doc-buttons {
         flex-direction: column;
+        align-items: center;
+        gap: 12px; /* 保持按钮间距，与桌面端一致 */
+        padding: 0 20px; /* 左右留空，避免按钮贴屏幕边缘 */
       }
-
-      .bill-results {
-        grid-template-columns: 1fr;
-        max-height: 50vh;
+      .doc-btn {
+        width: 100%;
+        max-width: 320px; /* 小屏限制最大宽度，更贴合手机屏幕 */
+        padding: 12px 15px; /* 手机端减小内边距，避免按钮过高 */
+        font-size: 14px; /* 小屏字体缩小，更适配 */
+        /* 补充 flex 对齐属性，与桌面端一致，确保图标+文字居中 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px; /* 图标与文字的间距，和桌面端保持统一 */
       }
+    }
 
+    /* ============= 关于我们样式 ============= */
+    .about-top-img {
+      max-width: 600px;
+      margin: -10px 0 20px 0;
+    }
+    .about-top-img .image-ui {
+      width: 33%;
+      max-width: none;
+      min-width: 150px;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+      margin: 0;
+    }
+    .about-info {
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    .about-info dl {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 8px 20px;
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+    .about-info dt {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .about-changelog {
+      width: 100%;
+      max-width: 600px;
+    }
+    .about-changelog .changelog-link {
+      display: block;
+      font-size: 20px;
+      color: var(--text-primary);
+      padding-bottom: 10px;
+      position: relative;
+      margin-bottom: 15px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .about-changelog .changelog-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .about-changelog .changelog-link:hover::after {
+      width: 80px;
+    }
+    .about-changelog .changelog-link .login-arrow {
+      margin-left: 8px;
+      transition: transform 0.3s ease;
+    }
+    .about-changelog .changelog-link:hover .login-arrow {
+      transform: translateX(5px);
+    }
+    .changelog-description {
+      margin-top: 15px;
+    }
+    .changelog-description p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+    .about-changelog p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+
+    /* ============= 全局移动端适配 ============= */
+    @media (max-width: 768px) {
+      .header {
+        padding: 0 15px;
+      }
+      .hamburger-menu {
+        display: flex;
+        margin-right: 15px;
+      }
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        height: calc(100vh - 70px);
+        transform: translateX(-100%);
+        width: 80%;
+        max-width: 300px;
+        z-index: 997;
+        padding-bottom: 80px;
+      }
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      .sidebar-link {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+      .function-intro {
+        padding: 0 20px;
+        font-size: 12px;
+      }
+      .sidebar-item.expanded .function-intro {
+        padding: 8px 20px 12px;
+      }
+      .login-section {
+        position: fixed;
+        bottom: 15px;
+        left: 15px;
+        width: calc(80% - 30px);
+        max-width: 270px;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      .sidebar.active ~ .login-section {
+        transform: translateX(0);
+      }
+      .login-btn {
+        padding: 10px 14px;
+        font-size: 15px;
+      }
+      .content {
+        margin-left: 0 !important;
+      }
       .content-section {
         padding: 30px 20px;
       }
-
       .content-section h2 {
         font-size: 26px;
       }
-
       .content-section p {
         font-size: 15px;
+      }
+      /* 议案库搜索框移动端上移幅度调整 */
+      .bill-search-center {
+        min-height: 150px;
+      }
+      .bill-search-center.active {
+        margin-top: -30px;
+        min-height: 100px;
+      }
+      /* 议案库卡片内容适配 */
+      .bill-card-content {
+        max-height: 110px;
+        -webkit-line-clamp: 4;
+      }
+      /* 模态框适配 */
+      .bill-modal-content {
+        padding: 20px;
+      }
+      .bill-modal-id {
+        font-size: 20px;
+      }
+      .bill-modal-title {
+        font-size: 16px;
+      }
+      .bill-modal-body {
+        font-size: 14px;
+      }
+      /* 关于我们移动端适配 */
+      .about-top-img {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+      .about-top-img .image-ui {
+        width: 100%;
+        max-width: 300px;
+        min-width: unset;
+      }
+      .about-info, .about-changelog {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+      .about-info dl {
+        gap: 6px 15px;
+        font-size: 15px;
+      }
+      .about-changelog .changelog-link {
+        font-size: 18px;
       }
     }
 
@@ -521,54 +813,28 @@
       .sidebar {
         width: 85%;
       }
-
       .login-section {
         width: calc(85% - 30px);
       }
-
       .sidebar-link {
         padding: 10px 15px;
         font-size: 14px;
       }
-
       .arrow {
         margin-left: 5px;
       }
-
-      .bill-search-btn {
-        padding: 10px 20px;
+      /* 议案库小屏适配 */
+      .bill-search-center.active {
+        margin-top: -30px;
       }
-    }
-
-    /* 初始堆叠 */
-    .content-section:nth-child(1) { transform: translateY(0); }
-    .content-section:nth-child(2) { transform: translateY(100vh); }
-    .content-section:nth-child(3) { transform: translateY(200vh); }
-    .content-section:nth-child(4) { transform: translateY(300vh); }
-    .content-section:nth-child(5) { transform: translateY(400vh); }
-    .content-section:nth-child(6) { transform: translateY(500vh); }
-    .content-section:nth-child(7) { transform: translateY(600vh); }
-
-    /* 加载状态 */
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(111, 66, 193, 0.2);
-      border-top: 4px solid var(--accent-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      /* 保持两列 */
+      .bill-card {
+        width: calc(50% - 8px);
+      }
+      .bill-results-container {
+        gap: 15px; /* 小屏保持合理间距 */
+        padding: 8px;
+      }
     }
   </style>
 </head>
@@ -587,7 +853,7 @@
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta1.1.5</div>
+    <div class="header-right">Beta1.1.6</div>
   </header>
 
   <!-- 主容器 -->
@@ -604,7 +870,6 @@
             在这里您可以查看官方已公开的神界小说系列官方地图，了解神界各国的基础信息。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="1">
           <button class="sidebar-link">
             神界资讯
@@ -614,7 +879,6 @@
             神界内阁会在此发布与神界圈、神界阁有关的资讯。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="2">
           <button class="sidebar-link">
             成员信息库
@@ -624,9 +888,8 @@
             神界圈成员的部分个人信息存储库，仅限已登录的神界成员查看。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="3">
-          <button class="sidebar-link">
+          <button class="sidebar-link active">
             神界议案库
             <span class="arrow">▼</span>
           </button>
@@ -634,7 +897,6 @@
             发布神界内阁经讨论的公开信息。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="4">
           <button class="sidebar-link">
             神界文件库
@@ -644,7 +906,6 @@
             神界规约体系的律法组成部分，通过文字约束与保护每一位圈成员。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="5">
           <button class="sidebar-link">
             神界圈介绍
@@ -654,7 +915,6 @@
             有关神界圈的一些事。
           </div>
         </div>
-
         <div class="sidebar-item" data-index="6">
           <button class="sidebar-link">
             关于我们
@@ -675,8 +935,9 @@
       </a>
     </div>
 
-    <!-- 右侧拖拽区 -->
+    <!-- 右侧内容区 -->
     <main class="content">
+      <!-- 1. 查看地图 -->
       <section class="content-section" data-index="0">
         <h2>查看地图</h2>
         <p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如"宙界"的地图也会公布在此。</p>
@@ -684,28 +945,37 @@
         <p>当前地图尚在绘制。您也可以通过"关于我们"板块，加入我们，帮助完善神界小说体系。</p>
       </section>
 
+      <!-- 2. 神界资讯 -->
       <section class="content-section" data-index="1">
         <h2>神界资讯</h2>
         <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
       </section>
 
+      <!-- 3. 成员信息库 -->
       <section class="content-section" data-index="2">
         <h2>成员信息库</h2>
         <p>查阅神界成员的基本信息。注意，禁止泄露该页面的所有隐私信息。</p>
       </section>
 
+      <!-- 4. 神界议案库（核心） -->
       <section class="content-section" data-index="3">
         <h2>神界议案库</h2>
-        <div class="bill-search-container">
-          <form class="bill-search-form" id="billSearchForm">
+        <!-- 给说明文字加ID，用于搜索时隐藏 -->
+        <p id="billDescText">搜索并查看神界内阁公开的议案信息，支持按议案号或议案名检索。</p>
+        
+        <!-- 搜索区域 -->
+        <div id="billSearchContainer" class="bill-search-center">
+          <div class="bill-search">
             <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
-            <button type="submit" id="billSearchBtn">
-              <i class="search-icon">🔍</i> 搜索议案
+            <button id="billSearchBtn">
+              <<<i class="search-icon">🔍</</</i> 搜索议案
             </button>
-          </form>
+          </div>
         </div>
-        <div class="bill-results" id="billResults">
-          <!-- 搜索结果将动态显示在这里 -->
+        
+        <!-- 结果容器（已删除白色背景） -->
+        <div id="billResults" class="bill-results-container">
+          <!-- 搜索结果将动态插入这里 -->
         </div>
       </section>
       
@@ -720,40 +990,40 @@
         </div>
       </div>
       
+      <!-- 5. 神界文件库 -->
       <section class="content-section" data-index="4">
         <h2>神界文件库</h2>
         <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
         <p>查看神界规约体系：</p>
         <div class="doc-buttons">
           <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <i class="doc-icon">📜</i> 
+            <<<i class="doc-icon">📜</</</i> 
             《神界宪章》
           </a>
           <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <i class="doc-icon">👤</i> 
+            <<<i class="doc-icon">👤</</</i> 
             《神界成员入圈标准指南》
           </a>
           <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <i class="doc-icon">⚖️</i> 
+            <<<i class="doc-icon">⚖️</</</i> 
             《神界纠纷处理办法》
           </a>
         </div>
       </section>
 
+      <!-- 6. 神界圈介绍 -->
       <section class="content-section" data-index="5">
         <h2>神界圈介绍</h2>
         <p>了解神界圈的过往、来源、组织结构和未来发展。</p>
       </section>
 
+      <!-- 7. 关于我们 -->
       <section class="content-section" data-index="6">
         <h2>关于我们</h2>
-        <!-- 1. 新增图片容器：放标题下方，所有元素最上方 -->
         <div class="about-top-img">
           <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI界面" class="image-ui">
         </div>
-        <!-- 2. 原有内容（开发者信息、更新日志等）保持不变 -->
         <div class="about-section">
-          <!-- 开发者信息（规整列表） -->
           <div class="about-info">
             <dl>
               <dt>开发：</dt>
@@ -768,7 +1038,6 @@
               <dd>春国工作室</dd>
             </dl>
           </div>
-          <!-- 更新日志（带下划线标题） -->
           <div class="about-changelog">
            <a href="https://godlive-web.github.io/update" class="changelog-link">
              更新日志 <span class="login-arrow">→</span>
@@ -784,11 +1053,11 @@
   </div>
 
   <script>
-    // Cookie处理函数
+    // 1. Cookie处理函数
     function setCookie(name, value, days, sameSite = 'Lax') {
       const expires = new Date();
       expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;Secure;SameSite=${sameSite}`;
     }
 
     function getCookie(name) {
@@ -816,11 +1085,8 @@
       
       if (userCookie && userCookie !== '0' && userDataStr) {
         try {
-          // 解析userData cookie
           const userData = JSON.parse(userDataStr);
-          // 显示账号名称
           loginText.textContent = userData['账号名称'] || userCookie;
-          // 更新跳转链接到个人资料页
           loginButton.href = 'https://godlive-web.github.io/personaldata';
         } catch (e) {
           console.error('解析userData失败:', e);
@@ -833,16 +1099,16 @@
       }
     }
 
-    // 全局状态
+    // 2. 全局页面切换逻辑
     const sections = document.querySelectorAll('.content-section');
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     const sidebarItems = document.querySelectorAll('.sidebar-item');
-    let currentIndex = 0;      // 当前激活索引
-    let startY = 0;            // 拖拽起始Y坐标
-    let isDragging = false;    // 拖拽中标记
-    let dragDistance = 0;      // 拖拽距离
-    let dragStartTime = 0;     // 拖拽开始时间
-    let wheelDelta = 0;        // 滚轮累计距离
+    let currentIndex = 0;      
+    let startY = 0;            
+    let isDragging = false;    
+    let dragDistance = 0;      
+    let dragStartTime = 0;     
+    const dragThreshold = 20; 
 
     // 同步左侧导航
     function syncSidebar() {
@@ -855,7 +1121,14 @@
         }
       });
     }
-    syncSidebar();
+
+    // 初始化布局
+    function initLayout() {
+      syncSidebar();
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+      });
+    }
 
     // 拖拽开始
     function onDragStart(e) {
@@ -867,107 +1140,89 @@
       isDragging = true;
       dragDistance = 0;
       dragStartTime = Date.now();
-      sections.forEach(sec => sec.style.transition = 'none'); // 实时响应拖拽
+      sections.forEach(sec => sec.style.transition = 'none');
     }
 
-    // 实时拖拽（最大化阻力感）
+    // 实时拖拽
     function onDragMove(e) {
       if (!isDragging) return;
       let currentY = 0;
       if (e.type === 'touchmove') {
         currentY = e.touches[0].clientY;
+        e.preventDefault();
       } else {
         currentY = e.clientY;
       }
       dragDistance = currentY - startY;
-
-      // 阻力系数从0.4→0.2（拖拽极费力，移动幅度小）
-      sections.forEach((sec, index) => {
-        const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
-        sec.style.transform = `translateY(${targetY}vh)`;
-      });
     }
 
-    // 拖拽结束（最高阈值+最强阻尼）
+    // 拖拽结束
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
-      // 延长过渡时间+更平滑的阻尼曲线
       sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
 
-      // 1. 切换阈值提高到40%视口（需要明显滑动才触发）
       const threshold = window.innerHeight * 0.4; 
-      // 2. 速度阈值提高到0.7（快速滑动需要更快速度）
       const dragTime = Date.now() - dragStartTime;
       const speed = Math.abs(dragDistance) / dragTime;
+      const isDragValid = Math.abs(dragDistance) > dragThreshold || speed > 0.7;
 
-      // 判定切换
-      if (dragDistance < 0) { // 向下滑→下一页
-        if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+      if (isDragValid) {
+        if (dragDistance < 0) {
           currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-        }
-      } else { // 向上滑→上一页
-        if (dragDistance > threshold || speed > 0.7) {
+        } else {
           currentIndex = Math.max(currentIndex - 1, 0);
         }
-      }
 
-      // 更新位置
-      sections.forEach((sec, index) => {
-        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-      });
-      syncSidebar();
+        sections.forEach((sec, index) => {
+          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+        });
+        syncSidebar(); // 拖拽结束后同步左侧导航
+      } else {
+        sections.forEach((sec, index) => {
+          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+        });
+      }
     }
 
     // 绑定事件
     const content = document.querySelector('.content');
-    // 触摸事件
     content.addEventListener('touchstart', onDragStart);
-    content.addEventListener('touchmove', onDragMove);
+    content.addEventListener('touchmove', onDragMove, { passive: false });
     content.addEventListener('touchend', onDragEnd);
-    // 鼠标事件
     content.addEventListener('mousedown', onDragStart);
     content.addEventListener('mousemove', onDragMove);
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
-    
-    // 改进的滚轮事件处理 - 修复方向问题
+    // 滚轮事件
     content.addEventListener('wheel', (e) => {
       e.preventDefault();
-      
-      // 修复方向：向下滚动应该切换到下一页
       if (e.deltaY > 0) {
-        // 向下滚动
         currentIndex = Math.min(currentIndex + 1, sections.length - 1);
       } else {
-        // 向上滚动
         currentIndex = Math.max(currentIndex - 1, 0);
       }
-      
-      // 更新位置
       sections.forEach((sec, index) => {
         sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
-      syncSidebar();
-    });
-    
-    // 左侧导航点击
+      syncSidebar(); // 滚轮切换后同步左侧导航
+    }, { passive: false });
+
+    // 左侧导航点击切换
     sidebarLinks.forEach((link, index) => {
       link.addEventListener('click', () => {
         currentIndex = index;
         sections.forEach((sec, i) => {
           sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
         });
-        syncSidebar();
-        
-        // 移动端点击后关闭侧边栏
+        syncSidebar(); // 点击导航后同步左侧导航
         if (window.innerWidth <= 768) {
           toggleSidebar();
         }
       });
     });
 
-    // 移动端汉堡菜单功能
+    // 3. 移动端汉堡菜单功能
     const hamburgerMenu = document.getElementById('hamburgerMenu');
     const sidebar = document.getElementById('sidebar');
     
@@ -975,7 +1230,6 @@
       hamburgerMenu.classList.toggle('active');
       sidebar.classList.toggle('active');
       
-      // 添加/移除遮罩层
       if (sidebar.classList.contains('active')) {
         createOverlay();
       } else {
@@ -1006,121 +1260,109 @@
     
     hamburgerMenu.addEventListener('click', toggleSidebar);
 
-    // 页面加载时更新登录按钮
-    document.addEventListener('DOMContentLoaded', function() {
-      updateLoginButton();
-      // 初始化议案库状态
-      resetBillSearch();
+    // 4. 议案搜索功能（核心修改）
+    const billSearchContainer = document.getElementById('billSearchContainer');
+    const billResults = document.getElementById('billResults');
+    const billSearchInput = document.getElementById('billSearchInput');
+    const billSearchBtn = document.getElementById('billSearchBtn');
+    const billModal = document.getElementById('billModal');
+    const modalClose = document.querySelector('.bill-modal-close');
+    const billDescText = document.getElementById('billDescText'); // 议案库说明文字
+
+    billSearchBtn.addEventListener('click', searchBills);
+    billSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchBills();
     });
 
-    // 议案搜索功能
-    const billSearchForm = document.getElementById('billSearchForm');
-    const billSearchInput = document.getElementById('billSearchInput');
-    const billResults = document.getElementById('billResults');
-
-    billSearchForm.addEventListener('submit', searchBills);
-
-    async function searchBills(e) {
-      e.preventDefault();
+    async function searchBills() {
       const input = billSearchInput.value.trim();
+      // 搜索时隐藏说明文字
+      billDescText.classList.add('bill-desc-hidden');
       
       if (!input) {
-        showError('请输入搜索内容');
+        billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
+        billSearchContainer.classList.add('active');
+        billResults.classList.add('active');
         return;
       }
 
       try {
-        // 显示加载状态
-        showLoading();
-        
-        // 从GitHub获取议案数据
+        billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
+        billSearchContainer.classList.add('active');
+        billResults.classList.add('active');
+
         const response = await fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/data/bill.json');
+        if (!response.ok) throw new Error('数据请求失败');
         const bills = await response.json();
-        
-        // 搜索逻辑
+
         const results = bills.filter(bill => 
-          bill.id.toLowerCase().includes(input.toLowerCase()) || 
-          bill.title.toLowerCase().includes(input.toLowerCase())
+          bill.id.includes(input) || bill.title.includes(input)
         );
+
+        if (results.length === 0) {
+          billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
+          return;
+        }
+
+        let html = '';
+        results.forEach(bill => {
+          // 修复文本溢出：仅当内容超过120字符时加"..."
+          const contentText = bill.content.length > 120 
+            ? bill.content.substring(0, 120) + '...' 
+            : bill.content;
+          
+          html += `
+            <div class="bill-card" data-id="${bill.id}">
+              <div class="bill-card-header">
+                <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
+                <div class="bill-card-title">${bill.title}</div>
+              </div>
+              <div class="bill-card-content">${contentText}</div>
+              <div class="bill-card-publish">${bill.publish_info}</div>
+            </div>
+          `;
+        });
         
-        // 渲染结果
-        renderResults(results);
-        
+        billResults.innerHTML = html;
+
+        document.querySelectorAll('.bill-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const billId = card.getAttribute('data-id');
+            const bill = results.find(b => b.id === billId);
+            showBillDetails(bill);
+          });
+        });
+
       } catch (error) {
         console.error('搜索失败:', error);
-        showError('议案数据加载失败，请稍后再试');
+        billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
       }
     }
 
-    function showLoading() {
-      billResults.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-    }
-
-    function showError(message) {
-      billResults.innerHTML = `<div class="no-results">${message}</div>`;
-    }
-
-    function renderResults(results) {
-      if (results.length === 0) {
-        showError('未找到匹配的议案');
-        return;
-      }
-
-      let html = '';
-      results.forEach(bill => {
-        html += `
-          <div class="bill-card" data-id="${bill.id}">
-            <div class="bill-card-header">
-              <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
-              <div class="bill-card-title">${bill.title}</div>
-            </div>
-            <div class="bill-card-content">${bill.content}</div>
-            <div class="bill-card-footer">
-              发布时间：${bill.publish_info}
-            </div>
-          </div>
-        `;
-      });
-
-      billResults.innerHTML = html;
-      
-      // 添加卡片点击事件
-      document.querySelectorAll('.bill-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const billId = card.getAttribute('data-id');
-          const bill = results.find(b => b.id === billId);
-          showBillDetails(bill);
-        });
-      });
-    }
-
-    // 显示议案详情
     function showBillDetails(bill) {
-      const modal = document.getElementById('billModal');
       document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
       document.getElementById('modalBillTitle').textContent = bill.title;
       document.getElementById('modalBillContent').textContent = bill.content;
-      document.getElementById('modalBillPublish').textContent = `发布时间：${bill.publish_info}`;
-      modal.style.display = 'flex';
+      document.getElementById('modalBillPublish').textContent = bill.publish_info;
+      billModal.style.display = 'flex';
     }
 
-    // 关闭模态框
-    document.querySelector('.bill-modal-close').addEventListener('click', () => {
-      document.getElementById('billModal').style.display = 'none';
+    modalClose.addEventListener('click', () => {
+      billModal.style.display = 'none';
+    });
+    billModal.addEventListener('click', (e) => {
+      if (e.target === billModal) billModal.style.display = 'none';
     });
 
-    // 点击模态框外部关闭
-    window.addEventListener('click', (e) => {
-      if (e.target === document.getElementById('billModal')) {
-        document.getElementById('billModal').style.display = 'none';
-      }
+    // 5. 页面加载初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      initLayout();
+      updateLoginButton();
+      billResults.classList.remove('active');
+      billSearchContainer.classList.remove('active');
+      // 初始化时显示说明文字
+      billDescText.classList.remove('bill-desc-hidden');
     });
-
-    // 重置议案搜索状态
-    function resetBillSearch() {
-      billSearchInput.value = '';
-      billResults.innerHTML = '';
-    }
   </script>
 </body>
 </html>
