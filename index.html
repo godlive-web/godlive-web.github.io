@@ -1072,7 +1072,18 @@
           <div class="about-info">
             <dl>
               <dt>开发：</dt>
-              <dd><a href="https://auting-awf.github.io/about" target="_blank" style="color: inherit; text-decoration: underline;">Auting网页工作组</a></dd>
+              <!-- 新增强调色+hover变色，交互感拉满 -->
+              <dd>
+                <a 
+                  href="https://auting-awf.github.io/about" 
+                  target="_blank" 
+                  style="color: var(--accent-color); text-decoration: underline; transition: all 0.2s ease;"
+                  onmouseover="this.style.color='#5a36a8'; this.style.textDecoration='underline 2px'"
+                  onmouseout="this.style.color='var(--accent-color)'; this.style.textDecoration='underline'"
+                >
+                  Auting网页工作组
+                </a>
+              </dd>
               <dt>支持：</dt>
               <dd>Github Pages</dd>
               <dt>UI系统：</dt>
