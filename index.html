@@ -519,100 +519,121 @@
       color: var(--text-secondary);
     }
 
-    /* ============= 神界文件库（手机端竖向3个按钮，不重叠） ============= */
+    /* ============= 神界文件库（按钮与文字左对齐） ============= */
     .doc-buttons {
       display: flex;
-      flex-direction: column; /* 改为竖向排列 */
-      align-items: center; /* 按钮居中 */
-      gap: 12px; /* 按钮间间距 */
-      margin-top: 25px;
+      flex-direction: column;
+      gap: 16px;
+      margin: 25px 0 0 0; /* 去掉左右auto，改为左对齐，和文字对齐 */
+      padding: 0 0; /* 去掉左右padding，和上方文字内边距一致 */
+      max-width: 500px; /* 保持最大宽度，避免按钮过宽 */
     }
     .doc-btn {
-      position: relative;
-      padding: 16px 24px; /* 增大内边距，让按钮更饱满 */
-      border-radius: 12px; /* 更大圆角，视觉更柔和 */
-      /* 径向渐变：从紫到蓝的中心扩散，层次更丰富 */
-      background: radial-gradient(circle at 30% 20%, #7c4dff, #2575fc);
-      color: white;
-      font-weight: 600;
-      text-decoration: none;
-      /* 多层阴影：外层模糊+内层紧凑，模拟立体浮感 */
-      box-shadow: 0 6px 16px rgba(124, 77, 255, 0.3), 
-                  0 3px 6px rgba(37, 117, 252, 0.2);
-      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-      overflow: hidden;
-      z-index: 1;
-      min-width: 220px;
-      text-align: center;
-      width: 100%;
-      max-width: 360px; /* 调整最大宽度，比例更协调 */
-      display: flex; /* 让图标+文字对齐更灵活 */
+      display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 8px; /* 图标与文字的间距 */
-    }
-    .doc-btn::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      /* 透明锥形渐变，hover 时旋转动效 */
-      background: conic-gradient(
-        transparent,
-        rgba(255, 255, 255, 0.2),
-        transparent 30%
-      );
-      animation: rotate 4s linear infinite; /* 旋转动画 */
-      z-index: -1;
-      opacity: 0; /* 初始隐藏 */
-      transition: opacity 0.3s ease;
-    }
-    .doc-btn:hover::before {
-      opacity: 1; /* hover 时显示 */
-    }
-    /* 锥形渐变的旋转动画 */
-    @keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+      gap: 12px;
+      padding: 12px 16px;
+      background-color: var(--bg-secondary); /* 复用原项目背景变量 */
+      border-radius: 8px;
+      color: var(--text-primary); /* 复用原项目文字变量 */
+      font-size: 16px;
+      text-decoration: none;
+      box-shadow: var(--shadow); /* 复用原项目阴影变量 */
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      width: 100%; /* 按钮占满容器宽度，左对齐更整齐 */
     }
     .doc-btn:hover {
-      transform: translateY(-5px) scale(1.03);
-      box-shadow: 0 8px 25px rgba(124, 77, 255, 0.35);
+      background-color: var(--bg-primary); /* 复用原项目浅色背景 */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transform: translateX(2px);
     }
+    /* Word 图标容器 */
     .doc-icon {
-      margin-right: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .doc-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    /* 底部Github提示（同样左对齐，和按钮/文字统一） */
+    .github-tip {
+      text-align: left; /* 改为左对齐 */
+      color: #e53e3e; /* 红色提醒，不破坏原风格 */
+      font-size: 14px;
+      margin-top: 30px;
+      line-height: 1.5;
+      padding: 0 0; /* 去掉左右padding，和文字对齐 */
+    }
+
+    /* 跳转确认弹窗（适配原项目模态框风格） */
+    .jump-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1001; /* 高于原项目模态框z-index */
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .jump-modal-content {
+      background: var(--bg-secondary); /* 复用原项目背景 */
+      border-radius: 12px; /* 贴合原项目模态框圆角 */
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow); /* 复用原项目阴影 */
+    }
+    .jump-modal-title {
       font-size: 18px;
-      display: inline-block;
-      transition: transform 0.3s ease;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+      text-align: center;
     }
-    .doc-btn:hover .doc-icon {
-      transform: scale(1.2) rotate(5deg);
+    .jump-modal-desc {
+      font-size: 14px;
+      color: var(--text-secondary); /* 复用原项目次要文字色 */
+      line-height: 1.6;
+      margin-bottom: 20px;
     }
-    /* 手机端强制竖向排列 */
-    @media (max-width: 768px) {
-      .doc-buttons {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px; /* 保持按钮间距，与桌面端一致 */
-        padding: 0 20px; /* 左右留空，避免按钮贴屏幕边缘 */
-      }
-      .doc-btn {
-        width: 100%;
-        max-width: 320px; /* 小屏限制最大宽度，更贴合手机屏幕 */
-        padding: 12px 15px; /* 手机端减小内边距，避免按钮过高 */
-        font-size: 14px; /* 小屏字体缩小，更适配 */
-        /* 补充 flex 对齐属性，与桌面端一致，确保图标+文字居中 */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px; /* 图标与文字的间距，和桌面端保持统一 */
-      }
+    .jump-modal-btns {
+      display: flex;
+      gap: 12px;
+    }
+    .jump-modal-btn {
+      flex: 1;
+      padding: 10px 0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .jump-modal-btn.cancel {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+    }
+    .jump-modal-btn.cancel:hover {
+      background: var(--border-color); /* 复用原项目边框色 */
+    }
+    .jump-modal-btn.confirm {
+      background: var(--accent-color); /* 复用原项目强调色 */
+      color: white;
+    }
+    .jump-modal-btn.confirm:hover {
+      background: #5a36a8; /* 强调色加深，不新增色值 */
     }
 
     /* ============= 关于我们样式 ============= */
@@ -751,7 +772,7 @@
         margin-left: 0 !important;
       }
       .content-section {
-        padding: 30px 20px;
+        padding: 30px 20px; /* 移动端内容区左右内边距20px */
       }
       .content-section h2 {
         font-size: 26px;
@@ -788,7 +809,7 @@
       /* 关于我们移动端适配 */
       .about-top-img {
         max-width: 100%;
-        padding: 0 10px;
+        padding: 0 0;
       }
       .about-top-img .image-ui {
         width: 100%;
@@ -797,7 +818,7 @@
       }
       .about-info, .about-changelog {
         max-width: 100%;
-        padding: 0 10px;
+        padding: 0 0;
       }
       .about-info dl {
         gap: 6px 15px;
@@ -805,6 +826,22 @@
       }
       .about-changelog .changelog-link {
         font-size: 18px;
+      }
+      /* 文件库移动端适配（保持左对齐，适配内容区20px内边距） */
+      .doc-buttons {
+        padding: 0 0; /* 和内容区文字内边距一致 */
+      }
+      .doc-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+      .doc-icon {
+        width: 28px;
+        height: 28px;
+      }
+      .github-tip {
+        font-size: 13px;
+        padding: 0 0;
       }
     }
 
@@ -968,7 +1005,7 @@
           <div class="bill-search">
             <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
             <button id="billSearchBtn">
-              <<<i class="search-icon">🔍</</</i> 搜索议案
+              <<<<i class="search-icon">🔍</</</i> 搜索议案
             </button>
           </div>
         </div>
@@ -990,25 +1027,33 @@
         </div>
       </div>
       
-      <!-- 5. 神界文件库 -->
+      <!-- 5. 神界文件库（按钮左对齐） -->
       <section class="content-section" data-index="4">
         <h2>神界文件库</h2>
         <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
-        <p>查看神界规约体系：</p>
         <div class="doc-buttons">
-          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <<<i class="doc-icon">📜</</</i> 
+          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+            <span class="doc-icon">
+              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+            </span>
             《神界宪章》
-          </a>
-          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <<<i class="doc-icon">👤</</</i> 
+          </button>
+          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+            <span class="doc-icon">
+              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+            </span>
             《神界成员入圈标准指南》
-          </a>
-          <a href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90" class="doc-btn">
-            <<<i class="doc-icon">⚖️</</</i> 
+          </button>
+          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+            <span class="doc-icon">
+              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+            </span>
             《神界纠纷处理办法》
-          </a>
+          </button>
         </div>
+        <p class="github-tip">
+          此文件库由Github提供存储服务，可能存在访问不稳定情况。<br>
+        </p>
       </section>
 
       <!-- 6. 神界圈介绍 -->
@@ -1050,6 +1095,23 @@
          </div>
        </section>
     </main>
+  </div>
+
+  <!-- 跳转确认弹窗（文件库专用） -->
+  <div class="jump-modal" id="jumpModal">
+    <div class="jump-modal-content">
+      <div class="jump-modal-title">确认跳转</div>
+      <div class="jump-modal-desc">
+        即将跳转到Github仓库以查看文件，请注意：<br>
+        1. Github连接可能受网络环境影响，存在无法稳定连接的可能；<br>
+        2. 将创建<strong>新标签页</strong>打开Github链接。<br>
+        是否确认继续跳转？
+      </div>
+      <div class="jump-modal-btns">
+        <button class="jump-modal-btn cancel" id="cancelJump">取消</button>
+        <button class="jump-modal-btn confirm" id="confirmJump">确认跳转</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -1260,7 +1322,7 @@
     
     hamburgerMenu.addEventListener('click', toggleSidebar);
 
-    // 4. 议案搜索功能（核心修改）
+    // 4. 议案搜索功能
     const billSearchContainer = document.getElementById('billSearchContainer');
     const billResults = document.getElementById('billResults');
     const billSearchInput = document.getElementById('billSearchInput');
@@ -1354,7 +1416,41 @@
       if (e.target === billModal) billModal.style.display = 'none';
     });
 
-    // 5. 页面加载初始化
+    // 5. 文件库跳转确认弹窗逻辑
+    const jumpModal = document.getElementById('jumpModal');
+    const cancelJump = document.getElementById('cancelJump');
+    const confirmJump = document.getElementById('confirmJump');
+    const docBtns = document.querySelectorAll('.doc-btn');
+    let targetHref = '';
+
+    docBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        targetHref = this.getAttribute('data-href');
+        jumpModal.style.display = 'flex';
+      });
+    });
+
+    cancelJump.addEventListener('click', function() {
+      jumpModal.style.display = 'none';
+      targetHref = '';
+    });
+
+    confirmJump.addEventListener('click', function() {
+      if (targetHref) {
+        window.open(targetHref, '_blank'); // 新标签页打开，保留原页面
+        jumpModal.style.display = 'none';
+        targetHref = '';
+      }
+    });
+
+    jumpModal.addEventListener('click', function(e) {
+      if (e.target === jumpModal) {
+        jumpModal.style.display = 'none';
+        targetHref = '';
+      }
+    });
+
+    // 6. 页面加载初始化
     document.addEventListener('DOMContentLoaded', function() {
       initLayout();
       updateLoginButton();
