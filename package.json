@@ -1,0 +1,7 @@
+{
+  "name": "godlive-login",
+  "version": "1.0.0",
+  "dependencies": {
+    "bcrypt": "^5.1.1"
+  }
+}
