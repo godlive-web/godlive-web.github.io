@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 接收前端参数：username是用户输入的“纯账号ID”（无.json后缀）
+  // 接收前端参数：username是用户输入的“纯ID”（无.json后缀）
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ success: false, msg: "账号ID和密码不能为空" });
@@ -30,6 +30,9 @@ export default async function handler(req, res) {
   try {
     // 中文ID编码处理（若账号是中文，编码后匹配GitHub的中文文件名）
     const encodedUsername = encodeURIComponent(username);
+    // 关键修改：自动为账号拼接`.json`后缀，匹配仓库中`ID.json`格式的文件
+    const usernameWithSuffix = `${username}.json`;
+    const encodedUsernameWithSuffix = `${encodedUsername}.json`;
 
     // 调用GitHub API，获取usersdata目录下的所有文件列表
     const fileListRes = await fetch(
@@ -49,9 +52,9 @@ export default async function handler(req, res) {
 
     const fileList = await fileListRes.json();
 
-    // 关键修改：文件名直接匹配用户输入的“纯账号ID”（无.json后缀）
+    // 匹配文件：文件名=纯ID + .json（如051809.json）
     const targetFile = fileList.find(file => {
-      return file.name === username || file.name === encodedUsername;
+      return file.name === usernameWithSuffix || file.name === encodedUsernameWithSuffix;
     });
 
     // 无匹配文件 → 账号ID不存在
