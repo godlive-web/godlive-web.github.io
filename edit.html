@@ -94,33 +94,35 @@
 
     // 页面加载时自动填充个人信息（从信息页传递过来的数据）
     function populateFormData() {
-      // 从URL中获取传递的用户数据
-      const urlParams = new URLSearchParams(window.location.search);
-      const userDataStr = urlParams.get('userData');
-      
-      if (userDataStr) {
-        try {
-          // 解析数据并填充到输入框
-          const userData = JSON.parse(decodeURIComponent(userDataStr));
-          document.getElementById('账号名称').value = userData['账号名称'] || '';
-          document.getElementById('自设名称').value = userData['自设名称'] || '';
-          document.getElementById('模糊住址').value = userData['模糊住址'] || '';
-          document.getElementById('出生日期').value = userData['出生日期'] || '';
-          document.getElementById('个人介绍').value = userData['个人介绍'] || '';
-        } catch (error) {
-          console.error('填充数据失败:', error);
-        }
+    const urlParams = new URLSearchParams(window.location.search);
+    const userDataStr = urlParams.get('userData');
+    const userID = urlParams.get('userID'); // 读取用户ID（对应文件名）
+  
+    if (userDataStr && userID) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userDataStr));
+        // 填充表单字段
+        document.getElementById('账号名称').value = userData['账号名称'] || '';
+        document.getElementById('自设名称').value = userData['自设名称'] || '';
+        document.getElementById('模糊住址').value = userData['模糊住址'] || '';
+        document.getElementById('出生日期').value = userData['出生日期'] || '';
+        document.getElementById('个人介绍').value = userData['个人介绍'] || '';
+      } catch (error) {
+        console.error('填充数据失败:', error);
       }
+    } else {
+      console.warn('未获取到用户数据或ID，无法填充表单');
     }
+  }
 
     // 提交修改的函数
-async function updateInfo() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const userID = urlParams.get('userID'); // 获取用户ID（关键：对应文件名）
-  if (!userID) {
-    showResult("未获取到用户ID，请重新登录", "error");
-    return;
-  }
+    async function updateInfo() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userID = urlParams.get('userID'); // 获取用户ID（关键：对应文件名）
+      if (!userID) {
+        showResult("未获取到用户ID，请重新登录", "error");
+        return;
+      }
 
   // 收集新输入的信息
   const newInfo = {
