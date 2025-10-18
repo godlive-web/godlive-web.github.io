@@ -1,32 +1,35 @@
-// api/update.js（适配你的个人信息字段，不用改）
+// 新增：Unicode兼容的Base64工具函数
+function utf8ToB64(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function b64ToUtf8(str) {
+  return decodeURIComponent(escape(atob(str)));
+}
+
 export default async function handler(req, res) {
-   // ========== 新增：CORS跨域配置 ==========
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io"; // 前端页面的域名
-  // 处理预检请求（OPTIONS方法）
+  // ========== 原有CORS跨域配置（保留） ==========
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io"; 
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.status(204).end(); // 预检请求无需返回内容
+    res.status(204).end(); 
     return;
   }
-  // 为POST请求设置跨域头
   res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  // ========================================
-  // 接收前端传递的新数据（和你的个人信息字段对应）
-  const { 自设名称, 账号名称, 模糊住址, 出生日期, 个人介绍 } = req.body;
+  // ==============================================
 
-  // 你的仓库配置（已填好，不用改）
+  const { 自设名称, 账号名称, 模糊住址, 出生日期, 个人介绍 } = req.body;
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const PRIVATE_REPO_OWNER = "godlive-web";
   const PRIVATE_REPO_NAME = "godlive";
-  const JSON_FILE_PATH = "user-info.json"; // 和你私密仓库的JSON文件名一致，不用改
+  const JSON_FILE_PATH = "user-info.json"; 
 
   try {
-    console.log('收到的请求体：', req.body); // 打印前端传过来的参数
-    console.log('GITHUB_TOKEN是否存在：', !!process.env.GITHUB_TOKEN); // 检查环境变量是否配置
-    // 1. 获取私密仓库中JSON文件的SHA值（不用懂）
+    console.log('收到的请求体：', req.body); 
+    console.log('GITHUB_TOKEN是否存在：', !!process.env.GITHUB_TOKEN); 
     const getFileRes = await fetch(
       `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/contents/${JSON_FILE_PATH}`,
       { headers: { Authorization: `token ${GITHUB_TOKEN}` } }
@@ -34,10 +37,9 @@ export default async function handler(req, res) {
     const fileData = await getFileRes.json();
     const fileSHA = fileData.sha;
 
-    // 2. 读取当前JSON的原始数据（保留固定的ID，不用懂）
-    const currentData = JSON.parse(atob(fileData.content));
+    // 替换原有atob → 使用b64ToUtf8
+    const currentData = JSON.parse(b64ToUtf8(fileData.content));
 
-    // 3. 合并新数据（保留ID，更新其他字段，不用懂）
     const newData = {
       ...currentData,
       自设名称: 自设名称 || currentData.自设名称,
@@ -47,7 +49,6 @@ export default async function handler(req, res) {
       个人介绍: 个人介绍 || currentData.个人介绍
     };
 
-    // 4. 调用GitHub API修改数据（不用懂）
     const updateRes = await fetch(
       `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/contents/${JSON_FILE_PATH}`,
       {
@@ -58,7 +59,8 @@ export default async function handler(req, res) {
         },
         body: JSON.stringify({
           message: "更新个人信息",
-          content: btoa(JSON.stringify(newData, null, 2)),
+          // 替换原有btoa → 使用utf8ToB64
+          content: utf8ToB64(JSON.stringify(newData, null, 2)),
           sha: fileSHA
         })
       }
@@ -69,7 +71,7 @@ export default async function handler(req, res) {
       msg: updateRes.ok ? "个人信息修改成功！" : "修改失败，请检查日志"
     });
   } catch (err) {
-    console.error('函数执行时发生错误：', err); // 打印具体错误信息
+    console.error('函数执行时发生错误：', err); 
     res.status(500).json({ success: false, msg: `函数错误：${err.message}` });
   }
 }
