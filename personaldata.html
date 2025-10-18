@@ -591,12 +591,16 @@
       <section class="content-section" data-index="0">
         <h2>个人信息</h2>
         <p class="section-desc" id="welcomeMessage">
-          欢迎您，加载中...。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">注销</span>
+          欢迎您，加载中...。这里展示您的个人信息，如需修改，请点击下方按钮。如需退出登录，请点击<span class="logout-link" id="logoutLink">注销</span>
         </p>
         
         <div class="info-card" id="basicInfoCard">
           <!-- 信息将通过JS动态生成 -->
           <div class="info-loading">正在加载您的个人信息...</div>
+        </div>
+        <!-- 新增编辑按钮 -->
+        <div style="margin-top: 20px;">
+          <button id="editInfoBtn" class="btn btn-primary">编辑个人信息</button>
         </div>
       </section>
 
@@ -758,6 +762,36 @@
       }, 800);
     }
 
+    // 新增：编辑按钮点击事件，传递用户数据到编辑页
+    function setupEditButton() {
+      const editInfoBtn = document.getElementById('editInfoBtn');
+      if (editInfoBtn) {
+        editInfoBtn.addEventListener('click', function() {
+          // 读取当前用户数据（从Cookie或默认数据中获取）
+          const userDataStr = getCookie('userData');
+          let userData = {};
+          if (userDataStr) {
+            try {
+              userData = JSON.parse(userDataStr);
+            } catch (e) {
+              console.error('解析用户数据失败:', e);
+            }
+          }
+          // 将用户数据编码为URL参数，跳转到编辑页
+          const userDataParam = encodeURIComponent(JSON.stringify(userData));
+          window.location.href = `edit.html?userData=${userDataParam}`;
+        });
+      }
+    }
+
+// 页面加载时调用该函数
+document.addEventListener('DOMContentLoaded', function() {
+  checkLoginStatus();
+  loadBasicInfo();
+  setupFeedback功能();
+  setupNavigation();
+  setupEditButton(); // 新增：调用编辑按钮初始化函数
+});
     // 反馈问题功能
     function setupFeedback功能() {
       const submitBtn = document.getElementById('submitFeedback');
