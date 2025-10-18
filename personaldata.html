@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>神界阁－登录</title>
+  <title>神界阁－个人信息</title>
   <style>
     * {
       margin: 0;
@@ -25,6 +25,7 @@
       --header-bg: rgba(255, 255, 255, 0.95);
       --sidebar-bg: rgba(248, 249, 250, 0.9);
       --content-bg: rgba(255, 255, 255, 0.7);
+      --sidebar-width: 260px;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -45,10 +46,10 @@
     }
     body {
       font-family: "Microsoft YaHei", sans-serif;
+      overflow: hidden;
       background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
       color: var(--text-primary);
       transition: background 0.3s ease, color 0.3s ease;
-      min-height: 100vh;
     }
 
     /* 顶部导航 */
@@ -77,6 +78,12 @@
       height: 45px;
       width: auto;
     }
+    .logo-link {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
     .site-title {
       position: relative;
       font-size: 24px;
@@ -101,168 +108,325 @@
       font-weight: bold;
     }
 
-    /* 主内容区 */
-    .main-container {
-      padding-top: 70px;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 70px 20px 20px;
+    /* 汉堡菜单按钮 (移动端) */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 30px;
+      height: 25px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 1000;
     }
-
-    /* 登录卡片 */
-    .login-card {
+    .hamburger-menu span {
       width: 100%;
-      max-width: 420px;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: 35px;
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
+      height: 3px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger-menu.active span:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger-menu.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger-menu.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
     }
 
-    .login-title {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 28px;
-      color: var(--text-primary);
+    /* 主容器 */
+    .main-container {
+      display: flex;
+      margin-top: 70px;
+      height: calc(100vh - 70px);
+    }
+
+    /* 左侧导航栏 */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
       position: relative;
-      padding-bottom: 15px;
+      padding-bottom: 70px;
+      transition: transform 0.3s ease, width 0.3s ease;
+      z-index: 998;
+    }
+    .sidebar-nav {
+      padding: 15px 0;
+      flex: 1;
+    }
+    .sidebar-item {
+      border-bottom: 1px solid var(--border-color);
+    }
+    .sidebar-link {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 25px;
+      width: 100%;
+      font-size: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    /* 鼠标悬停动画 */
+    .sidebar-link:hover {
+      background: var(--accent-light);
+      color: var(--text-primary);
+      transform: translateX(6px);
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.15);
+    }
+    .sidebar-link.active {
+      background: var(--accent-light);
+      color: var(--accent-color);
+      transform: translateX(6px);
+      box-shadow: 0 2px 8px rgba(111, 66, 193, 0.2);
+    }
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: linear-gradient(to bottom, #6a11cb, #2575fc);
+    }
+    .arrow {
+      font-size: 12px;
+      transition: transform 0.3s ease;
+      color: var(--accent-color);
+    }
+    .sidebar-item.expanded .arrow {
+      transform: rotate(180deg);
+    }
+    .function-intro {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 25px;
+      background: var(--card-bg);
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: max-height 0.3s ease-out;
+    }
+    .sidebar-item.expanded .function-intro {
+      max-height: 100px;
+      padding: 10px 25px 14px;
     }
 
-    .login-title::after {
+    /* 右侧内容区（恢复滑动效果） */
+    .content {
+      flex: 1;
+      position: relative;
+      overflow: hidden; /* 主内容区隐藏溢出，确保滑动效果正常 */
+      background: var(--content-bg);
+      transition: margin-left 0.3s ease;
+    }
+    .content-section {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%; /* 内容区高度占满视口 */
+      padding: 35px 30px;
+      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); /* 阻尼感过渡 */
+      color: var(--text-primary);
+      overflow: hidden; /* 内容区自身不滚动，由整体滑动控制 */
+    }
+    /* 初始堆叠位置 */
+    .content-section:nth-child(1) { transform: translateY(0); }
+    .content-section:nth-child(2) { transform: translateY(100vh); }
+    .content-section:nth-child(3) { transform: translateY(200vh); }
+
+    .content-section h2 {
+      font-size: 30px;
+      margin-bottom: 18px;
+      color: var(--text-primary);
+      text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
+      position: relative;
+      padding-bottom: 12px;
+    }
+    .content-section h2::after {
       content: '';
       position: absolute;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
       width: 60px;
       height: 3px;
       background: linear-gradient(to right, #6a11cb, #2575fc);
       border-radius: 3px;
     }
-
-    /* 表单样式 */
-    .form-group {
+    .content-section .section-desc {
+      color: var(--text-secondary);
       margin-bottom: 25px;
+      font-style: italic;
+      font-size: 15px;
+    }
+    .logout-link {
+      color: var(--accent-color);
+      cursor: pointer;
+      text-decoration: underline;
+      transition: all 0.3s ease;
+    }
+    .logout-link:hover {
+      color: #6a11cb;
+      text-shadow: 0 0 5px rgba(106, 17, 203, 0.3);
     }
 
+    /* 基础信息样式（禁用表格自身滑动干扰） */
+    .info-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 25px;
+      border: 1px solid var(--border-color);
+      max-height: calc(100% - 120px); /* 限制表格高度 */
+      overflow-y: auto; /* 表格内部可滚动，不影响页面滑动 */
+      overflow-x: hidden; /* 禁用水平滑动 */
+    }
+    .info-item {
+      display: flex;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed var(--border-color);
+    }
+    .info-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+    .info-label {
+      width: 110px;
+      flex-shrink: 0;
+      font-weight: bold;
+      color: var(--text-primary);
+      font-size: 15px;
+    }
+    .info-value {
+      flex: 1;
+      color: var(--text-secondary);
+      word-break: break-word;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .info-loading, .info-empty, .info-error {
+      color: var(--text-secondary);
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    /* 认证信息样式 */
+    .auth-placeholder {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60%;
+      text-align: center;
+      padding: 20px;
+    }
+    .auth-message {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      padding: 25px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    /* 反馈问题样式 */
+    .feedback-form {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      border: 1px solid var(--border-color);
+      max-width: 800px;
+      max-height: calc(100% - 120px);
+      overflow-y: auto;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
     .form-label {
       display: block;
-      margin-bottom: 8px;
-      font-size: 16px;
-      color: var(--text-secondary);
-      font-weight: 500;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: var(--text-primary);
+      font-size: 15px;
     }
-
     .form-control {
       width: 100%;
-      padding: 12px 15px;
+      padding: 10px 14px;
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text-primary);
       transition: all 0.3s ease;
     }
-
     .form-control:focus {
       outline: none;
       border-color: var(--accent-color);
       box-shadow: 0 0 0 3px var(--accent-light);
     }
-
-    /* 登录按钮 */
-    .login-btn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
-      border: none;
+    textarea.form-control {
+      min-height: 90px;
+      resize: vertical;
+    }
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+    .btn {
+      padding: 10px 22px;
       border-radius: 8px;
-      font-size: 18px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
-      margin-top: 10px;
+      border: none;
     }
-
-    .login-btn:hover {
-      transform: translateY(-3px);
+    .btn-primary {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
-
-    .login-btn:active {
-      transform: translateY(0);
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
     }
-
-    .login-btn.loading {
-      position: relative;
-      pointer-events: none;
+    .btn-secondary:hover {
+      background: var(--accent-light);
     }
-
-    .login-btn.loading::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    @keyframes spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    /* 消息提示 */
-    .message {
-      margin-top: 20px;
-      padding: 12px;
+    .feedback-note {
+      margin-top: 18px;
+      padding: 12px 15px;
+      background: var(--accent-light);
       border-radius: 8px;
-      text-align: center;
-      font-size: 15px;
-      display: none;
-    }
-
-    .message.success {
-      background-color: rgba(40, 167, 69, 0.15);
-      color: #28a745;
-      border: 1px solid rgba(40, 167, 69, 0.3);
-      display: block;
-    }
-
-    .message.error {
-      background-color: rgba(220, 53, 69, 0.15);
-      color: #dc3545;
-      border: 1px solid rgba(220, 53, 69, 0.3);
-      display: block;
-    }
-
-    /* 底部链接 */
-    .login-footer {
-      margin-top: 25px;
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    .login-footer a {
       color: var(--accent-color);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .login-footer a:hover {
-      color: #6a11cb;
-      text-decoration: underline;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 120px;
+      overflow-y: auto;
     }
 
     /* 移动端样式 */
@@ -271,28 +435,95 @@
         padding: 0 15px;
       }
       
-      .login-card {
-        padding: 25px 20px;
-        margin-top: 20px;
+      .hamburger-menu {
+        display: flex;
+        margin-right: 15px;
       }
       
-      .login-title {
-        font-size: 24px;
-        margin-bottom: 25px;
+      .sidebar {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        height: calc(100vh - 70px);
+        transform: translateX(-100%);
+        width: 80%;
+        max-width: 300px;
+        z-index: 997;
+        padding-bottom: 80px;
       }
       
-      .form-group {
-        margin-bottom: 20px;
+      .sidebar.active {
+        transform: translateX(0);
       }
       
-      .form-control {
-        padding: 11px 14px;
+      .sidebar-link {
+        padding: 14px 20px;
         font-size: 15px;
       }
       
-      .login-btn {
-        padding: 13px;
-        font-size: 17px;
+      .function-intro {
+        padding: 0 20px;
+        font-size: 12px;
+      }
+      
+      .sidebar-item.expanded .function-intro {
+        padding: 8px 20px 12px;
+      }
+      
+      .content {
+        margin-left: 0 !important;
+      }
+      
+      .content-section {
+        padding: 25px 15px;
+      }
+      
+      .content-section h2 {
+        font-size: 24px;
+      }
+      
+      .info-item {
+        flex-direction: column;
+      }
+      .info-label {
+        width: 100%;
+        margin-bottom: 5px;
+      }
+      
+      .auth-message {
+        font-size: 15px;
+        padding: 18px;
+      }
+      
+      .btn-group {
+        flex-direction: column;
+      }
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* 小屏幕手机样式 */
+    @media (max-width: 480px) {
+      .sidebar {
+        width: 85%;
+      }
+      
+      .sidebar-link {
+        padding: 12px 15px;
+        font-size: 14px;
+      }
+      
+      .arrow {
+        margin-left: 5px;
+      }
+      
+      .header-left {
+        gap: 10px;
+      }
+      
+      .site-title {
+        font-size: 20px;
       }
     }
   </style>
@@ -301,45 +532,117 @@
   <!-- 顶部导航 -->
   <header class="header">
     <div class="header-left">
-      <a href="https://godlive-web.github.io" style="text-decoration: none;">
+      <button class="hamburger-menu" id="hamburgerMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <!-- 主页面跳转链接 -->
+      <a href="https://godlive-web.github.io" class="logo-link">
         <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
-      </a>
-      <a href="https://godlive-web.github.io" style="text-decoration: none;">
         <div class="site-title">
           <span class="web-badge">Web端</span>
           神界阁
         </div>
       </a>
     </div>
-    <div class="header-right">登录</div>
+    <div class="header-right">个人信息</div>
   </header>
-
-  <!-- 主内容区 -->
+  <!-- 主容器 -->
   <div class="main-container">
-    <div class="login-card">
-      <h2 class="login-title">神界圈成员登录</h2>
-      
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="userId" class="form-label">ID（支持中文）</label>
-          <input type="text" id="userId" class="form-control" placeholder="请输入您的ID（对应usersdata目录文件名）" required>
+    <!-- 左侧导航 -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <div class="sidebar-item" data-index="0">
+          <button class="sidebar-link active">
+            个人信息
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            展示您设置的个人信息，如需修改，请前往APP端
+          </div>
         </div>
-        
-        <div class="form-group">
-          <label for="userPwd" class="form-label">密码</label>
-          <input type="password" id="userPwd" class="form-control" placeholder="请输入您的密码" required>
+
+        <div class="sidebar-item" data-index="1">
+          <button class="sidebar-link">
+            认证信息
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建
+          </div>
         </div>
+
+        <div class="sidebar-item" data-index="2">
+          <button class="sidebar-link">
+            反馈问题
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            反馈您个人信息存在的问题
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 右侧内容区 -->
+    <main class="content">
+      <!-- 基础信息区 -->
+      <section class="content-section" data-index="0">
+        <h2>个人信息</h2>
+        <p class="section-desc" id="welcomeMessage">
+          欢迎您，加载中...。这里展示您的个人信息，如需修改，请点击下方按钮。如需退出登录，请点击<span class="logout-link" id="logoutLink">注销</span>
+        </p>
         
-        <button type="submit" class="login-btn" id="loginButton">登录</button>
+        <div class="info-card" id="basicInfoCard">
+          <!-- 信息将通过JS动态生成 -->
+          <div class="info-loading">正在加载您的个人信息...</div>
+        </div>
+        <!-- 新增编辑按钮 -->
+        <div style="margin-top: 20px;">
+          <button id="editInfoBtn" class="btn btn-primary">编辑个人信息</button>
+        </div>
+      </section>
+
+      <!-- 认证信息区 -->
+      <section class="content-section" data-index="1">
+        <h2>认证信息</h2>
+        <p class="section-desc">展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建</p>
         
-        <div class="message" id="message"></div>
-      </form>
-      
-      <div class="login-footer">
-        <p>还没有账号？<a href="#" id="registerLink">联系秋风添加账号</a></p>
-        <p style="margin-top: 10px;"><a href="#" id="forgotLink">忘记密码？</a></p>
-      </div>
-    </div>
+        <div class="auth-placeholder">
+          <div class="auth-message">
+            该数据库尚在搭建，敬请期待
+          </div>
+        </div>
+      </section>
+
+      <!-- 反馈问题区 -->
+      <section class="content-section" data-index="2">
+        <h2>反馈问题</h2>
+        <p class="section-desc">反馈您个人信息存在的问题</p>
+        
+        <div class="feedback-form">
+          <div class="form-group">
+            <label for="problemField" class="form-label">存在问题的数据项 <span style="color: #dc3545;">*</span></label>
+            <input type="text" id="problemField" class="form-control" placeholder="例如：自设名称、出生日期等" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="expectedValue" class="form-label">希望的数据（选填）</label>
+            <textarea id="expectedValue" class="form-control" placeholder="请输入您希望修改后的数据"></textarea>
+          </div>
+          
+          <div class="feedback-note">
+            提交后将转跳至QQ秋风的个人账号聊天框，请将剪切板中的内容粘贴后发送给秋风。若未跳转，请手动打开QQ。
+          </div>
+          
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary" id="submitFeedback">确认提交</button>
+            <button type="button" class="btn btn-secondary" id="cancelFeedback">取消</button>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
@@ -361,106 +664,356 @@
       return null;
     }
 
-    // 登录功能（完整代码，含中文ID适配）
-    document.addEventListener('DOMContentLoaded', function() {
-      const loginForm = document.getElementById('loginForm');
-      const userIdInput = document.getElementById('userId');
-      const userPwdInput = document.getElementById('userPwd');
-      const loginButton = document.getElementById('loginButton');
-      const messageElement = document.getElementById('message');
-      const registerLink = document.getElementById('registerLink');
-      const forgotLink = document.getElementById('forgotLink');
-      
-      // 1. 配置你的Vercel域名（必须与实际Vercel项目域名一致）
-      const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app";
+    // 注销功能
+    function setupLogoutFunction() {
+      const logoutLink = document.getElementById('logoutLink');
+      logoutLink.addEventListener('click', function() {
+        if (confirm('确定要注销账号吗？注销后将返回登录页')) {
+          // 清空userData并设置user为0
+          setCookie('userData', '', -1); // 立即过期
+          setCookie('user', '0', 30);
+          // 跳转登录页
+          window.location.href = 'https://godlive-web.github.io/login';
+        }
+      });
+    }
 
-      // 检查是否已登录
-      const currentUser = getCookie('user');
-      if (currentUser && currentUser !== '0') {
-        showMessage('您已登录，正在跳转...', 'success');
-        setTimeout(() => {
-          window.location.href = 'https://godlive-web.github.io/personaldata.html';
-        }, 1500);
-        return;
+    // 检查登录状态，如果未登录则跳转
+    function checkLoginStatus() {
+      const userCookie = getCookie('user');
+      if (!userCookie || userCookie === '0') {
+        window.location.href = 'https://godlive-web.github.io/login';
+      }
+    }
+
+    // 加载并显示基础信息（优先读取cookie数据）
+    function loadBasicInfo() {
+      const infoCard = document.getElementById('basicInfoCard');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      const userDataStr = getCookie('userData');
+      let userData = null;
+      
+      // 尝试从cookie获取用户数据（实际数据）
+      if (userDataStr) {
+        try {
+          userData = JSON.parse(userDataStr);
+          console.log('成功读取userData:', userData);
+        } catch (e) {
+          console.error('解析userData失败:', e);
+        }
       }
       
-      // 2. 登录表单提交（支持中文ID，前端无需额外编码，fetch自动处理）
-      loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const userId = userIdInput.value.trim(); // 可能含中文的ID
-        const userPwd = userPwdInput.value.trim();
-        
-        // 简单验证
-        if (!userId || !userPwd) {
-          showMessage('请输入ID和密码', 'error');
+      // 如果没有获取到数据，使用默认数据（仅用于测试）
+      if (!userData) {
+        console.warn('未获取到userData，使用默认数据');
+        userData = {
+          'user': '123456',
+          '账号名称': '神界用户',
+          '自设名称': '神秘使者',
+          '入圈时间': '2023-01-15',
+          '模糊住址': '神界大陆东部区域',
+          '出生日期': '2000-05-20',
+          '账号状态': 0,
+          '个人介绍': '一位热爱探索神界奥秘的旅行者，喜欢结交志同道合的朋友'
+        };
+      }
+      
+      // 更新欢迎消息
+      const userName = userData['账号名称'] || '用户';
+        welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">请点击</span>`;
+      setupLogoutFunction(); // 绑定注销事件
+      
+      setTimeout(() => {
+        try {
+          let infoHtml = '';
+          
+          // 定义需要显示的字段（已删除账号名称，互换账号状态和个人介绍位置）
+          const fields = [
+            { key: 'user', label: 'ID' },
+            { key: '自设名称', label: '自设名称' },
+            { key: '入圈时间', label: '入圈时间' },
+            { key: '模糊住址', label: '模糊住址' },
+            { key: '出生日期', label: '出生日期' },
+            { key: '个人介绍', label: '个人介绍' },  // 个人介绍移到前面
+            { key: '账号状态', label: '账号状态' }   // 账号状态移到后面
+          ];
+          
+          // 生成信息项HTML
+          fields.forEach(field => {
+            let value = userData[field.key] || '未填写';
+            // 账号状态转换（兼容数字0和字符串"0"）
+            if (field.key === '账号状态') {
+              // 将value转换为数字后判断，确保0或"0"都显示为"正常"
+              value = Number(value) === 0 ? '正常' : value;
+            }
+            infoHtml += `
+              <div class="info-item">
+                <div class="info-label">${field.label}</div>
+                <div class="info-value">${value}</div>
+              </div>
+            `;
+          });
+          
+          infoCard.innerHTML = infoHtml;
+        } catch (error) {
+          console.error('解析用户信息失败:', error);
+          infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
+        }
+      }, 800);
+    }
+
+    // 新增：编辑按钮点击事件，传递用户数据到编辑页
+    function setupEditButton() {
+      const editInfoBtn = document.getElementById('editInfoBtn');
+      if (editInfoBtn) {
+        editInfoBtn.addEventListener('click', function() {
+          // 读取当前用户数据（从Cookie或默认数据中获取）
+          const userDataStr = getCookie('userData');
+          let userData = {};
+          if (userDataStr) {
+            try {
+              userData = JSON.parse(userDataStr);
+            } catch (e) {
+              console.error('解析用户数据失败:', e);
+            }
+          }
+          // 将用户数据编码为URL参数，跳转到编辑页
+          const userDataParam = encodeURIComponent(JSON.stringify(userData));
+          window.location.href = `edit.html?userData=${userDataParam}`;
+        });
+      }
+    }
+    
+    // 页面加载时调用该函数
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLoginStatus();
+      loadBasicInfo();
+      setupFeedback功能();
+      setupNavigation();
+      setupEditButton(); // 新增：调用编辑按钮初始化函数
+    });
+    
+    // 反馈问题功能
+    function setupFeedback功能() {
+      const submitBtn = document.getElementById('submitFeedback');
+      const cancelBtn = document.getElementById('cancelFeedback');
+      const problemField = document.getElementById('problemField');
+      const expectedValue = document.getElementById('expectedValue');
+      
+      // 提交反馈
+      submitBtn.addEventListener('click', function() {
+        const problem = problemField.value.trim();
+        if (!problem) {
+          alert('请输入存在问题的数据项');
           return;
         }
         
-        // 显示加载状态
-        loginButton.disabled = true;
-        loginButton.classList.add('loading');
-        loginButton.textContent = '';
-        showMessage('正在验证信息...', 'success');
+        const expected = expectedValue.value.trim() || '未提供';
+        const feedbackText = `我的（${problem}）数据存在问题，原数据应该是（${expected}），请尽快解决。`;
         
-        try {
-          // 3. 请求Vercel登录函数（中文ID会被fetch自动编码为UTF-8）
-          const response = await fetch(`https://${VERCEL_DOMAIN}/api/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              username: userId, // 直接传递中文ID，无需前端编码
-              password: userPwd  
-            })
+        // 显示确认提示
+        if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
+          // 复制到剪贴板
+          navigator.clipboard.writeText(feedbackText).then(() => {
+            // 跳转至指定QQ
+            const contactQQ = '458299675';
+            window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
+
+            alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
+          }).catch(err => {
+            console.error('复制失败:', err);
+            alert('复制内容失败，请手动复制：\n' + feedbackText);
           });
-
-          const result = await response.json();
-
-          // 4. 处理登录结果
-          if (result.success) {
-            showMessage('登录成功，正在跳转...', 'success');
-            // 设置Cookie（存储中文ID时会自动编码）
-            setCookie('user', userId, 30);
-            setCookie('userData', JSON.stringify(result.userInfo), 30);
-            // 跳转个人信息页
-            setTimeout(() => {
-              window.location.href = 'https://godlive-web.github.io/personaldata.html';
-            }, 1500);
-          } else {
-            showMessage(result.msg, 'error');
-            resetLoginButton();
-          }
-
-        } catch (error) {
-          console.error('登录错误:', error);
-          showMessage('登录失败，请检查网络或稍后重试', 'error');
-          resetLoginButton();
         }
       });
       
-      // 重置登录按钮状态
-      function resetLoginButton() {
-        loginButton.disabled = false;
-        loginButton.classList.remove('loading');
-        loginButton.textContent = '登录';
+      // 取消反馈
+      cancelBtn.addEventListener('click', function() {
+        problemField.value = '';
+        expectedValue.value = '';
+      });
+    }
+
+    // 导航和滑动功能（恢复滑动效果）
+    function setupNavigation() {
+      const sections = document.querySelectorAll('.content-section');
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+      const sidebarItems = document.querySelectorAll('.sidebar-item');
+      const hamburgerMenu = document.getElementById('hamburgerMenu');
+      const sidebar = document.getElementById('sidebar');
+      
+      // 全局滑动状态
+      let currentIndex = 0;      // 当前激活索引
+      let startY = 0;            // 拖拽起始Y坐标
+      let isDragging = false;    // 拖拽中标记
+      let dragDistance = 0;      // 拖拽距离
+      let dragStartTime = 0;     // 拖拽开始时间
+
+      // 同步侧边栏状态
+      function syncSidebar() {
+        sidebarLinks.forEach((link, index) => {
+          link.classList.remove('active');
+          sidebarItems[index].classList.remove('expanded');
+          if (index === currentIndex) {
+            link.classList.add('active');
+            sidebarItems[index].classList.add('expanded');
+          }
+        });
+      }
+
+      // 切换内容区
+      function switchContent(index) {
+        currentIndex = index;
+        // 更新所有内容区位置
+        sections.forEach((sec, i) => {
+          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+        });
+        syncSidebar();
+      }
+
+      // 侧边栏点击事件
+      sidebarLinks.forEach((link, index) => {
+        link.addEventListener('click', () => {
+          switchContent(index);
+          
+          // 移动端点击后关闭侧边栏
+          if (window.innerWidth <= 768) {
+            toggleSidebar();
+          }
+        });
+      });
+
+      // 汉堡菜单切换
+      function toggleSidebar() {
+        hamburgerMenu.classList.toggle('active');
+        sidebar.classList.toggle('active');
+        
+        if (sidebar.classList.contains('active')) {
+          createOverlay();
+        } else {
+          removeOverlay();
+        }
       }
       
-      // 显示消息
-      function showMessage(text, type) {
-        messageElement.textContent = text;
-        messageElement.className = 'message';
-        messageElement.classList.add(type);
+      function createOverlay() {
+        const overlay = document.createElement('div');
+        overlay.id = 'sidebar-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '70px';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = 'calc(100vh - 70px)';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.zIndex = '996';
+        overlay.addEventListener('click', toggleSidebar);
+        document.body.appendChild(overlay);
       }
       
-      // 底部链接事件
-      registerLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showMessage('请联系任意论坛群内的秋风新增或刷新成员个人信息', 'success');
-      });
+      function removeOverlay() {
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay) {
+          document.body.removeChild(overlay);
+        }
+      }
       
-      forgotLink.addEventListener('click', function(e) {
+      hamburgerMenu.addEventListener('click', toggleSidebar);
+
+      // 拖拽开始
+      function onDragStart(e) {
+        if (e.type === 'touchstart') {
+          startY = e.touches[0].clientY;
+        } else {
+          startY = e.clientY;
+        }
+        isDragging = true;
+        dragDistance = 0;
+        dragStartTime = Date.now();
+        sections.forEach(sec => sec.style.transition = 'none'); // 实时响应拖拽
+      }
+
+      // 拖拽中（带阻尼感）
+      function onDragMove(e) {
+        if (!isDragging) return;
+        let currentY = 0;
+        if (e.type === 'touchmove') {
+          currentY = e.touches[0].clientY;
+        } else {
+          currentY = e.clientY;
+        }
+        dragDistance = currentY - startY;
+
+        // 阻力系数控制滑动幅度（0.2表示拖拽距离的20%用于内容移动）
+        sections.forEach((sec, index) => {
+          const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+          sec.style.transform = `translateY(${targetY}vh)`;
+        });
+      }
+
+      // 拖拽结束（阻尼过渡效果）
+      function onDragEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        // 恢复过渡动画（带阻尼曲线）
+        sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+
+        // 滑动阈值判定（40%视口高度或快速滑动）
+        const threshold = window.innerHeight * 0.4;
+        const dragTime = Date.now() - dragStartTime;
+        const speed = Math.abs(dragDistance) / dragTime;
+
+        if (dragDistance < 0) { // 向下滑→下一页
+          if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+            switchContent(Math.min(currentIndex + 1, sections.length - 1));
+          } else {
+            // 未达阈值，回弹到原位置
+            switchContent(currentIndex);
+          }
+        } else { // 向上滑→上一页
+          if (dragDistance > threshold || speed > 0.7) {
+            switchContent(Math.max(currentIndex - 1, 0));
+          } else {
+            // 未达阈值，回弹到原位置
+            switchContent(currentIndex);
+          }
+        }
+      }
+
+      // 绑定触摸和鼠标事件（恢复滑动）
+      const content = document.querySelector('.content');
+      // 触摸事件
+      content.addEventListener('touchstart', onDragStart);
+      content.addEventListener('touchmove', onDragMove);
+      content.addEventListener('touchend', onDragEnd);
+      // 鼠标事件
+      content.addEventListener('mousedown', onDragStart);
+      content.addEventListener('mousemove', onDragMove);
+      content.addEventListener('mouseup', onDragEnd);
+      content.addEventListener('mouseleave', onDragEnd);
+      
+      // 修复鼠标滚轮事件
+      content.addEventListener('wheel', (e) => {
         e.preventDefault();
-        showMessage('请联系任意论坛群内的秋风重置密码', 'success');
+        
+        // 滚轮方向处理：向下滚动→下一页，向上滚动→上一页
+        if (e.deltaY > 0) {
+          // 向下滚动
+          switchContent(Math.min(currentIndex + 1, sections.length - 1));
+        } else {
+          // 向上滚动
+          switchContent(Math.max(currentIndex - 1, 0));
+        }
       });
+
+      // 初始化导航状态
+      syncSidebar();
+    }
+
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLoginStatus();
+      loadBasicInfo();
+      setupFeedback功能();
+      setupNavigation();
     });
   </script>
 </body>
