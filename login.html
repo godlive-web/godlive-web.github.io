@@ -451,21 +451,28 @@
 
           const result = await response.json();
 
-          // 4. 处理登录结果
-          if (result.success) {
-            showMessage('登录成功，正在跳转...', 'success');
-            // 存储Cookie：user（账号）、userData（用户信息，不含密码）
-            setCookie('user', account, 30);
-            setCookie('userData', JSON.stringify(result.userInfo), 30);
-            // 跳个人信息页
-            setTimeout(() => {
-              window.location.href = 'https://godlive-web.github.io/personaldata.html';
-            }, 1500);
-          } else {
-            // 失败提示（Vercel返回具体错误：如账号不存在、密码错误）
-            showMessage(result.msg, 'error');
-            resetLoginButton();
-          }
+          // 4. 处理登录结果（修改后）
+        if (result.success) {
+          showMessage('登录成功，正在跳转...', 'success');
+          console.log('登录成功，开始设置Cookie并跳转'); // 调试用，可查看是否进入成功逻辑
+  
+          // 1. 确保Cookie正确设置（关键：路径和域名配置正确）
+          setCookie('user', account, 30);
+          setCookie('userData', JSON.stringify(result.userInfo), 30);
+          console.log('Cookie设置完成，准备跳转'); // 调试用
+  
+          // 2. 简化跳转逻辑：直接跳转，避免setTimeout可能的阻塞（或确保setTimeout正常执行）
+          // 原setTimeout可能因代码阻塞未执行，改为直接跳转+延迟，或去掉延迟直接跳
+          setTimeout(() => {
+            console.log('执行跳转，目标路径：https://godlive-web.github.io/personaldata.html'); // 调试用
+            window.location.href = 'https://godlive-web.github.io/personaldata.html'; // 确认路径完全正确
+          }, 1000); // 1秒延迟，确保用户看到成功提示，也可直接去掉setTimeout写window.location.href
+  
+        } else {
+          // 失败提示（Vercel返回具体错误：如账号不存在、密码错误）
+          showMessage(result.msg, 'error');
+          resetLoginButton();
+        }
 
         } catch (error) {
           console.error('登录错误:', error);
