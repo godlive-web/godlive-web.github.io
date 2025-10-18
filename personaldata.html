@@ -653,13 +653,15 @@ function setCookie(name, value, days, sameSite = 'Lax') {
   document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
 }
 
+// 替换personaldata页面的getCookie函数（只保留这一段）
 function getCookie(name) {
   const nameEQ = name + "=";
   const ca = document.cookie.split(';');
   for(let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+    let c = ca[i].trim();
+    if (c.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(c.substring(nameEQ.length));
+    }
   }
   return null;
 }
