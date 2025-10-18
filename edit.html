@@ -89,8 +89,8 @@
     async function updateInfo() {
       // 获取输入的新数据
       const newInfo = {
+        账号名称: document.getElementById("账号名称").value.trim(), // 新增这行
         自设名称: document.getElementById("自设名称").value.trim(),
-        入圈时间: document.getElementById("入圈时间").value.trim(),
         模糊住址: document.getElementById("模糊住址").value.trim(),
         出生日期: document.getElementById("出生日期").value.trim(),
         个人介绍: document.getElementById("个人介绍").value.trim()
