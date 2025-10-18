@@ -114,49 +114,52 @@
     }
 
     // 提交修改的函数
-    async function updateInfo() {
-      console.log('updateInfo函数已被调用');
-      
-      // 获取输入的新数据
-      const newInfo = {
-        账号名称: document.getElementById("账号名称").value.trim(),
-        自设名称: document.getElementById("自设名称").value.trim(),
-        模糊住址: document.getElementById("模糊住址").value.trim(),
-        出生日期: document.getElementById("出生日期").value.trim(),
-        个人介绍: document.getElementById("个人介绍").value.trim()
-      };
+async function updateInfo() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const userID = urlParams.get('userID'); // 获取用户ID（关键：对应文件名）
+  if (!userID) {
+    showResult("未获取到用户ID，请重新登录", "error");
+    return;
+  }
 
-      // 验证：至少填写一个字段
-      if (!Object.values(newInfo).some(v => v)) {
-        showResult("请至少填写一个字段", "error");
-        return;
-      }
+  // 收集新输入的信息
+  const newInfo = {
+    userID: userID, // 传递用户ID给后端
+    账号名称: document.getElementById("账号名称").value.trim(),
+    自设名称: document.getElementById("自设名称").value.trim(),
+    模糊住址: document.getElementById("模糊住址").value.trim(),
+    出生日期: document.getElementById("出生日期").value.trim(),
+    个人介绍: document.getElementById("个人介绍").value.trim()
+  };
 
-      try {
-        // 调用Vercel接口提交修改
-        const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(newInfo)
-        });
-        const result = await res.json();
+  // 验证：至少填写一个字段
+  if (!Object.values(newInfo).some(v => v)) {
+    showResult("请至少填写一个字段", "error");
+    return;
+  }
 
-        if (result.success) {
-          showResult(result.msg, "success");
-          // 新增：提交成功后，延迟1.5秒跳回信息页（给用户看提示的时间）
-          setTimeout(() => {
-            window.location.href = "personaldata.html";
-          showResult(result.msg, "success");
-          // 清空输入框
-          Object.keys(newInfo).forEach(key => document.getElementById(key).value = "");
-        } else {
-          showResult(result.msg, "error");
-        }
-      } catch (err) {
-        showResult(`网络错误：${err.message}`, "error");
-      }
+  try {
+    // 调用Vercel的update接口，传递userID和新信息
+    const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newInfo)
+    });
+    const result = await res.json();
+
+    if (result.success) {
+      showResult(result.msg, "success");
+      // 提交成功后，延迟跳回个人信息页
+      setTimeout(() => {
+        window.location.href = "personaldata.html";
+      }, 1500);
+    } else {
+      showResult(result.msg, "error");
     }
-
+  } catch (err) {
+    showResult(`网络错误：${err.message}`, "error");
+  }
+}
     // 显示结果提示
     function showResult(msg, type) {
       const resultDom = document.getElementById("result");
