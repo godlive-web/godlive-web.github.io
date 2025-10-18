@@ -1348,69 +1348,70 @@
     });
 
     async function searchBills() {
-      const input = billSearchInput.value.trim();
-      // 搜索时隐藏说明文字
-      billDescText.classList.add('bill-desc-hidden');
-      
-      if (!input) {
-        billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
-        billSearchContainer.classList.add('active');
-        billResults.classList.add('active');
-        return;
-      }
+  const input = billSearchInput.value.trim();
+  // 搜索时隐藏说明文字
+  billDescText.classList.add('bill-desc-hidden');
+  
+  if (!input) {
+    billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
+    billSearchContainer.classList.add('active');
+    billResults.classList.add('active');
+    return;
+  }
 
-      try {
-        billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
-        billSearchContainer.classList.add('active');
-        billResults.classList.add('active');
+  try {
+    billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
+    billSearchContainer.classList.add('active');
+    billResults.classList.add('active');
 
-        const response = await fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/data/bill.json');
-        if (!response.ok) throw new Error('数据请求失败');
-        const bills = await response.json();
+    // 关键修改：通过Vercel后端接口获取私密仓库的bill.json（替换原raw.githubusercontent.com请求）
+    const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill');
+    if (!response.ok) throw new Error('数据请求失败');
+    const bills = await response.json();
 
-        const results = bills.filter(bill => 
-          bill.id.includes(input) || bill.title.includes(input)
-        );
+    const results = bills.filter(bill => 
+      bill.id.includes(input) || bill.title.includes(input)
+    );
 
-        if (results.length === 0) {
-          billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
-          return;
-        }
-
-        let html = '';
-        results.forEach(bill => {
-          // 修复文本溢出：仅当内容超过120字符时加"..."
-          const contentText = bill.content.length > 120 
-            ? bill.content.substring(0, 120) + '...' 
-            : bill.content;
-          
-          html += `
-            <div class="bill-card" data-id="${bill.id}">
-              <div class="bill-card-header">
-                <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
-                <div class="bill-card-title">${bill.title}</div>
-              </div>
-              <div class="bill-card-content">${contentText}</div>
-              <div class="bill-card-publish">${bill.publish_info}</div>
-            </div>
-          `;
-        });
-        
-        billResults.innerHTML = html;
-
-        document.querySelectorAll('.bill-card').forEach(card => {
-          card.addEventListener('click', () => {
-            const billId = card.getAttribute('data-id');
-            const bill = results.find(b => b.id === billId);
-            showBillDetails(bill);
-          });
-        });
-
-      } catch (error) {
-        console.error('搜索失败:', error);
-        billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
-      }
+    if (results.length === 0) {
+      billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
+      return;
     }
+
+    let html = '';
+    results.forEach(bill => {
+      // 修复文本溢出：仅当内容超过120字符时加"..."
+      const contentText = bill.content.length > 120 
+        ? bill.content.substring(0, 120) + '...' 
+        : bill.content;
+      
+      html += `
+        <div class="bill-card" data-id="${bill.id}">
+          <div class="bill-card-header">
+            <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
+            <div class="bill-card-title">${bill.title}</div>
+          </div>
+          <div class="bill-card-content">${contentText}</div>
+          <div class="bill-card-publish">${bill.publish_info}</div>
+        </div>
+      `;
+    });
+    
+    billResults.innerHTML = html;
+
+    document.querySelectorAll('.bill-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const billId = card.getAttribute('data-id');
+        const bill = results.find(b => b.id === billId);
+        showBillDetails(bill);
+      });
+    });
+
+  } catch (error) {
+    console.error('搜索失败:', error);
+    billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
+  }
+}
 
     function showBillDetails(bill) {
       document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
