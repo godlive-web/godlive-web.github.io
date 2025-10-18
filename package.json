@@ -1,7 +1,7 @@
 {
-  "name": "godlive-login",
+  "name": "godlive-api",
   "version": "1.0.0",
   "dependencies": {
-    "bcrypt": "^5.1.1"
+    "@octokit/rest": "^20.0.0"
   }
 }
