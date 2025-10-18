@@ -10,6 +10,8 @@ export default async function handler(req, res) {
   const JSON_FILE_PATH = "user-info.json"; // 和你私密仓库的JSON文件名一致，不用改
 
   try {
+    console.log('收到的请求体：', req.body); // 打印前端传过来的参数
+    console.log('GITHUB_TOKEN是否存在：', !!process.env.GITHUB_TOKEN); // 检查环境变量是否配置
     // 1. 获取私密仓库中JSON文件的SHA值（不用懂）
     const getFileRes = await fetch(
       `https://api.github.com/repos/${PRIVATE_REPO_OWNER}/${PRIVATE_REPO_NAME}/contents/${JSON_FILE_PATH}`,
@@ -53,6 +55,7 @@ export default async function handler(req, res) {
       msg: updateRes.ok ? "个人信息修改成功！" : "修改失败，请检查日志"
     });
   } catch (err) {
+    console.error('函数执行时发生错误：', err); // 打印具体错误信息
     res.status(500).json({ success: false, msg: `函数错误：${err.message}` });
   }
 }
