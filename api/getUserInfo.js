@@ -1,18 +1,24 @@
 export default async function handler(req, res) {
-  const { userID } = req.query; // 从请求参数获取用户ID
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Vercel环境变量中配置的GitHub令牌
-  const OWNER = "godlive-web"; // 仓库所有者
-  const REPO = "godlive"; // 仓库名称
-  const FILE_PATH = `data/usersdata/${userID}.json`; // 动态文件路径：ID.json
+  // ========== 新增：CORS跨域配置 ==========
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
+  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // ========================================
+
+  const { userID } = req.query;
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+  const OWNER = "godlive-web";
+  const REPO = "godlive";
+  const FILE_PATH = `data/usersdata/${userID}.json`;
 
   try {
-    // 调用GitHub API获取文件内容（Base64编码）
     const response = await fetch(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
       {
         headers: {
-          Authorization: `token ${GITHUB_TOKEN}`, // 身份验证
-          Accept: "application/vnd.github.v3+json", // API版本
+          Authorization: `token ${GITHUB_TOKEN}`,
+          Accept: "application/vnd.github.v3+json",
         },
       }
     );
@@ -25,7 +31,6 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    // 解码Base64内容为JSON
     const content = Buffer.from(data.content, "base64").toString("utf8");
     const userData = JSON.parse(content);
 
