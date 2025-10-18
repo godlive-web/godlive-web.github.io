@@ -783,15 +783,16 @@
         });
       }
     }
-
-// 页面加载时调用该函数
-document.addEventListener('DOMContentLoaded', function() {
-  checkLoginStatus();
-  loadBasicInfo();
-  setupFeedback功能();
-  setupNavigation();
-  setupEditButton(); // 新增：调用编辑按钮初始化函数
-});
+    
+    // 页面加载时调用该函数
+    document.addEventListener('DOMContentLoaded', function() {
+      checkLoginStatus();
+      loadBasicInfo();
+      setupFeedback功能();
+      setupNavigation();
+      setupEditButton(); // 新增：调用编辑按钮初始化函数
+    });
+    
     // 反馈问题功能
     function setupFeedback功能() {
       const submitBtn = document.getElementById('submitFeedback');
