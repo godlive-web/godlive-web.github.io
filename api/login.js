@@ -2,9 +2,8 @@
 import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
-  // 【关键修改1：CORS跨域配置全局生效，且origin为根域名（不含路径）】
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io"; // 去掉/login，跨域验证只认根域名
-  // 全局设置CORS头（所有响应都携带，包括错误响应）
+  // 全局CORS配置：所有响应都必须设置！
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
   res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -15,24 +14,24 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 3. 接收前端传递的参数（前端传的“username”=你的JSON里的“user”字段，即账号ID）
+  // 接收前端参数：username是用户输入的“纯账号ID”（无.json后缀）
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ success: false, msg: "账号ID和密码不能为空" });
   }
 
-  // 4. GitHub仓库配置（固定为你的用户数据仓库）
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN; // Vercel环境变量中的GitHub PAT
+  // GitHub仓库配置
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const REPO_OWNER = "godlive-web";
   const REPO_NAME = "godlive";
   const USER_DIR_PATH = "data/usersdata"; // 用户文件目录（main分支）
   const BRANCH = "main";
 
   try {
-    // 5. 中文ID核心处理（若账号是中文，编码后匹配GitHub的中文文件名）
+    // 中文ID编码处理（若账号是中文，编码后匹配GitHub的中文文件名）
     const encodedUsername = encodeURIComponent(username);
 
-    // 6. 调用GitHub API，获取usersdata目录下的所有文件列表
+    // 调用GitHub API，获取usersdata目录下的所有文件列表
     const fileListRes = await fetch(
       `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${USER_DIR_PATH}?ref=${BRANCH}`,
       { 
@@ -50,17 +49,17 @@ export default async function handler(req, res) {
 
     const fileList = await fileListRes.json();
 
-    // 7. 匹配文件：文件名=账号ID（支持英文/数字/中文账号）
+    // 关键修改：文件名直接匹配用户输入的“纯账号ID”（无.json后缀）
     const targetFile = fileList.find(file => {
       return file.name === username || file.name === encodedUsername;
     });
 
-    // 8. 无匹配文件 → 账号ID不存在（现在会正确返回，不再因跨域显示网络错误）
+    // 无匹配文件 → 账号ID不存在
     if (!targetFile) {
       return res.status(401).json({ success: false, msg: "账号ID不存在，请检查输入" });
     }
 
-    // 9. 读取用户文件内容（解析你的JSON结构）
+    // 读取用户文件内容（解析你的JSON结构）
     const fileContentRes = await fetch(targetFile.download_url, {
       headers: { Authorization: `token ${GITHUB_TOKEN}` }
     });
@@ -72,7 +71,7 @@ export default async function handler(req, res) {
       throw new Error(`用户文件格式错误：${parseErr.message}（需为标准JSON）`);
     }
 
-    // 10. 验证密码（匹配你的JSON里的“账号密码”字段）
+    // 验证密码（匹配你的JSON里的“账号密码”字段）
     if (!userInfo.账号密码) {
       throw new Error("用户文件中缺少“账号密码”字段");
     }
@@ -81,7 +80,7 @@ export default async function handler(req, res) {
       return res.status(401).json({ success: false, msg: "密码错误，请重新输入" });
     }
 
-    // 11. 验证账号状态
+    // 验证账号状态
     const accountStatus = Number(userInfo.账号状态) || 0;
     if (accountStatus !== 0) {
       return res.status(403).json({ 
@@ -90,7 +89,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 12. 登录成功：剔除敏感字段
+    // 登录成功：剔除敏感字段
     const { "账号密码": _, ...safeUserInfo } = userInfo;
     return res.status(200).json({
       success: true,
@@ -100,7 +99,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("Vercel登录函数错误：", err);
-    // 【关键修改2：错误响应也携带CORS头（已通过全局配置覆盖）】
     return res.status(500).json({ 
       success: false, 
       msg: `服务器错误：${err.message || "请联系管理员检查配置"}` 
