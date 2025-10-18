@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   // 2. CORS跨域配置（允许前端登录页域名）
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io/login";
   // 处理预检请求
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
