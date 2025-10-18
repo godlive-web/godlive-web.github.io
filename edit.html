@@ -83,7 +83,7 @@
     </div>
 
     <!-- 按钮区域 -->
-    <button class="back-btn" onclick="window.location.href='info.html'">返回信息页</button>
+    <button class="back-btn" onclick="window.location.href='personaldata.html'">返回信息页</button>
     <button onclick="updateInfo()">提交修改</button>
     <div id="result"></div>
   </div>
@@ -142,6 +142,10 @@
         const result = await res.json();
 
         if (result.success) {
+          showResult(result.msg, "success");
+          // 新增：提交成功后，延迟1.5秒跳回信息页（给用户看提示的时间）
+          setTimeout(() => {
+            window.location.href = "personaldata.html";
           showResult(result.msg, "success");
           // 清空输入框
           Object.keys(newInfo).forEach(key => document.getElementById(key).value = "");
