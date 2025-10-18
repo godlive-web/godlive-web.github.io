@@ -498,16 +498,16 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // 登录成功处理
       if (result.success) {
-        showMessage('登录成功，正在跳转...', 'success');
+        showMessage('登录成功，立即跳转...', 'success');
         // 设置Cookie
         setCookie('user', account, 30);
         setCookie('userData', JSON.stringify(result.userInfo), 30);
-        // 强制跳转（使用replace避免回退到登录页）
+  
+        // 等100ms确保Cookie写入，再强制跳转
         setTimeout(() => {
-          console.log('执行跳转：https://godlive-web.github.io/personaldata.html');
           window.location.replace('https://godlive-web.github.io/personaldata.html');
-        }, 800); // 短延迟确保用户看到成功提示
-        return; // 跳转后终止函数
+        }, 100);
+        return;
       }
       
       // 登录失败（账号/密码错误等）
