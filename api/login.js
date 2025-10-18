@@ -14,10 +14,10 @@ export default async function handler(req, res) {
   }
   res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
 
-  // 3. 接收前端传递的参数（含中文ID）
+  // 3. 接收前端传递的参数（前端传的“username”=你的JSON里的“user”字段，即账号ID）
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json({ success: false, msg: "ID和密码不能为空" });
+    return res.status(400).json({ success: false, msg: "账号ID和密码不能为空" });
   }
 
   // 4. GitHub仓库配置（固定为你的用户数据仓库）
@@ -28,9 +28,8 @@ export default async function handler(req, res) {
   const BRANCH = "main";
 
   try {
-    // 5. 中文ID核心处理：GitHub会将中文文件名编码为UTF-8百分比形式（如“张三”→“%E5%BC%A0%E4%B8%89”）
-    // 所以需要将前端传递的中文ID编码，再与GitHub返回的file.name（已编码）匹配
-    const encodedUsername = encodeURIComponent(username); // 关键：中文ID编码
+    // 5. 中文ID核心处理（若账号是中文，编码后匹配GitHub的中文文件名）
+    const encodedUsername = encodeURIComponent(username);
 
     // 6. 调用GitHub API，获取usersdata目录下的所有文件列表
     const fileListRes = await fetch(
@@ -50,43 +49,40 @@ export default async function handler(req, res) {
 
     const fileList = await fileListRes.json();
 
-    // 7. 遍历文件列表，匹配“编码后的中文ID=GitHub返回的编码文件名”
-    // 注意：GitHub返回的file.name中，中文会自动编码为UTF-8百分比形式，需用encodedUsername匹配
+    // 7. 匹配文件：文件名=账号ID（支持英文/数字/中文账号）
     const targetFile = fileList.find(file => {
-      // 处理特殊情况：如果文件名是英文/数字，直接匹配；如果是中文，用编码后匹配
       return file.name === username || file.name === encodedUsername;
     });
 
-    // 8. 无匹配文件 → ID不存在（含中文ID场景）
+    // 8. 无匹配文件 → 账号ID不存在
     if (!targetFile) {
-      return res.status(401).json({ success: false, msg: "ID不存在，请检查输入（区分中英文大小写）" });
+      return res.status(401).json({ success: false, msg: "账号ID不存在，请检查输入" });
     }
 
-    // 9. 读取匹配文件的内容（支持中文内容解码）
+    // 9. 读取用户文件内容（解析你的JSON结构）
     const fileContentRes = await fetch(targetFile.download_url, {
       headers: { Authorization: `token ${GITHUB_TOKEN}` }
     });
-
-    // 处理文件内容编码：确保中文内容正确解码
     const fileContentText = await fileContentRes.text();
     let userInfo;
     try {
-      // 解析JSON时，自动处理中文编码
-      userInfo = JSON.parse(fileContentText);
+      userInfo = JSON.parse(fileContentText); // 解析你的JSON（含“账号密码”字段）
     } catch (parseErr) {
-      throw new Error(`用户文件格式错误：${parseErr.message}（文件内容需为标准JSON）`);
+      throw new Error(`用户文件格式错误：${parseErr.message}（需为标准JSON）`);
     }
 
-    // 10. 验证密码（bcrypt比对，与是否中文无关）
-    if (!userInfo.password) {
-      throw new Error("用户文件中缺少password字段");
+    // 10. 验证密码（关键修改：匹配你的JSON里的“账号密码”字段，而非“password”）
+    // 错误1：原代码检查“userInfo.password”，需改成“userInfo.账号密码”
+    if (!userInfo.账号密码) {
+      throw new Error("用户文件中缺少“账号密码”字段");
     }
-    const isPwdValid = await bcrypt.compare(password, userInfo.password);
+    // 正确：用“账号密码”字段的哈希值比对
+    const isPwdValid = await bcrypt.compare(password, userInfo.账号密码);
     if (!isPwdValid) {
       return res.status(401).json({ success: false, msg: "密码错误，请重新输入" });
     }
 
-    // 11. 验证账号状态
+    // 11. 验证账号状态（你的JSON里“账号状态”是字符串“0”，转成数字判断）
     const accountStatus = Number(userInfo.账号状态) || 0;
     if (accountStatus !== 0) {
       return res.status(403).json({ 
@@ -95,12 +91,13 @@ export default async function handler(req, res) {
       });
     }
 
-    // 12. 登录成功：剔除密码，返回安全用户信息（中文信息会自动JSON序列化）
-    const { password: _, ...safeUserInfo } = userInfo;
+    // 12. 登录成功：剔除敏感字段（关键修改：剔除“账号密码”，而非“password”）
+    // 错误2：原代码剔除“password”，需改成剔除“账号密码”
+    const { "账号密码": _, ...safeUserInfo } = userInfo; // 剔除密码字段，避免泄露
     return res.status(200).json({
       success: true,
       msg: "登录成功",
-      userInfo: { ...safeUserInfo, user: username } // 返回原始中文ID，方便前端显示
+      userInfo: { ...safeUserInfo, user: username } // 返回安全信息（含自设名称、个人介绍等）
     });
 
   } catch (err) {
