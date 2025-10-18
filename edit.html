@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <title>修改个人信息（神界阁）</title>
+  <title>神界阁-修改个人信息</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
@@ -50,13 +50,17 @@
     #result { margin-top: 20px; padding: 10px; border-radius: 8px; }
     .success { background: #d4edda; color: #155724; }
     .error { background: #f8d7da; color: #721c24; }
+    .back-btn {
+      margin-right: 10px;
+      background: #6c757d;
+    }
   </style>
 </head>
 <body>
   <div class="form-container">
     <h2>修改个人信息</h2>
     
-    <!-- 对应你的个人信息字段 -->
+    <!-- 个人信息输入框 -->
     <div class="form-group">
       <label>账号名称</label>
       <input type="text" id="账号名称" placeholder="请输入账号名称（如：godlive_123）">
@@ -78,34 +82,58 @@
       <textarea id="个人介绍" placeholder="请输入个人介绍"></textarea>
     </div>
 
+    <!-- 按钮区域 -->
+    <button class="back-btn" onclick="window.location.href='info.html'">返回信息页</button>
     <button onclick="updateInfo()">提交修改</button>
     <div id="result"></div>
   </div>
 
   <script>
-    // 替换为你的Vercel域名（之前的godlive-web-github-io.vercel.app）
+    // Vercel域名配置
     const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app";
 
+    // 页面加载时自动填充个人信息（从信息页传递过来的数据）
+    function populateFormData() {
+      // 从URL中获取传递的用户数据
+      const urlParams = new URLSearchParams(window.location.search);
+      const userDataStr = urlParams.get('userData');
+      
+      if (userDataStr) {
+        try {
+          // 解析数据并填充到输入框
+          const userData = JSON.parse(decodeURIComponent(userDataStr));
+          document.getElementById('账号名称').value = userData['账号名称'] || '';
+          document.getElementById('自设名称').value = userData['自设名称'] || '';
+          document.getElementById('模糊住址').value = userData['模糊住址'] || '';
+          document.getElementById('出生日期').value = userData['出生日期'] || '';
+          document.getElementById('个人介绍').value = userData['个人介绍'] || '';
+        } catch (error) {
+          console.error('填充数据失败:', error);
+        }
+      }
+    }
+
+    // 提交修改的函数
     async function updateInfo() {
-      // 新增日志代码，确认函数是否被调用
       console.log('updateInfo函数已被调用');
+      
       // 获取输入的新数据
       const newInfo = {
-        账号名称: document.getElementById("账号名称").value.trim(), // 新增这行
+        账号名称: document.getElementById("账号名称").value.trim(),
         自设名称: document.getElementById("自设名称").value.trim(),
         模糊住址: document.getElementById("模糊住址").value.trim(),
         出生日期: document.getElementById("出生日期").value.trim(),
         个人介绍: document.getElementById("个人介绍").value.trim()
       };
 
-      // 简单验证（至少填一个字段）
+      // 验证：至少填写一个字段
       if (!Object.values(newInfo).some(v => v)) {
         showResult("请至少填写一个字段", "error");
         return;
       }
 
       try {
-        // 调用Vercel函数修改私密仓库数据
+        // 调用Vercel接口提交修改
         const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -125,11 +153,15 @@
       }
     }
 
+    // 显示结果提示
     function showResult(msg, type) {
       const resultDom = document.getElementById("result");
       resultDom.textContent = msg;
       resultDom.className = type;
     }
+
+    // 页面加载完成后自动填充数据
+    document.addEventListener('DOMContentLoaded', populateFormData);
   </script>
 </body>
 </html>
