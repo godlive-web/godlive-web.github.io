@@ -2,17 +2,18 @@
 import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
-  // 2. CORS跨域配置（允许前端登录页域名）
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io/login";
-  // 处理预检请求
+  // 【关键修改1：CORS跨域配置全局生效，且origin为根域名（不含路径）】
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io"; // 去掉/login，跨域验证只认根域名
+  // 全局设置CORS头（所有响应都携带，包括错误响应）
+  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // 处理预检请求（OPTIONS）
   if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.status(204).end();
     return;
   }
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
 
   // 3. 接收前端传递的参数（前端传的“username”=你的JSON里的“user”字段，即账号ID）
   const { username, password } = req.body;
@@ -54,7 +55,7 @@ export default async function handler(req, res) {
       return file.name === username || file.name === encodedUsername;
     });
 
-    // 8. 无匹配文件 → 账号ID不存在
+    // 8. 无匹配文件 → 账号ID不存在（现在会正确返回，不再因跨域显示网络错误）
     if (!targetFile) {
       return res.status(401).json({ success: false, msg: "账号ID不存在，请检查输入" });
     }
@@ -71,18 +72,16 @@ export default async function handler(req, res) {
       throw new Error(`用户文件格式错误：${parseErr.message}（需为标准JSON）`);
     }
 
-    // 10. 验证密码（关键修改：匹配你的JSON里的“账号密码”字段，而非“password”）
-    // 错误1：原代码检查“userInfo.password”，需改成“userInfo.账号密码”
+    // 10. 验证密码（匹配你的JSON里的“账号密码”字段）
     if (!userInfo.账号密码) {
       throw new Error("用户文件中缺少“账号密码”字段");
     }
-    // 正确：用“账号密码”字段的哈希值比对
     const isPwdValid = await bcrypt.compare(password, userInfo.账号密码);
     if (!isPwdValid) {
       return res.status(401).json({ success: false, msg: "密码错误，请重新输入" });
     }
 
-    // 11. 验证账号状态（你的JSON里“账号状态”是字符串“0”，转成数字判断）
+    // 11. 验证账号状态
     const accountStatus = Number(userInfo.账号状态) || 0;
     if (accountStatus !== 0) {
       return res.status(403).json({ 
@@ -91,17 +90,17 @@ export default async function handler(req, res) {
       });
     }
 
-    // 12. 登录成功：剔除敏感字段（关键修改：剔除“账号密码”，而非“password”）
-    // 错误2：原代码剔除“password”，需改成剔除“账号密码”
-    const { "账号密码": _, ...safeUserInfo } = userInfo; // 剔除密码字段，避免泄露
+    // 12. 登录成功：剔除敏感字段
+    const { "账号密码": _, ...safeUserInfo } = userInfo;
     return res.status(200).json({
       success: true,
       msg: "登录成功",
-      userInfo: { ...safeUserInfo, user: username } // 返回安全信息（含自设名称、个人介绍等）
+      userInfo: { ...safeUserInfo, user: username }
     });
 
   } catch (err) {
     console.error("Vercel登录函数错误：", err);
+    // 【关键修改2：错误响应也携带CORS头（已通过全局配置覆盖）】
     return res.status(500).json({ 
       success: false, 
       msg: `服务器错误：${err.message || "请联系管理员检查配置"}` 
