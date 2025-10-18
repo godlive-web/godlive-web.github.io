@@ -1,5 +1,19 @@
 // api/update.js（适配你的个人信息字段，不用改）
 export default async function handler(req, res) {
+   // ========== 新增：CORS跨域配置 ==========
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io"; // 前端页面的域名
+  // 处理预检请求（OPTIONS方法）
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.status(204).end(); // 预检请求无需返回内容
+    return;
+  }
+  // 为POST请求设置跨域头
+  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // ========================================
   // 接收前端传递的新数据（和你的个人信息字段对应）
   const { 自设名称, 账号名称, 模糊住址, 出生日期, 个人介绍 } = req.body;
 
