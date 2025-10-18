@@ -92,76 +92,6 @@
     // Vercel域名配置
     const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app";
 
-    // 页面加载时自动填充个人信息（从信息页传递过来的数据）
-    function populateFormData() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userDataStr = urlParams.get('userData');
-    const userID = urlParams.get('userID'); // 读取用户ID（对应文件名）
-  
-    if (userDataStr && userID) {
-      try {
-        const userData = JSON.parse(decodeURIComponent(userDataStr));
-        // 填充表单字段
-        document.getElementById('账号名称').value = userData['账号名称'] || '';
-        document.getElementById('自设名称').value = userData['自设名称'] || '';
-        document.getElementById('模糊住址').value = userData['模糊住址'] || '';
-        document.getElementById('出生日期').value = userData['出生日期'] || '';
-        document.getElementById('个人介绍').value = userData['个人介绍'] || '';
-      } catch (error) {
-        console.error('填充数据失败:', error);
-      }
-    } else {
-      console.warn('未获取到用户数据或ID，无法填充表单');
-    }
-  }
-
-    // 提交修改的函数
-    async function updateInfo() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userID = urlParams.get('userID'); // 获取用户ID（关键：对应文件名）
-      if (!userID) {
-        showResult("未获取到用户ID，请重新登录", "error");
-        return;
-      }
-
-  // 收集新输入的信息
-  const newInfo = {
-    userID: userID, // 传递用户ID给后端
-    账号名称: document.getElementById("账号名称").value.trim(),
-    自设名称: document.getElementById("自设名称").value.trim(),
-    模糊住址: document.getElementById("模糊住址").value.trim(),
-    出生日期: document.getElementById("出生日期").value.trim(),
-    个人介绍: document.getElementById("个人介绍").value.trim()
-  };
-
-  // 验证：至少填写一个字段
-  if (!Object.values(newInfo).some(v => v)) {
-    showResult("请至少填写一个字段", "error");
-    return;
-  }
-
-  try {
-    // 调用Vercel的update接口，传递userID和新信息
-    const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newInfo)
-    });
-    const result = await res.json();
-
-    if (result.success) {
-      showResult(result.msg, "success");
-      // 提交成功后，延迟跳回个人信息页
-      setTimeout(() => {
-        window.location.href = "personaldata.html";
-      }, 1500);
-    } else {
-      showResult(result.msg, "error");
-    }
-  } catch (err) {
-    showResult(`网络错误：${err.message}`, "error");
-  }
-}
     // 显示结果提示
     function showResult(msg, type) {
       const resultDom = document.getElementById("result");
@@ -169,7 +99,95 @@
       resultDom.className = type;
     }
 
-    // 页面加载完成后自动填充数据
+    // 从后端接口获取最新用户信息
+    async function fetchLatestUserInfo(userID) {
+      try {
+        const response = await fetch(`https://${VERCEL_DOMAIN}/api/getUserInfo?userID=${userID}`);
+        const result = await response.json();
+        if (result.success) {
+          return result.data;
+        } else {
+          showResult(result.msg, "error");
+          return null;
+        }
+      } catch (error) {
+        console.error('获取最新用户信息失败:', error);
+        showResult('网络错误，请稍后重试', 'error');
+        return null;
+      }
+    }
+
+    // 页面加载时自动填充最新个人信息（从仓库实时获取）
+    async function populateFormData() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userID = urlParams.get('userID'); // 从URL获取用户ID
+      if (!userID) {
+        showResult("未获取到用户ID，请重新登录", "error");
+        return;
+      }
+
+      const latestData = await fetchLatestUserInfo(userID);
+      if (latestData) {
+        // 填充表单字段为仓库最新数据
+        document.getElementById('账号名称').value = latestData['账号名称'] || '';
+        document.getElementById('自设名称').value = latestData['自设名称'] || '';
+        document.getElementById('模糊住址').value = latestData['模糊住址'] || '';
+        document.getElementById('出生日期').value = latestData['出生日期'] || '';
+        document.getElementById('个人介绍').value = latestData['个人介绍'] || '';
+      } else {
+        console.warn('未获取到最新用户数据，表单填充失败');
+      }
+    }
+
+    // 提交修改的函数
+    async function updateInfo() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const userID = urlParams.get('userID'); // 获取用户ID（对应文件名）
+      if (!userID) {
+        showResult("未获取到用户ID，请重新登录", "error");
+        return;
+      }
+
+      // 收集新输入的信息
+      const newInfo = {
+        userID: userID, // 传递用户ID给后端
+        账号名称: document.getElementById("账号名称").value.trim(),
+        自设名称: document.getElementById("自设名称").value.trim(),
+        模糊住址: document.getElementById("模糊住址").value.trim(),
+        出生日期: document.getElementById("出生日期").value.trim(),
+        个人介绍: document.getElementById("个人介绍").value.trim()
+      };
+
+      // 验证：至少填写一个字段
+      if (!Object.values(newInfo).some(v => v)) {
+        showResult("请至少填写一个字段", "error");
+        return;
+      }
+
+      try {
+        // 调用Vercel的update接口，传递userID和新信息
+        const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newInfo)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          showResult(result.msg, "success");
+          // 提交成功后，强制跳回个人信息页（确保加载最新数据）
+          setTimeout(() => {
+            window.location.replace("personaldata.html");
+          }, 1500);
+        } else {
+          showResult(result.msg, "error");
+        }
+      } catch (err) {
+        showResult(`网络错误：${err.message}`, "error");
+      }
+    }
+
+    // 页面加载完成后自动填充最新数据
     document.addEventListener('DOMContentLoaded', populateFormData);
   </script>
 </body>
