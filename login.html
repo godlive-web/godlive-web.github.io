@@ -368,12 +368,12 @@
 
   <script>
 // Cookie处理函数（适配godlive-web.github.io域名）
-function setCookie(name, value, days, sameSite = 'Lax') {
+// 替换原setCookie函数（只保留这一段）
+function setCookie(name, value, days) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  // 确保Cookie域名和路径配置正确
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
-  console.log(`Cookie已设置：${name}=${value.substring(0, 10)}...`); // 打印Cookie摘要（避免敏感信息）
+  // 适配github.io的Cookie规则：去掉domain，调整SameSite
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`;
 }
 
 function getCookie(name) {
