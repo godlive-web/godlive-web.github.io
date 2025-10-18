@@ -87,6 +87,8 @@
     const VERCEL_DOMAIN = "godlive-web-github-io-git-main-godlive-webs-projects.vercel.app";
 
     async function updateInfo() {
+      // 新增日志代码，确认函数是否被调用
+      console.log('updateInfo函数已被调用');
       // 获取输入的新数据
       const newInfo = {
         账号名称: document.getElementById("账号名称").value.trim(), // 新增这行
