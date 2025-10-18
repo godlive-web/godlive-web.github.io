@@ -759,16 +759,13 @@ function setupEditButton() {
   if (editInfoBtn) {
     editInfoBtn.addEventListener('click', function() {
       const userDataStr = getCookie('userData');
-      let userData = {};
-      if (userDataStr) {
-        try {
-          userData = JSON.parse(userDataStr);
-        } catch (e) {
-          console.error('解析用户数据失败:', e);
-        }
+      const userID = getCookie('user'); // 获取当前登录用户的ID（即文件名ID）
+      if (userDataStr && userID) {
+        // 将userID和userData作为URL参数传递给编辑页
+        window.location.href = `edit.html?userData=${encodeURIComponent(userDataStr)}&userID=${userID}`;
+      } else {
+        showMessage('获取用户数据失败，请重新登录', 'error');
       }
-      const userDataParam = encodeURIComponent(JSON.stringify(userData));
-      window.location.href = `edit.html?userData=${userDataParam}`;
     });
   }
 }
