@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>修改个人信息（神界阁）</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      padding: 30px; 
+      font-family: "Microsoft YaHei", sans-serif;
+      background: #f8f9fa;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0c0c1e; color: #e0e0ff; }
+    }
+    .form-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    @media (prefers-color-scheme: dark) {
+      .form-container { background: #1a1a3a; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    }
+    h2 { margin-bottom: 20px; color: #6f42c1; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    @media (prefers-color-scheme: dark) {
+      input, textarea { background: #0c0c1e; border-color: #495057; color: #e0e0ff; }
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    button {
+      padding: 10px 20px;
+      background: #6f42c1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #result { margin-top: 20px; padding: 10px; border-radius: 8px; }
+    .success { background: #d4edda; color: #155724; }
+    .error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>修改个人信息</h2>
+    
+    <!-- 对应你的个人信息字段 -->
+    <div class="form-group">
+      <label>自设名称</label>
+      <input type="text" id="自设名称" placeholder="请输入自设名称">
+    </div>
+    <div class="form-group">
+      <label>入圈时间</label>
+      <input type="text" id="入圈时间" placeholder="例如：2023-01-15">
+    </div>
+    <div class="form-group">
+      <label>模糊住址</label>
+      <input type="text" id="模糊住址" placeholder="例如：神界大陆东部区域">
+    </div>
+    <div class="form-group">
+      <label>出生日期</label>
+      <input type="text" id="出生日期" placeholder="例如：2000-05-20">
+    </div>
+    <div class="form-group">
+      <label>个人介绍</label>
+      <textarea id="个人介绍" placeholder="请输入个人介绍"></textarea>
+    </div>
+
+    <button onclick="updateInfo()">提交修改</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // 替换为你的Vercel域名（之前的godlive-web-github-io.vercel.app）
+    const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app/";
+
+    async function updateInfo() {
+      // 获取输入的新数据
+      const newInfo = {
+        自设名称: document.getElementById("自设名称").value.trim(),
+        入圈时间: document.getElementById("入圈时间").value.trim(),
+        模糊住址: document.getElementById("模糊住址").value.trim(),
+        出生日期: document.getElementById("出生日期").value.trim(),
+        个人介绍: document.getElementById("个人介绍").value.trim()
+      };
+
+      // 简单验证（至少填一个字段）
+      if (!Object.values(newInfo).some(v => v)) {
+        showResult("请至少填写一个字段", "error");
+        return;
+      }
+
+      try {
+        // 调用Vercel函数修改私密仓库数据
+        const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newInfo)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          showResult(result.msg, "success");
+          // 清空输入框
+          Object.keys(newInfo).forEach(key => document.getElementById(key).value = "");
+        } else {
+          showResult(result.msg, "error");
+        }
+      } catch (err) {
+        showResult(`网络错误：${err.message}`, "error");
+      }
+    }
+
+    function showResult(msg, type) {
+      const resultDom = document.getElementById("result");
+      resultDom.textContent = msg;
+      resultDom.className = type;
+    }
+  </script>
+</body>
+</html>
