@@ -646,375 +646,320 @@
   </div>
 
   <script>
-    // Cookie处理函数
-    function setCookie(name, value, days, sameSite = 'Lax') {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
-    }
+   // Cookie处理函数
+function setCookie(name, value, days, sameSite = 'Lax') {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;domain=.godlive-web.github.io;Secure;SameSite=${sameSite}`;
+}
 
-    function getCookie(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
-      }
-      return null;
-    }
+function getCookie(name) {
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+  }
+  return null;
+}
 
-    // 注销功能
-    function setupLogoutFunction() {
-      const logoutLink = document.getElementById('logoutLink');
-      logoutLink.addEventListener('click', function() {
-        if (confirm('确定要注销账号吗？注销后将返回登录页')) {
-          // 清空userData并设置user为0
-          setCookie('userData', '', -1); // 立即过期
-          setCookie('user', '0', 30);
-          // 跳转登录页
-          window.location.href = 'https://godlive-web.github.io/login';
-        }
-      });
+// 注销功能
+function setupLogoutFunction() {
+  const logoutLink = document.getElementById('logoutLink');
+  logoutLink.addEventListener('click', function() {
+    if (confirm('确定要注销账号吗？注销后将返回登录页')) {
+      setCookie('userData', '', -1); 
+      setCookie('user', '0', 30);
+      window.location.href = 'https://godlive-web.github.io/login';
     }
+  });
+}
 
-    // 检查登录状态，如果未登录则跳转
-    function checkLoginStatus() {
-      const userCookie = getCookie('user');
-      if (!userCookie || userCookie === '0') {
-        window.location.href = 'https://godlive-web.github.io/login';
-      }
+// 检查登录状态，如果未登录则跳转
+function checkLoginStatus() {
+  const userCookie = getCookie('user');
+  if (!userCookie || userCookie === '0') {
+    window.location.href = 'https://godlive-web.github.io/login';
+  }
+}
+
+// 加载并显示基础信息（优先读取cookie数据）
+function loadBasicInfo() {
+  const infoCard = document.getElementById('basicInfoCard');
+  const welcomeMessage = document.getElementById('welcomeMessage');
+  const userDataStr = getCookie('userData');
+  let userData = null;
+  
+  if (userDataStr) {
+    try {
+      userData = JSON.parse(userDataStr);
+      console.log('成功读取userData:', userData);
+    } catch (e) {
+      console.error('解析userData失败:', e);
     }
-
-    // 加载并显示基础信息（优先读取cookie数据）
-    function loadBasicInfo() {
-      const infoCard = document.getElementById('basicInfoCard');
-      const welcomeMessage = document.getElementById('welcomeMessage');
-      const userDataStr = getCookie('userData');
-      let userData = null;
+  }
+  
+  if (!userData) {
+    console.warn('未获取到userData，使用默认数据');
+    userData = {
+      'user': '123456',
+      '账号名称': '神界用户',
+      '自设名称': '神秘使者',
+      '入圈时间': '2023-01-15',
+      '模糊住址': '神界大陆东部区域',
+      '出生日期': '2000-05-20',
+      '账号状态': 0,
+      '个人介绍': '一位热爱探索神界奥秘的旅行者，喜欢结交志同道合的朋友'
+    };
+  }
+  
+  const userName = userData['账号名称'] || '用户';
+  welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">请点击</span>`;
+  setupLogoutFunction(); 
+  
+  setTimeout(() => {
+    try {
+      let infoHtml = '';
+      const fields = [
+        { key: 'user', label: 'ID' },
+        { key: '自设名称', label: '自设名称' },
+        { key: '入圈时间', label: '入圈时间' },
+        { key: '模糊住址', label: '模糊住址' },
+        { key: '出生日期', label: '出生日期' },
+        { key: '个人介绍', label: '个人介绍' },
+        { key: '账号状态', label: '账号状态' }
+      ];
       
-      // 尝试从cookie获取用户数据（实际数据）
+      fields.forEach(field => {
+        let value = userData[field.key] || '未填写';
+        if (field.key === '账号状态') {
+          value = Number(value) === 0 ? '正常' : value;
+        }
+        infoHtml += `
+          <div class="info-item">
+            <div class="info-label">${field.label}</div>
+            <div class="info-value">${value}</div>
+          </div>
+        `;
+      });
+      infoCard.innerHTML = infoHtml;
+    } catch (error) {
+      console.error('解析用户信息失败:', error);
+      infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
+    }
+  }, 800);
+}
+
+// 编辑按钮点击事件
+function setupEditButton() {
+  const editInfoBtn = document.getElementById('editInfoBtn');
+  if (editInfoBtn) {
+    editInfoBtn.addEventListener('click', function() {
+      const userDataStr = getCookie('userData');
+      let userData = {};
       if (userDataStr) {
         try {
           userData = JSON.parse(userDataStr);
-          console.log('成功读取userData:', userData);
         } catch (e) {
-          console.error('解析userData失败:', e);
+          console.error('解析用户数据失败:', e);
         }
       }
-      
-      // 如果没有获取到数据，使用默认数据（仅用于测试）
-      if (!userData) {
-        console.warn('未获取到userData，使用默认数据');
-        userData = {
-          'user': '123456',
-          '账号名称': '神界用户',
-          '自设名称': '神秘使者',
-          '入圈时间': '2023-01-15',
-          '模糊住址': '神界大陆东部区域',
-          '出生日期': '2000-05-20',
-          '账号状态': 0,
-          '个人介绍': '一位热爱探索神界奥秘的旅行者，喜欢结交志同道合的朋友'
-        };
-      }
-      
-      // 更新欢迎消息
-      const userName = userData['账号名称'] || '用户';
-        welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请前往APP端修改。如需注销，<span class="logout-link" id="logoutLink">请点击</span>`;
-      setupLogoutFunction(); // 绑定注销事件
-      
-      setTimeout(() => {
-        try {
-          let infoHtml = '';
-          
-          // 定义需要显示的字段（已删除账号名称，互换账号状态和个人介绍位置）
-          const fields = [
-            { key: 'user', label: 'ID' },
-            { key: '自设名称', label: '自设名称' },
-            { key: '入圈时间', label: '入圈时间' },
-            { key: '模糊住址', label: '模糊住址' },
-            { key: '出生日期', label: '出生日期' },
-            { key: '个人介绍', label: '个人介绍' },  // 个人介绍移到前面
-            { key: '账号状态', label: '账号状态' }   // 账号状态移到后面
-          ];
-          
-          // 生成信息项HTML
-          fields.forEach(field => {
-            let value = userData[field.key] || '未填写';
-            // 账号状态转换（兼容数字0和字符串"0"）
-            if (field.key === '账号状态') {
-              // 将value转换为数字后判断，确保0或"0"都显示为"正常"
-              value = Number(value) === 0 ? '正常' : value;
-            }
-            infoHtml += `
-              <div class="info-item">
-                <div class="info-label">${field.label}</div>
-                <div class="info-value">${value}</div>
-              </div>
-            `;
-          });
-          
-          infoCard.innerHTML = infoHtml;
-        } catch (error) {
-          console.error('解析用户信息失败:', error);
-          infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
-        }
-      }, 800);
-    }
+      const userDataParam = encodeURIComponent(JSON.stringify(userData));
+      window.location.href = `edit.html?userData=${userDataParam}`;
+    });
+  }
+}
 
-    // 新增：编辑按钮点击事件，传递用户数据到编辑页
-    function setupEditButton() {
-      const editInfoBtn = document.getElementById('editInfoBtn');
-      if (editInfoBtn) {
-        editInfoBtn.addEventListener('click', function() {
-          // 读取当前用户数据（从Cookie或默认数据中获取）
-          const userDataStr = getCookie('userData');
-          let userData = {};
-          if (userDataStr) {
-            try {
-              userData = JSON.parse(userDataStr);
-            } catch (e) {
-              console.error('解析用户数据失败:', e);
-            }
-          }
-          // 将用户数据编码为URL参数，跳转到编辑页
-          const userDataParam = encodeURIComponent(JSON.stringify(userData));
-          window.location.href = `edit.html?userData=${userDataParam}`;
-        });
-      }
+// 反馈问题功能
+function setupFeedbackFunction() {
+  const submitBtn = document.getElementById('submitFeedback');
+  const cancelBtn = document.getElementById('cancelFeedback');
+  const problemField = document.getElementById('problemField');
+  const expectedValue = document.getElementById('expectedValue');
+  
+  submitBtn.addEventListener('click', function() {
+    const problem = problemField.value.trim();
+    if (!problem) {
+      alert('请输入存在问题的数据项');
+      return;
     }
     
-    // 页面加载时调用该函数
-    document.addEventListener('DOMContentLoaded', function() {
-      checkLoginStatus();
-      loadBasicInfo();
-      setupFeedback功能();
-      setupNavigation();
-      setupEditButton(); // 新增：调用编辑按钮初始化函数
-    });
+    const expected = expectedValue.value.trim() || '未提供';
+    const feedbackText = `我的（${problem}）数据存在问题，原数据应该是（${expected}），请尽快解决。`;
     
-    // 反馈问题功能
-    function setupFeedback功能() {
-      const submitBtn = document.getElementById('submitFeedback');
-      const cancelBtn = document.getElementById('cancelFeedback');
-      const problemField = document.getElementById('problemField');
-      const expectedValue = document.getElementById('expectedValue');
-      
-      // 提交反馈
-      submitBtn.addEventListener('click', function() {
-        const problem = problemField.value.trim();
-        if (!problem) {
-          alert('请输入存在问题的数据项');
-          return;
-        }
-        
-        const expected = expectedValue.value.trim() || '未提供';
-        const feedbackText = `我的（${problem}）数据存在问题，原数据应该是（${expected}），请尽快解决。`;
-        
-        // 显示确认提示
-        if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
-          // 复制到剪贴板
-          navigator.clipboard.writeText(feedbackText).then(() => {
-            // 跳转至指定QQ
-            const contactQQ = '458299675';
-            window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
-
-            alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
-          }).catch(err => {
-            console.error('复制失败:', err);
-            alert('复制内容失败，请手动复制：\n' + feedbackText);
-          });
-        }
-      });
-      
-      // 取消反馈
-      cancelBtn.addEventListener('click', function() {
-        problemField.value = '';
-        expectedValue.value = '';
+    if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
+      navigator.clipboard.writeText(feedbackText).then(() => {
+        const contactQQ = '458299675';
+        window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
+        alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
+      }).catch(err => {
+        console.error('复制失败:', err);
+        alert('复制内容失败，请手动复制：\n' + feedbackText);
       });
     }
+  });
+  
+  cancelBtn.addEventListener('click', function() {
+    problemField.value = '';
+    expectedValue.value = '';
+  });
+}
 
-    // 导航和滑动功能（恢复滑动效果）
-    function setupNavigation() {
-      const sections = document.querySelectorAll('.content-section');
-      const sidebarLinks = document.querySelectorAll('.sidebar-link');
-      const sidebarItems = document.querySelectorAll('.sidebar-item');
-      const hamburgerMenu = document.getElementById('hamburgerMenu');
-      const sidebar = document.getElementById('sidebar');
-      
-      // 全局滑动状态
-      let currentIndex = 0;      // 当前激活索引
-      let startY = 0;            // 拖拽起始Y坐标
-      let isDragging = false;    // 拖拽中标记
-      let dragDistance = 0;      // 拖拽距离
-      let dragStartTime = 0;     // 拖拽开始时间
+// 导航和滑动功能
+function setupNavigation() {
+  const sections = document.querySelectorAll('.content-section');
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  const sidebarItems = document.querySelectorAll('.sidebar-item');
+  const hamburgerMenu = document.getElementById('hamburgerMenu');
+  const sidebar = document.getElementById('sidebar');
+  
+  let currentIndex = 0;
+  let startY = 0;
+  let isDragging = false;
+  let dragDistance = 0;
+  let dragStartTime = 0;
 
-      // 同步侧边栏状态
-      function syncSidebar() {
-        sidebarLinks.forEach((link, index) => {
-          link.classList.remove('active');
-          sidebarItems[index].classList.remove('expanded');
-          if (index === currentIndex) {
-            link.classList.add('active');
-            sidebarItems[index].classList.add('expanded');
-          }
-        });
+  function syncSidebar() {
+    sidebarLinks.forEach((link, index) => {
+      link.classList.remove('active');
+      sidebarItems[index].classList.remove('expanded');
+      if (index === currentIndex) {
+        link.classList.add('active');
+        sidebarItems[index].classList.add('expanded');
       }
-
-      // 切换内容区
-      function switchContent(index) {
-        currentIndex = index;
-        // 更新所有内容区位置
-        sections.forEach((sec, i) => {
-          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
-        });
-        syncSidebar();
-      }
-
-      // 侧边栏点击事件
-      sidebarLinks.forEach((link, index) => {
-        link.addEventListener('click', () => {
-          switchContent(index);
-          
-          // 移动端点击后关闭侧边栏
-          if (window.innerWidth <= 768) {
-            toggleSidebar();
-          }
-        });
-      });
-
-      // 汉堡菜单切换
-      function toggleSidebar() {
-        hamburgerMenu.classList.toggle('active');
-        sidebar.classList.toggle('active');
-        
-        if (sidebar.classList.contains('active')) {
-          createOverlay();
-        } else {
-          removeOverlay();
-        }
-      }
-      
-      function createOverlay() {
-        const overlay = document.createElement('div');
-        overlay.id = 'sidebar-overlay';
-        overlay.style.position = 'fixed';
-        overlay.style.top = '70px';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = 'calc(100vh - 70px)';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        overlay.style.zIndex = '996';
-        overlay.addEventListener('click', toggleSidebar);
-        document.body.appendChild(overlay);
-      }
-      
-      function removeOverlay() {
-        const overlay = document.getElementById('sidebar-overlay');
-        if (overlay) {
-          document.body.removeChild(overlay);
-        }
-      }
-      
-      hamburgerMenu.addEventListener('click', toggleSidebar);
-
-      // 拖拽开始
-      function onDragStart(e) {
-        if (e.type === 'touchstart') {
-          startY = e.touches[0].clientY;
-        } else {
-          startY = e.clientY;
-        }
-        isDragging = true;
-        dragDistance = 0;
-        dragStartTime = Date.now();
-        sections.forEach(sec => sec.style.transition = 'none'); // 实时响应拖拽
-      }
-
-      // 拖拽中（带阻尼感）
-      function onDragMove(e) {
-        if (!isDragging) return;
-        let currentY = 0;
-        if (e.type === 'touchmove') {
-          currentY = e.touches[0].clientY;
-        } else {
-          currentY = e.clientY;
-        }
-        dragDistance = currentY - startY;
-
-        // 阻力系数控制滑动幅度（0.2表示拖拽距离的20%用于内容移动）
-        sections.forEach((sec, index) => {
-          const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
-          sec.style.transform = `translateY(${targetY}vh)`;
-        });
-      }
-
-      // 拖拽结束（阻尼过渡效果）
-      function onDragEnd() {
-        if (!isDragging) return;
-        isDragging = false;
-        // 恢复过渡动画（带阻尼曲线）
-        sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
-
-        // 滑动阈值判定（40%视口高度或快速滑动）
-        const threshold = window.innerHeight * 0.4;
-        const dragTime = Date.now() - dragStartTime;
-        const speed = Math.abs(dragDistance) / dragTime;
-
-        if (dragDistance < 0) { // 向下滑→下一页
-          if (Math.abs(dragDistance) > threshold || speed > 0.7) {
-            switchContent(Math.min(currentIndex + 1, sections.length - 1));
-          } else {
-            // 未达阈值，回弹到原位置
-            switchContent(currentIndex);
-          }
-        } else { // 向上滑→上一页
-          if (dragDistance > threshold || speed > 0.7) {
-            switchContent(Math.max(currentIndex - 1, 0));
-          } else {
-            // 未达阈值，回弹到原位置
-            switchContent(currentIndex);
-          }
-        }
-      }
-
-      // 绑定触摸和鼠标事件（恢复滑动）
-      const content = document.querySelector('.content');
-      // 触摸事件
-      content.addEventListener('touchstart', onDragStart);
-      content.addEventListener('touchmove', onDragMove);
-      content.addEventListener('touchend', onDragEnd);
-      // 鼠标事件
-      content.addEventListener('mousedown', onDragStart);
-      content.addEventListener('mousemove', onDragMove);
-      content.addEventListener('mouseup', onDragEnd);
-      content.addEventListener('mouseleave', onDragEnd);
-      
-      // 修复鼠标滚轮事件
-      content.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        
-        // 滚轮方向处理：向下滚动→下一页，向上滚动→上一页
-        if (e.deltaY > 0) {
-          // 向下滚动
-          switchContent(Math.min(currentIndex + 1, sections.length - 1));
-        } else {
-          // 向上滚动
-          switchContent(Math.max(currentIndex - 1, 0));
-        }
-      });
-
-      // 初始化导航状态
-      syncSidebar();
-    }
-
-    // 页面加载完成后初始化
-    document.addEventListener('DOMContentLoaded', function() {
-      checkLoginStatus();
-      loadBasicInfo();
-      setupFeedback功能();
-      setupNavigation();
     });
+  }
+
+  function switchContent(index) {
+    currentIndex = index;
+    sections.forEach((sec, i) => {
+      sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+    });
+    syncSidebar();
+  }
+
+  sidebarLinks.forEach((link, index) => {
+    link.addEventListener('click', () => {
+      switchContent(index);
+      if (window.innerWidth <= 768) {
+        toggleSidebar();
+      }
+    });
+  });
+
+  function toggleSidebar() {
+    hamburgerMenu.classList.toggle('active');
+    sidebar.classList.toggle('active');
+    if (sidebar.classList.contains('active')) {
+      createOverlay();
+    } else {
+      removeOverlay();
+    }
+  }
+  
+  function createOverlay() {
+    const overlay = document.createElement('div');
+    overlay.id = 'sidebar-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '70px';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = 'calc(100vh - 70px)';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.zIndex = '996';
+    overlay.addEventListener('click', toggleSidebar);
+    document.body.appendChild(overlay);
+  }
+  
+  function removeOverlay() {
+    const overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+      document.body.removeChild(overlay);
+    }
+  }
+  
+  hamburgerMenu.addEventListener('click', toggleSidebar);
+
+  function onDragStart(e) {
+    if (e.type === 'touchstart') {
+      startY = e.touches[0].clientY;
+    } else {
+      startY = e.clientY;
+    }
+    isDragging = true;
+    dragDistance = 0;
+    dragStartTime = Date.now();
+    sections.forEach(sec => sec.style.transition = 'none');
+  }
+
+  function onDragMove(e) {
+    if (!isDragging) return;
+    let currentY = 0;
+    if (e.type === 'touchmove') {
+      currentY = e.touches[0].clientY;
+    } else {
+      currentY = e.clientY;
+    }
+    dragDistance = currentY - startY;
+    sections.forEach((sec, index) => {
+      const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+      sec.style.transform = `translateY(${targetY}vh)`;
+    });
+  }
+
+  function onDragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+    const threshold = window.innerHeight * 0.4;
+    const dragTime = Date.now() - dragStartTime;
+    const speed = Math.abs(dragDistance) / dragTime;
+
+    if (dragDistance < 0) {
+      if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+        switchContent(Math.min(currentIndex + 1, sections.length - 1));
+      } else {
+        switchContent(currentIndex);
+      }
+    } else {
+      if (dragDistance > threshold || speed > 0.7) {
+        switchContent(Math.max(currentIndex - 1, 0));
+      } else {
+        switchContent(currentIndex);
+      }
+    }
+  }
+
+  const content = document.querySelector('.content');
+  content.addEventListener('touchstart', onDragStart);
+  content.addEventListener('touchmove', onDragMove);
+  content.addEventListener('touchend', onDragEnd);
+  content.addEventListener('mousedown', onDragStart);
+  content.addEventListener('mousemove', onDragMove);
+  content.addEventListener('mouseup', onDragEnd);
+  content.addEventListener('mouseleave', onDragEnd);
+  
+  content.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (e.deltaY > 0) {
+      switchContent(Math.min(currentIndex + 1, sections.length - 1));
+    } else {
+      switchContent(Math.max(currentIndex - 1, 0));
+    }
+  });
+
+  syncSidebar();
+}
+
+// 页面加载时统一初始化所有功能
+document.addEventListener('DOMContentLoaded', function() {
+  checkLoginStatus();
+  loadBasicInfo();
+  setupFeedbackFunction(); // 修正函数名为英文，避免识别错误
+  setupNavigation();
+  setupEditButton();
+});
   </script>
 </body>
 </html>
