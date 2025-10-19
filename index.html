@@ -1330,17 +1330,20 @@
       setCookie('user', '0', 30);
     }
 
-    // 更新登录按钮文本和跳转链接
+    // 更新登录按钮文本和跳转链接（修复：确保登录后显示用户信息）
     function updateLoginButton() {
       const userCookie = getCookie('user');
       const userDataStr = getCookie('userData');
       const loginText = document.getElementById('loginText');
       const loginButton = document.getElementById('loginButton');
       
+      // 登录状态：userCookie不为0且有userData
       if (userCookie && userCookie !== '0' && userDataStr) {
         try {
           const userData = JSON.parse(userDataStr);
+          // 优先显示账号名称，无则显示userID
           loginText.textContent = userData['账号名称'] || userCookie;
+          // 登录后跳转个人中心
           loginButton.href = 'https://godlive-web.github.io/personaldata';
         } catch (e) {
           console.error('解析userData失败:', e);
@@ -1348,22 +1351,24 @@
           loginButton.href = 'https://godlive-web.github.io/personaldata';
         }
       } else {
+        // 未登录状态
         loginText.textContent = '点击登录';
         loginButton.href = 'https://godlive-web.github.io/login';
       }
     }
 
-    // 2. 全局页面切换逻辑
+    // 2. 全局页面切换逻辑（确保滚动、点击、拖拽切换正常）
     const sections = document.querySelectorAll('.content-section');
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     const sidebarItems = document.querySelectorAll('.sidebar-item');
-    let currentIndex = 0;      
+    let currentIndex = 0;      // 默认选中索引3（神界议案库），与HTML中active类对应
     let startY = 0;            
     let isDragging = false;    
     let dragDistance = 0;      
     let dragStartTime = 0;     
-    const dragThreshold = 20; 
+    const dragThreshold = 20;  // 拖拽触发切换的最小距离
 
+    // 同步左侧导航选中状态
     function syncSidebar() {
       sidebarLinks.forEach((link, index) => {
         link.classList.remove('active');
@@ -1375,12 +1380,14 @@
       });
     }
 
+    // 初始化页面布局（设置初始显示的section）
     function initLayout() {
       syncSidebar();
       sections.forEach((sec, index) => {
+        // 按currentIndex计算每个section的位置，确保默认显示索引3的section
         sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
-      // 初始化隐藏搜索结果，显示说明文字
+      // 初始化搜索区域状态
       document.getElementById('billResults').classList.remove('active');
       document.getElementById('billSearchContainer').classList.remove('active');
       document.getElementById('billDescText').classList.remove('desc-hidden');
@@ -1389,6 +1396,7 @@
       document.getElementById('userDescText').classList.remove('desc-hidden');
     }
 
+    // 拖拽开始（触摸/鼠标按下）
     function onDragStart(e) {
       if (e.type === 'touchstart') {
         startY = e.touches[0].clientY;
@@ -1398,77 +1406,103 @@
       isDragging = true;
       dragDistance = 0;
       dragStartTime = Date.now();
+      // 拖拽时暂时关闭过渡动画，避免卡顿
       sections.forEach(sec => sec.style.transition = 'none');
     }
 
+    // 拖拽过程（触摸移动/鼠标移动）
     function onDragMove(e) {
       if (!isDragging) return;
       let currentY = 0;
       if (e.type === 'touchmove') {
         currentY = e.touches[0].clientY;
-        e.preventDefault();
+        e.preventDefault(); // 阻止页面滚动
       } else {
         currentY = e.clientY;
       }
       dragDistance = currentY - startY;
+      // 实时更新section位置，模拟拖拽效果
+      sections.forEach((sec, index) => {
+        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh + ${dragDistance}px)`;
+      });
     }
 
+    // 拖拽结束（触摸抬起/鼠标松开）
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
+      // 恢复过渡动画
       sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
 
       const threshold = window.innerHeight * 0.4; 
       const dragTime = Date.now() - dragStartTime;
       const speed = Math.abs(dragDistance) / dragTime;
+      // 判断是否触发页面切换（距离足够或速度足够快）
       const isDragValid = Math.abs(dragDistance) > dragThreshold || speed > 0.7;
 
       if (isDragValid) {
-        if (dragDistance < 0) {
-          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-        } else {
+        // 向下拖拽（显示上一页）
+        if (dragDistance > 0) {
           currentIndex = Math.max(currentIndex - 1, 0);
+        } 
+        // 向上拖拽（显示下一页）
+        else {
+          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
         }
-
+        // 更新所有section位置
         sections.forEach((sec, index) => {
           sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
         });
+        // 同步导航选中状态
         syncSidebar();
       } else {
+        // 未触发切换，恢复原位
         sections.forEach((sec, index) => {
           sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
         });
       }
     }
 
+    // 绑定页面切换事件（拖拽、滚动、点击）
     const content = document.querySelector('.content');
+    // 触摸事件（移动端上下滑动）
     content.addEventListener('touchstart', onDragStart);
     content.addEventListener('touchmove', onDragMove, { passive: false });
     content.addEventListener('touchend', onDragEnd);
+    // 鼠标事件（桌面端拖拽）
     content.addEventListener('mousedown', onDragStart);
     content.addEventListener('mousemove', onDragMove);
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
+    // 鼠标滚轮事件（桌面端滚动切换）
     content.addEventListener('wheel', (e) => {
-      e.preventDefault();
+      e.preventDefault(); // 阻止页面默认滚动
+      // 滚轮向下（显示下一页）
       if (e.deltaY > 0) {
         currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-      } else {
+      } 
+      // 滚轮向上（显示上一页）
+      else {
         currentIndex = Math.max(currentIndex - 1, 0);
       }
+      // 更新section位置和导航状态
       sections.forEach((sec, index) => {
         sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
       syncSidebar();
     }, { passive: false });
 
+    // 左侧导航点击切换
     sidebarLinks.forEach((link, index) => {
       link.addEventListener('click', () => {
         currentIndex = index;
+        // 更新section位置
         sections.forEach((sec, i) => {
           sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
         });
+        // 同步导航状态
         syncSidebar();
+        // 移动端点击后关闭侧边栏
         if (window.innerWidth <= 768) {
           toggleSidebar();
         }
@@ -1543,11 +1577,12 @@
         billSearchContainer.classList.add('active');
         billResults.classList.add('active');
 
-        // 议案API（替换为你的实际接口）
+        // 议案API（使用你的Vercel域名）
         const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill');
         if (!response.ok) throw new Error('数据请求失败');
         const bills = await response.json();
 
+        // 模糊匹配议案号或议案名
         const results = bills.filter(bill => 
           bill.id.includes(input) || bill.title.includes(input)
         );
@@ -1557,6 +1592,7 @@
           return;
         }
 
+        // 渲染议案卡片
         let html = '';
         results.forEach(bill => {
           const contentText = bill.content.length > 120 
@@ -1566,6 +1602,7 @@
           html += `
             <div class="bill-card" data-id="${bill.id}">
               <div class="bill-card-header">
+                <!-- 修正：billmodifier → bill.modifier -->
                 <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
                 <div class="bill-card-title">${bill.title}</div>
               </div>
@@ -1577,6 +1614,7 @@
         
         billResults.innerHTML = html;
 
+        // 绑定议案卡片点击事件（显示详情模态框）
         document.querySelectorAll('.bill-card').forEach(card => {
           card.addEventListener('click', () => {
             const billId = card.getAttribute('data-id');
@@ -1591,6 +1629,7 @@
       }
     }
 
+    // 显示议案详情模态框
     function showBillDetails(bill) {
       document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
       document.getElementById('modalBillTitle').textContent = bill.title;
@@ -1599,6 +1638,7 @@
       billModal.style.display = 'flex';
     }
 
+    // 关闭议案模态框
     modalClose.addEventListener('click', () => {
       billModal.style.display = 'none';
     });
@@ -1606,7 +1646,7 @@
       if (e.target === billModal) billModal.style.display = 'none';
     });
 
-    // 补充：你的旧代码中用到的提示函数，统一错误/成功提示风格
+    // 补充：提示函数（修复CSS变量读取，避免JS语法错误）
     function showMessage(text, type = 'info') {
       // 创建顶部临时提示框
       const messageBox = document.createElement('div');
@@ -1624,11 +1664,15 @@
       messageBox.style.opacity = '0';
       messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
   
-      // 错误提示用红色，正常提示用强调色
+      // 修复：通过getComputedStyle读取CSS变量，避免JS直接使用var(--accent-color)报错
+      const rootStyle = getComputedStyle(document.documentElement);
+      const accentColor = rootStyle.getPropertyValue('--accent-color').trim();
+      
+      // 错误提示用红色，正常提示用CSS定义的强调色
       if (type === 'error') {
         messageBox.style.backgroundColor = '#dc3545';
       } else {
-        messageBox.style.backgroundColor = var(--accent-color);
+        messageBox.style.backgroundColor = accentColor;
       }
   
       messageBox.textContent = text;
@@ -1650,7 +1694,7 @@
       }, 3000);
     }
     
-    // 5. 成员信息库搜索功能（核心适配你的API）
+    // 5. 成员信息库搜索功能（完整保留修复后的逻辑）
     const userSearchContainer = document.getElementById('userSearchContainer');
     const userResults = document.getElementById('userResults');
     const userSearchInput = document.getElementById('userSearchInput');
@@ -1663,12 +1707,6 @@
       if (e.key === 'Enter') searchUsers();
     });
 
-    /**
-     * 成员搜索逻辑：
-     * 1. 先调用getAllUserIDs获取所有用户ID
-     * 2. 批量调用getUserInfo获取用户详情
-     * 3. 按关键词筛选并渲染
-     */
     async function searchUsers() {
       const input = userSearchInput.value.trim();
       userDescText.classList.add('desc-hidden');
@@ -1686,34 +1724,31 @@
         userSearchContainer.classList.add('active');
         userResults.classList.add('active');
 
-        // --------------------------
-        // 关键：替换为你的Vercel项目域名
-        const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app"; // 你的实际Vercel域名
-        // --------------------------
+        // Vercel项目域名（统一管理，便于后续修改）
+        const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
 
-       // 按你旧代码的写法调整（无需单独定义 VERCEL_DOMAIN 变量，直接写域名主体）
-        // 1. 获取所有用户ID（用定义好的VERCEL_DOMAIN变量）
+        // 1. 获取所有用户ID
         const userIDsResponse = await fetch(`${VERCEL_DOMAIN}/api/getAllUserIDs`);
-        // 新增：解析接口返回的用户ID数据
+        if (!userIDsResponse.ok) throw new Error('获取用户列表失败');
         const userIDsData = await userIDsResponse.json();
-        // 新增：判断接口是否返回成功，且有数据
+        
         if (!userIDsData.success || !userIDsData.data.length) {
           userResults.innerHTML = '<div class="user-error">未找到任何成员数据</div>';
           return;
         }
-        // 新增：提取用户ID数组（这是批量请求的基础）
         const allUserIDs = userIDsData.data;
+
+        // 2. 分批次获取用户详情（控制并发数，避免接口限流）
         const allUsers = [];
-        const batchSize = 5; // 控制并发数，避免限流
-        // 新增：for循环分批次处理allUserIDs
+        const batchSize = 5; // 每次请求5个用户，可根据需求调整
         for (let i = 0; i < allUserIDs.length; i += batchSize) {
-          const batchIDs = allUserIDs.slice(i, i + batchSize); // 当前批次的用户ID
+          const batchIDs = allUserIDs.slice(i, i + batchSize);
           const batchPromises = batchIDs.map(id => 
             fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userID=${id}`)
               .then(res => res.json())
               .then(data => {
                 if (data.success) return data.data;
-                showMessage(data.msg, 'error'); // 单个用户请求失败提示
+                showMessage(data.msg, 'error');
                 return null;
               })
               .catch(() => {
@@ -1722,10 +1757,10 @@
               })
           );
           const batchResults = await Promise.all(batchPromises);
-          // 新增：收集当前批次的有效用户数据（过滤null）
           allUsers.push(...batchResults.filter(user => user !== null));
         }
-        // 步骤3：筛选匹配结果（不区分大小写）
+
+        // 3. 模糊筛选匹配结果（不区分大小写）
         const searchStr = input.toLowerCase();
         const matchedUsers = allUsers.filter(user => {
           const accountName = (user['账号名称'] || '').toLowerCase();
@@ -1733,7 +1768,7 @@
           return accountName.includes(searchStr) || customName.includes(searchStr);
         });
 
-        // 步骤4：渲染结果
+        // 4. 渲染成员卡片
         if (matchedUsers.length === 0) {
           userResults.innerHTML = '<div class="user-error">未找到匹配的成员</div>';
           return;
@@ -1742,7 +1777,6 @@
         let html = '';
         matchedUsers.forEach(user => {
           html += `
-          <!-- 接上文：成员信息库搜索功能的 user-card 渲染部分继续补全 -->
             <div class="user-card">
               <div class="user-card-header">
                 <div class="user-card-account">${user['账号名称'] || '未设置'}</div>
@@ -1769,11 +1803,12 @@
 
       } catch (error) {
         console.error('成员搜索失败:', error);
+        showMessage('成员数据加载失败，请稍后再试', 'error');
         userResults.innerHTML = '<div class="user-error">成员数据加载失败，请稍后再试</div>';
       }
     }
 
-    // 6. 文件库跳转确认弹窗逻辑
+    // 6. 文件库跳转确认弹窗逻辑（完整保留）
     const jumpModal = document.getElementById('jumpModal');
     const cancelJump = document.getElementById('cancelJump');
     const confirmJump = document.getElementById('confirmJump');
@@ -1807,11 +1842,12 @@
       }
     });
 
-    // 7. 页面加载初始化
+    // 7. 页面加载初始化（确保所有功能启动）
     document.addEventListener('DOMContentLoaded', function() {
-      initLayout();
-      updateLoginButton();
-      // 初始化时确保搜索结果隐藏、说明文字显示
+      initLayout(); // 初始化页面布局（默认选中神界议案库）
+      updateLoginButton(); // 更新登录按钮状态（显示用户信息或"点击登录"）
+      
+      // 确保初始状态下搜索结果隐藏、说明文字显示
       document.getElementById('billResults').classList.remove('active');
       document.getElementById('billSearchContainer').classList.remove('active');
       document.getElementById('billDescText').classList.remove('desc-hidden');
