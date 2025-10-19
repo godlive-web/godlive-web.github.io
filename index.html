@@ -269,7 +269,7 @@
       padding: 40px 30px;
       transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
       color: var(--text-primary);
-      overflow-y: auto; /* 允许内容区滚动 */
+      overflow-y: auto;
       transform: translateY(calc(var(--section-index) * 100vh));
     }
     .content-section[data-index="0"] { --section-index: 0; }
@@ -305,22 +305,22 @@
       line-height: 1.7;
       color: var(--text-secondary);
     }
-    /* 议案库说明文字隐藏类 */
-    .bill-desc-hidden {
+    /* 通用说明文字隐藏类 */
+    .desc-hidden {
       display: none;
     }
 
-    /* ============= 神界议案库（手机端严格两列，桌面端四列） ============= */
+    /* ============= 议案库样式 ============= */
     .bill-search-center {
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 180px;
       transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-bottom: 40px; /* 初始状态增加底部间距，让搜索区更靠下 */
+      margin-bottom: 40px;
     }
     .bill-search-center.active {
-      margin-top: -30px; /* 减小上移幅度，避免过于靠上 */
+      margin-top: -30px;
       margin-bottom: 20px;
       min-height: 120px;
       opacity: 0.95;
@@ -366,11 +366,10 @@
       box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
     }
 
-    /* 结果容器：删除白色背景，桌面四列/手机两列，支持换行 */
     .bill-results-container {
       display: none;
       width: 100%;
-      max-width: 1200px; /* 扩大最大宽度，适配四列 */
+      max-width: 1200px;
       margin: 0 auto;
       padding: 15px;
       transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -378,9 +377,9 @@
       transform: translateY(30px);
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px; /* 合理间距，适配多列换行 */
-      max-height: none; /* 取消高度限制，支持无限换行 */
-      overflow: visible; /* 允许滚动（继承content-section的overflow-y:auto） */
+      gap: 15px;
+      max-height: none;
+      overflow: visible;
     }
     .bill-results-container.active {
       display: flex;
@@ -388,7 +387,6 @@
       transform: translateY(0);
     }
 
-    /* 桌面端四列，手机端严格两列 */
     .bill-card {
       background: var(--bg-secondary);
       border-radius: 10px;
@@ -396,15 +394,14 @@
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       cursor: pointer;
-      width: calc(25% - 12px); /* 桌面四列：总间距15px，单卡片间距12px（15*(4-1)/4） */
-      min-width: 220px; /* 桌面最小宽度，确保卡片完整性 */
+      width: calc(25% - 12px);
+      min-width: 220px;
       margin: 0;
     }
-    /* 手机端强制两列 */
     @media (max-width: 768px) {
       .bill-card {
-        width: calc(50% - 8px); /* 手机两列：总间距15px，单卡片间距8px（15*(2-1)/2） */
-        min-width: 140px; /* 适配小屏手机 */
+        width: calc(50% - 8px);
+        min-width: 140px;
       }
     }
     .bill-card:hover {
@@ -447,18 +444,159 @@
       border-top: 1px solid var(--border-color);
     }
 
-    .bill-error, .bill-loading {
+    /* 通用错误/加载样式 */
+    .bill-error, .bill-loading, .user-error, .user-loading {
       text-align: center;
       padding: 30px 20px;
       color: var(--text-secondary);
       font-size: 16px;
       width: 100%;
     }
-    .bill-loading {
+    .bill-loading, .user-loading {
       color: var(--accent-color);
     }
 
-    /* ============= 议案详情模态框样式 ============= */
+    /* ============= 成员信息库搜索样式（核心新增） ============= */
+    .user-search-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 160px;
+      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin-bottom: 30px;
+    }
+    .user-search-center.active {
+      margin-top: -20px;
+      margin-bottom: 15px;
+      min-height: 100px;
+      opacity: 0.95;
+    }
+    #userSearchInput {
+      width: 100%;
+      padding: 12px 20px;
+      border: 2px solid var(--accent-color);
+      border-radius: 50px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(111, 66, 193, 0.15);
+      transition: all 0.3s ease;
+    }
+    #userSearchInput:focus {
+      outline: none;
+      border-color: #2575fc;
+      box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.25);
+    }
+    #userSearchBtn {
+      padding: 12px 25px;
+      background: linear-gradient(135deg, #6f42c1 0%, #8a63d2 100%);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(111, 66, 193, 0.25);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #userSearchBtn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+      background: linear-gradient(135deg, #6a11cb 0%, #8a63d2 100%);
+    }
+
+    .user-results-container {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 15px;
+      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+      opacity: 0;
+      transform: translateY(20px);
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .user-results-container.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .user-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      transition: all 0.3s ease;
+      width: calc(33.33% - 15px);
+      min-width: 280px;
+      border-top: 3px solid var(--accent-color);
+    }
+    @media (max-width: 768px) {
+      .user-card {
+        width: calc(50% - 10px);
+        min-width: 240px;
+      }
+    }
+    @media (max-width: 480px) {
+      .user-card {
+        width: 100%;
+        min-width: unset;
+      }
+    }
+    .user-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      border-top-color: #2575fc;
+    }
+
+    .user-card-header {
+      padding: 16px 20px;
+      background-color: var(--accent-light);
+    }
+    .user-card-account {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-bottom: 4px;
+    }
+    .user-card-id {
+      font-size: 14px;
+      color: var(--text-secondary);
+      opacity: 0.9;
+    }
+
+    .user-card-content {
+      padding: 18px 20px;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+    .user-info-row {
+      display: flex;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+    .user-info-label {
+      width: 80px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .user-info-value {
+      flex: 1;
+      line-height: 1.6;
+    }
+    .user-intro {
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    /* ============= 议案详情模态框 ============= */
     .bill-modal {
       display: none;
       position: fixed;
@@ -519,37 +657,36 @@
       color: var(--text-secondary);
     }
 
-    /* ============= 神界文件库（按钮与文字左对齐） ============= */
+    /* ============= 神界文件库 ============= */
     .doc-buttons {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      margin: 25px 0 0 0; /* 去掉左右auto，改为左对齐，和文字对齐 */
-      padding: 0 0; /* 去掉左右padding，和上方文字内边距一致 */
-      max-width: 500px; /* 保持最大宽度，避免按钮过宽 */
+      margin: 25px 0 0 0;
+      padding: 0 0;
+      max-width: 500px;
     }
     .doc-btn {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 12px 16px;
-      background-color: var(--bg-secondary); /* 复用原项目背景变量 */
+      background-color: var(--bg-secondary);
       border-radius: 8px;
-      color: var(--text-primary); /* 复用原项目文字变量 */
+      color: var(--text-primary);
       font-size: 16px;
       text-decoration: none;
-      box-shadow: var(--shadow); /* 复用原项目阴影变量 */
+      box-shadow: var(--shadow);
       transition: all 0.2s ease;
       border: none;
       cursor: pointer;
-      width: 100%; /* 按钮占满容器宽度，左对齐更整齐 */
+      width: 100%;
     }
     .doc-btn:hover {
-      background-color: var(--bg-primary); /* 复用原项目浅色背景 */
+      background-color: var(--bg-primary);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       transform: translateX(2px);
     }
-    /* Word 图标容器 */
     .doc-icon {
       width: 32px;
       height: 32px;
@@ -562,17 +699,16 @@
       height: 100%;
       object-fit: contain;
     }
-    /* 底部Github提示（同样左对齐，和按钮/文字统一） */
     .github-tip {
-      text-align: left; /* 改为左对齐 */
-      color: #e53e3e; /* 红色提醒，不破坏原风格 */
+      text-align: left;
+      color: #e53e3e;
       font-size: 14px;
       margin-top: 30px;
       line-height: 1.5;
-      padding: 0 0; /* 去掉左右padding，和文字对齐 */
+      padding: 0 0;
     }
 
-    /* 跳转确认弹窗（适配原项目模态框风格） */
+    /* 跳转确认弹窗 */
     .jump-modal {
       display: none;
       position: fixed;
@@ -581,18 +717,18 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.5);
-      z-index: 1001; /* 高于原项目模态框z-index */
+      z-index: 1001;
       align-items: center;
       justify-content: center;
       padding: 20px;
     }
     .jump-modal-content {
-      background: var(--bg-secondary); /* 复用原项目背景 */
-      border-radius: 12px; /* 贴合原项目模态框圆角 */
+      background: var(--bg-secondary);
+      border-radius: 12px;
       padding: 24px;
       width: 100%;
       max-width: 400px;
-      box-shadow: var(--shadow); /* 复用原项目阴影 */
+      box-shadow: var(--shadow);
     }
     .jump-modal-title {
       font-size: 18px;
@@ -603,7 +739,7 @@
     }
     .jump-modal-desc {
       font-size: 14px;
-      color: var(--text-secondary); /* 复用原项目次要文字色 */
+      color: var(--text-secondary);
       line-height: 1.6;
       margin-bottom: 20px;
     }
@@ -626,17 +762,17 @@
       color: var(--text-secondary);
     }
     .jump-modal-btn.cancel:hover {
-      background: var(--border-color); /* 复用原项目边框色 */
+      background: var(--border-color);
     }
     .jump-modal-btn.confirm {
-      background: var(--accent-color); /* 复用原项目强调色 */
+      background: var(--accent-color);
       color: white;
     }
     .jump-modal-btn.confirm:hover {
-      background: #5a36a8; /* 强调色加深，不新增色值 */
+      background: #5a36a8;
     }
 
-    /* ============= 关于我们样式 ============= */
+    /* ============= 关于我们 ============= */
     .about-top-img {
       max-width: 600px;
       margin: -10px 0 20px 0;
@@ -772,7 +908,7 @@
         margin-left: 0 !important;
       }
       .content-section {
-        padding: 30px 20px; /* 移动端内容区左右内边距20px */
+        padding: 30px 20px;
       }
       .content-section h2 {
         font-size: 26px;
@@ -780,7 +916,7 @@
       .content-section p {
         font-size: 15px;
       }
-      /* 议案库搜索框移动端上移幅度调整 */
+      /* 议案搜索适配 */
       .bill-search-center {
         min-height: 150px;
       }
@@ -788,10 +924,33 @@
         margin-top: -30px;
         min-height: 100px;
       }
-      /* 议案库卡片内容适配 */
       .bill-card-content {
         max-height: 110px;
         -webkit-line-clamp: 4;
+      }
+      /* 成员搜索适配 */
+      .user-search-center {
+        min-height: 140px;
+      }
+      .user-search-center.active {
+        margin-top: -20px;
+        min-height: 90px;
+      }
+      .user-card-header {
+        padding: 14px 18px;
+      }
+      .user-card-account {
+        font-size: 18px;
+      }
+      .user-card-content {
+        padding: 15px 18px;
+        font-size: 14px;
+      }
+      .user-info-row {
+        margin-bottom: 10px;
+      }
+      .user-info-label {
+        width: 70px;
       }
       /* 模态框适配 */
       .bill-modal-content {
@@ -806,7 +965,7 @@
       .bill-modal-body {
         font-size: 14px;
       }
-      /* 关于我们移动端适配 */
+      /* 关于我们适配 */
       .about-top-img {
         max-width: 100%;
         padding: 0 0;
@@ -827,9 +986,9 @@
       .about-changelog .changelog-link {
         font-size: 18px;
       }
-      /* 文件库移动端适配（保持左对齐，适配内容区20px内边距） */
+      /* 文件库适配 */
       .doc-buttons {
-        padding: 0 0; /* 和内容区文字内边距一致 */
+        padding: 0 0;
       }
       .doc-btn {
         padding: 10px 14px;
@@ -860,17 +1019,27 @@
       .arrow {
         margin-left: 5px;
       }
-      /* 议案库小屏适配 */
+      /* 议案搜索适配 */
       .bill-search-center.active {
         margin-top: -30px;
       }
-      /* 保持两列 */
-      .bill-card {
-        width: calc(50% - 8px);
-      }
       .bill-results-container {
-        gap: 15px; /* 小屏保持合理间距 */
+        gap: 15px;
         padding: 8px;
+      }
+      /* 成员搜索适配 */
+      .user-search-center.active {
+        margin-top: -15px;
+      }
+      .user-results-container {
+        gap: 15px;
+        padding: 10px 8px;
+      }
+      .user-card-content {
+        padding: 12px 15px;
+      }
+      .user-intro {
+        -webkit-line-clamp: 2;
       }
     }
   </style>
@@ -890,7 +1059,7 @@
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta1.2.0</div>
+    <div class="header-right">Beta2.0.0</div>
   </header>
 
   <!-- 主容器 -->
@@ -988,31 +1157,44 @@
         <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
       </section>
 
-      <!-- 3. 成员信息库 -->
+      <!-- 3. 成员信息库（带搜索功能） -->
       <section class="content-section" data-index="2">
         <h2>成员信息库</h2>
-        <p>查阅神界成员的基本信息。注意，禁止泄露该页面的所有隐私信息。</p>
-      </section>
-
-      <!-- 4. 神界议案库（核心） -->
-      <section class="content-section" data-index="3">
-        <h2>神界议案库</h2>
-        <!-- 给说明文字加ID，用于搜索时隐藏 -->
-        <p id="billDescText">搜索并查看神界内阁公开的议案信息，支持按议案号或议案名检索。</p>
+        <!-- 说明文字 -->
+        <p id="userDescText">查阅神界成员的基本信息。支持通过「账号名称」或「自设名称」搜索，结果将展示成员核心信息。</p>
         
-        <!-- 搜索区域 -->
-        <div id="billSearchContainer" class="bill-search-center">
+        <!-- 成员搜索区域 -->
+        <div id="userSearchContainer" class="user-search-center">
           <div class="bill-search">
-            <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
-            <button id="billSearchBtn">
-              <<<<i class="search-icon">🔍</</</i> 搜索议案
+            <input type="text" id="userSearchInput" placeholder="输入账号名称或自设名称搜索">
+            <button id="userSearchBtn">
+              <i class="search-icon">🔍</i> 搜索成员
             </button>
           </div>
         </div>
         
-        <!-- 结果容器（已删除白色背景） -->
+        <!-- 成员搜索结果容器 -->
+        <div id="userResults" class="user-results-container">
+          <!-- 结果动态渲染 -->
+        </div>
+      </section>
+
+      <!-- 4. 神界议案库 -->
+      <section class="content-section" data-index="3">
+        <h2>神界议案库</h2>
+        <p id="billDescText">搜索并查看神界内阁公开的议案信息，支持按议案号或议案名检索。</p>
+        
+        <div id="billSearchContainer" class="bill-search-center">
+          <div class="bill-search">
+            <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
+            <button id="billSearchBtn">
+              <i class="search-icon">🔍</i> 搜索议案
+            </button>
+          </div>
+        </div>
+        
         <div id="billResults" class="bill-results-container">
-          <!-- 搜索结果将动态插入这里 -->
+          <!-- 议案结果动态渲染 -->
         </div>
       </section>
       
@@ -1027,7 +1209,7 @@
         </div>
       </div>
       
-      <!-- 5. 神界文件库（按钮左对齐） -->
+      <!-- 5. 神界文件库 -->
       <section class="content-section" data-index="4">
         <h2>神界文件库</h2>
         <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
@@ -1072,7 +1254,6 @@
           <div class="about-info">
             <dl>
               <dt>开发：</dt>
-              <!-- 新增强调色+hover变色，交互感拉满 -->
               <dd>
                 <a 
                   href="https://auting-awf.github.io/about" 
@@ -1089,9 +1270,9 @@
               <dt>UI系统：</dt>
               <dd>ChunG UI 1.0</dd>
               <dt>Web版本：</dt>
-              <dd>Beta1</dd>
+              <dd>Beta2</dd>
               <dt>鸣谢：</dt>
-              <dd>春国工作室</dd>
+              <dd>春国工作室丨Github</dd>
             </dl>
           </div>
           <div class="about-changelog">
@@ -1108,7 +1289,7 @@
     </main>
   </div>
 
-  <!-- 跳转确认弹窗（文件库专用） -->
+  <!-- 跳转确认弹窗 -->
   <div class="jump-modal" id="jumpModal">
     <div class="jump-modal-content">
       <div class="jump-modal-title">确认跳转</div>
@@ -1183,7 +1364,6 @@
     let dragStartTime = 0;     
     const dragThreshold = 20; 
 
-    // 同步左侧导航
     function syncSidebar() {
       sidebarLinks.forEach((link, index) => {
         link.classList.remove('active');
@@ -1195,15 +1375,20 @@
       });
     }
 
-    // 初始化布局
     function initLayout() {
       syncSidebar();
       sections.forEach((sec, index) => {
         sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
+      // 初始化隐藏搜索结果，显示说明文字
+      document.getElementById('billResults').classList.remove('active');
+      document.getElementById('billSearchContainer').classList.remove('active');
+      document.getElementById('billDescText').classList.remove('desc-hidden');
+      document.getElementById('userResults').classList.remove('active');
+      document.getElementById('userSearchContainer').classList.remove('active');
+      document.getElementById('userDescText').classList.remove('desc-hidden');
     }
 
-    // 拖拽开始
     function onDragStart(e) {
       if (e.type === 'touchstart') {
         startY = e.touches[0].clientY;
@@ -1216,7 +1401,6 @@
       sections.forEach(sec => sec.style.transition = 'none');
     }
 
-    // 实时拖拽
     function onDragMove(e) {
       if (!isDragging) return;
       let currentY = 0;
@@ -1229,7 +1413,6 @@
       dragDistance = currentY - startY;
     }
 
-    // 拖拽结束
     function onDragEnd() {
       if (!isDragging) return;
       isDragging = false;
@@ -1250,7 +1433,7 @@
         sections.forEach((sec, index) => {
           sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
         });
-        syncSidebar(); // 拖拽结束后同步左侧导航
+        syncSidebar();
       } else {
         sections.forEach((sec, index) => {
           sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
@@ -1258,7 +1441,6 @@
       }
     }
 
-    // 绑定事件
     const content = document.querySelector('.content');
     content.addEventListener('touchstart', onDragStart);
     content.addEventListener('touchmove', onDragMove, { passive: false });
@@ -1267,7 +1449,6 @@
     content.addEventListener('mousemove', onDragMove);
     content.addEventListener('mouseup', onDragEnd);
     content.addEventListener('mouseleave', onDragEnd);
-    // 滚轮事件
     content.addEventListener('wheel', (e) => {
       e.preventDefault();
       if (e.deltaY > 0) {
@@ -1278,17 +1459,16 @@
       sections.forEach((sec, index) => {
         sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
       });
-      syncSidebar(); // 滚轮切换后同步左侧导航
+      syncSidebar();
     }, { passive: false });
 
-    // 左侧导航点击切换
     sidebarLinks.forEach((link, index) => {
       link.addEventListener('click', () => {
         currentIndex = index;
         sections.forEach((sec, i) => {
           sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
         });
-        syncSidebar(); // 点击导航后同步左侧导航
+        syncSidebar();
         if (window.innerWidth <= 768) {
           toggleSidebar();
         }
@@ -1340,7 +1520,7 @@
     const billSearchBtn = document.getElementById('billSearchBtn');
     const billModal = document.getElementById('billModal');
     const modalClose = document.querySelector('.bill-modal-close');
-    const billDescText = document.getElementById('billDescText'); // 议案库说明文字
+    const billDescText = document.getElementById('billDescText');
 
     billSearchBtn.addEventListener('click', searchBills);
     billSearchInput.addEventListener('keypress', (e) => {
@@ -1348,70 +1528,68 @@
     });
 
     async function searchBills() {
-  const input = billSearchInput.value.trim();
-  // 搜索时隐藏说明文字
-  billDescText.classList.add('bill-desc-hidden');
-  
-  if (!input) {
-    billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
-    billSearchContainer.classList.add('active');
-    billResults.classList.add('active');
-    return;
-  }
-
-  try {
-    billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
-    billSearchContainer.classList.add('active');
-    billResults.classList.add('active');
-
-    // 关键修改：通过Vercel后端接口获取私密仓库的bill.json（替换原raw.githubusercontent.com请求）
-    const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill');
-    if (!response.ok) throw new Error('数据请求失败');
-    const bills = await response.json();
-
-    const results = bills.filter(bill => 
-      bill.id.includes(input) || bill.title.includes(input)
-    );
-
-    if (results.length === 0) {
-      billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
-      return;
-    }
-
-    let html = '';
-    results.forEach(bill => {
-      // 修复文本溢出：仅当内容超过120字符时加"..."
-      const contentText = bill.content.length > 120 
-        ? bill.content.substring(0, 120) + '...' 
-        : bill.content;
+      const input = billSearchInput.value.trim();
+      billDescText.classList.add('desc-hidden');
       
-      html += `
-        <div class="bill-card" data-id="${bill.id}">
-          <div class="bill-card-header">
-            <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
-            <div class="bill-card-title">${bill.title}</div>
-          </div>
-          <div class="bill-card-content">${contentText}</div>
-          <div class="bill-card-publish">${bill.publish_info}</div>
-        </div>
-      `;
-    });
-    
-    billResults.innerHTML = html;
+      if (!input) {
+        billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
+        billSearchContainer.classList.add('active');
+        billResults.classList.add('active');
+        return;
+      }
 
-    document.querySelectorAll('.bill-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const billId = card.getAttribute('data-id');
-        const bill = results.find(b => b.id === billId);
-        showBillDetails(bill);
-      });
-    });
+      try {
+        billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
+        billSearchContainer.classList.add('active');
+        billResults.classList.add('active');
 
-  } catch (error) {
-    console.error('搜索失败:', error);
-    billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
-  }
-}
+        // 议案API（替换为你的实际接口）
+        const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill');
+        if (!response.ok) throw new Error('数据请求失败');
+        const bills = await response.json();
+
+        const results = bills.filter(bill => 
+          bill.id.includes(input) || bill.title.includes(input)
+        );
+
+        if (results.length === 0) {
+          billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
+          return;
+        }
+
+        let html = '';
+        results.forEach(bill => {
+          const contentText = bill.content.length > 120 
+            ? bill.content.substring(0, 120) + '...' 
+            : bill.content;
+          
+          html += `
+            <div class="bill-card" data-id="${bill.id}">
+              <div class="bill-card-header">
+                <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
+                <div class="bill-card-title">${bill.title}</div>
+              </div>
+              <div class="bill-card-content">${contentText}</div>
+              <div class="bill-card-publish">${bill.publish_info}</div>
+            </div>
+          `;
+        });
+        
+        billResults.innerHTML = html;
+
+        document.querySelectorAll('.bill-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const billId = card.getAttribute('data-id');
+            const bill = results.find(b => b.id === billId);
+            showBillDetails(bill);
+          });
+        });
+
+      } catch (error) {
+        console.error('搜索失败:', error);
+        billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
+      }
+    }
 
     function showBillDetails(bill) {
       document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
@@ -1428,7 +1606,174 @@
       if (e.target === billModal) billModal.style.display = 'none';
     });
 
-    // 5. 文件库跳转确认弹窗逻辑
+    // 补充：你的旧代码中用到的提示函数，统一错误/成功提示风格
+    function showMessage(text, type = 'info') {
+      // 创建顶部临时提示框
+      const messageBox = document.createElement('div');
+      messageBox.style.position = 'fixed';
+      messageBox.style.top = '20px';
+      messageBox.style.left = '50%';
+      messageBox.style.transform = 'translateX(-50%)';
+      messageBox.style.padding = '12px 20px';
+      messageBox.style.borderRadius = '8px';
+      messageBox.style.zIndex = '9999';
+      messageBox.style.color = 'white';
+      messageBox.style.fontSize = '14px';
+      messageBox.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+      messageBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      messageBox.style.opacity = '0';
+      messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
+  
+      // 错误提示用红色，正常提示用强调色
+      if (type === 'error') {
+        messageBox.style.backgroundColor = '#dc3545';
+      } else {
+        messageBox.style.backgroundColor = var(--accent-color);
+      }
+  
+      messageBox.textContent = text;
+      document.body.appendChild(messageBox);
+  
+      // 显示提示框
+      setTimeout(() => {
+        messageBox.style.opacity = '1';
+        messageBox.style.transform = 'translateX(-50%) translateY(0)';
+      }, 10);
+  
+      // 3秒后自动关闭
+      setTimeout(() => {
+        messageBox.style.opacity = '0';
+        messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
+        setTimeout(() => {
+          document.body.removeChild(messageBox);
+        }, 300);
+      }, 3000);
+    }
+    
+    // 5. 成员信息库搜索功能（核心适配你的API）
+    const userSearchContainer = document.getElementById('userSearchContainer');
+    const userResults = document.getElementById('userResults');
+    const userSearchInput = document.getElementById('userSearchInput');
+    const userSearchBtn = document.getElementById('userSearchBtn');
+    const userDescText = document.getElementById('userDescText');
+
+    // 绑定搜索事件
+    userSearchBtn.addEventListener('click', searchUsers);
+    userSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchUsers();
+    });
+
+    /**
+     * 成员搜索逻辑：
+     * 1. 先调用getAllUserIDs获取所有用户ID
+     * 2. 批量调用getUserInfo获取用户详情
+     * 3. 按关键词筛选并渲染
+     */
+    async function searchUsers() {
+      const input = userSearchInput.value.trim();
+      userDescText.classList.add('desc-hidden');
+
+      if (!input) {
+        userResults.innerHTML = '<div class="user-error">请输入账号名称或自设名称</div>';
+        userSearchContainer.classList.add('active');
+        userResults.classList.add('active');
+        return;
+      }
+
+      try {
+        // 显示加载状态
+        userResults.innerHTML = '<div class="user-loading">正在获取成员列表...</div>';
+        userSearchContainer.classList.add('active');
+        userResults.classList.add('active');
+
+        // --------------------------
+        // 关键：替换为你的Vercel项目域名
+        const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app"; // 你的实际Vercel域名
+        // --------------------------
+
+       // 按你旧代码的写法调整（无需单独定义 VERCEL_DOMAIN 变量，直接写域名主体）
+        // 1. 获取所有用户ID（用定义好的VERCEL_DOMAIN变量）
+        const userIDsResponse = await fetch(`${VERCEL_DOMAIN}/api/getAllUserIDs`);
+        // 新增：解析接口返回的用户ID数据
+        const userIDsData = await userIDsResponse.json();
+        // 新增：判断接口是否返回成功，且有数据
+        if (!userIDsData.success || !userIDsData.data.length) {
+          userResults.innerHTML = '<div class="user-error">未找到任何成员数据</div>';
+          return;
+        }
+        // 新增：提取用户ID数组（这是批量请求的基础）
+        const allUserIDs = userIDsData.data;
+        const allUsers = [];
+        const batchSize = 5; // 控制并发数，避免限流
+        // 新增：for循环分批次处理allUserIDs
+        for (let i = 0; i < allUserIDs.length; i += batchSize) {
+          const batchIDs = allUserIDs.slice(i, i + batchSize); // 当前批次的用户ID
+          const batchPromises = batchIDs.map(id => 
+            fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userID=${id}`)
+              .then(res => res.json())
+              .then(data => {
+                if (data.success) return data.data;
+                showMessage(data.msg, 'error'); // 单个用户请求失败提示
+                return null;
+              })
+              .catch(() => {
+                showMessage('获取单个用户信息失败', 'error');
+                return null;
+              })
+          );
+          const batchResults = await Promise.all(batchPromises);
+          // 新增：收集当前批次的有效用户数据（过滤null）
+          allUsers.push(...batchResults.filter(user => user !== null));
+        }
+        // 步骤3：筛选匹配结果（不区分大小写）
+        const searchStr = input.toLowerCase();
+        const matchedUsers = allUsers.filter(user => {
+          const accountName = (user['账号名称'] || '').toLowerCase();
+          const customName = (user['自设名称'] || '').toLowerCase();
+          return accountName.includes(searchStr) || customName.includes(searchStr);
+        });
+
+        // 步骤4：渲染结果
+        if (matchedUsers.length === 0) {
+          userResults.innerHTML = '<div class="user-error">未找到匹配的成员</div>';
+          return;
+        }
+
+        let html = '';
+        matchedUsers.forEach(user => {
+          html += `
+          <!-- 接上文：成员信息库搜索功能的 user-card 渲染部分继续补全 -->
+            <div class="user-card">
+              <div class="user-card-header">
+                <div class="user-card-account">${user['账号名称'] || '未设置'}</div>
+                <div class="user-card-id">ID: ${user.user || '未知'}</div>
+              </div>
+              <div class="user-card-content">
+                <div class="user-info-row">
+                  <div class="user-info-label">自设名称:</div>
+                  <div class="user-info-value">${user['自设名称'] || '未设置'}</div>
+                </div>
+                <div class="user-info-row">
+                  <div class="user-info-label">入圈时间:</div>
+                  <div class="user-info-value">${user['入圈时间'] || '未知'}</div>
+                </div>
+                <div class="user-info-row">
+                  <div class="user-info-label">个人介绍:</div>
+                  <div class="user-info-value user-intro">${user['个人介绍'] || '无'}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        userResults.innerHTML = html;
+
+      } catch (error) {
+        console.error('成员搜索失败:', error);
+        userResults.innerHTML = '<div class="user-error">成员数据加载失败，请稍后再试</div>';
+      }
+    }
+
+    // 6. 文件库跳转确认弹窗逻辑
     const jumpModal = document.getElementById('jumpModal');
     const cancelJump = document.getElementById('cancelJump');
     const confirmJump = document.getElementById('confirmJump');
@@ -1449,7 +1794,7 @@
 
     confirmJump.addEventListener('click', function() {
       if (targetHref) {
-        window.open(targetHref, '_blank'); // 新标签页打开，保留原页面
+        window.open(targetHref, '_blank');
         jumpModal.style.display = 'none';
         targetHref = '';
       }
@@ -1462,14 +1807,17 @@
       }
     });
 
-    // 6. 页面加载初始化
+    // 7. 页面加载初始化
     document.addEventListener('DOMContentLoaded', function() {
       initLayout();
       updateLoginButton();
-      billResults.classList.remove('active');
-      billSearchContainer.classList.remove('active');
-      // 初始化时显示说明文字
-      billDescText.classList.remove('bill-desc-hidden');
+      // 初始化时确保搜索结果隐藏、说明文字显示
+      document.getElementById('billResults').classList.remove('active');
+      document.getElementById('billSearchContainer').classList.remove('active');
+      document.getElementById('billDescText').classList.remove('desc-hidden');
+      document.getElementById('userResults').classList.remove('active');
+      document.getElementById('userSearchContainer').classList.remove('active');
+      document.getElementById('userDescText').classList.remove('desc-hidden');
     });
   </script>
 </body>
