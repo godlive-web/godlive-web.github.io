@@ -677,26 +677,40 @@ function showMessage(text, type) {
   }
 }
 
-// 注销功能
+// 注销功能（修改后：彻底清理Cookie+跳对页面）
 function setupLogoutFunction() {
   const logoutLink = document.getElementById('logoutLink');
   if (logoutLink) {
     logoutLink.addEventListener('click', function() {
       if (confirm('确定要注销账号吗？注销后将返回登录页')) {
-        setCookie('userData', '', -1); 
-        setCookie('user', '0', 30);
-        window.location.href = 'https://godlive-web.github.io/login';
+        setCookie('userData', '', -1); // 过期删除userData
+        setCookie('user', '', -1);     // 过期删除user（不再设为0）
+        window.location.href = 'https://godlive-web.github.io/login.html'; // 补全.html
       }
     });
   }
 }
 
-// 检查登录状态，未登录则跳转
+// 检查登录状态（修改后：强化校验，未登录直接跳转）
 function checkLoginStatus() {
   const userCookie = getCookie('user');
-  if (!userCookie || userCookie === '0') {
-    window.location.href = 'https://godlive-web.github.io/login';
+  const userDataStr = getCookie('userData');
+  // 双重校验：必须有userCookie且不为空、有有效userData，才视为登录
+  if (!userCookie || userCookie === '' || !userDataStr) {
+    window.location.href = 'https://godlive-web.github.io/login.html';
+    return false; // 阻止后续代码执行
   }
+  // 额外校验userData是否有效（防止篡改Cookie）
+  try {
+    JSON.parse(userDataStr);
+  } catch (e) {
+    // 无效Cookie直接清理并跳转
+    setCookie('userData', '', -1);
+    setCookie('user', '', -1);
+    window.location.href = 'https://godlive-web.github.io/login.html';
+    return false;
+  }
+  return true;
 }
 
 // 从后端接口获取最新用户信息（调用GitHub仓库数据）
@@ -984,9 +998,11 @@ function setupNavigation() {
   syncSidebar();
 }
 
-// 页面加载时统一初始化所有功能
+// 页面加载时统一初始化所有功能（修改后：先校验登录）
 document.addEventListener('DOMContentLoaded', async function() {
-  checkLoginStatus();
+  const isLogin = checkLoginStatus();
+  if (!isLogin) return;
+  
   const latestData = await fetchLatestUserInfo();
   loadBasicInfo(latestData);
   setupFeedbackFunction();
