@@ -1059,7 +1059,7 @@
         神界阁
       </div>
     </div>
-    <div class="header-right">Beta2.0.0</div>
+    <div class="header-right">Beta2.0.1</div>
   </header>
 
   <!-- 主容器 -->
@@ -1135,7 +1135,7 @@
 
     <!-- 登录按钮区域 - 固定在左下角 -->
     <div class="login-section">
-      <a href="https://godlive-web.github.io/login" target="_blank" class="login-btn" id="loginButton">
+      <a href="https://godlive-web.github.io/login.html" target="_blank" class="login-btn" id="loginButton">
         <span id="loginText">点击登录</span>
         <span class="login-arrow">→</span>
       </a>
@@ -1307,7 +1307,7 @@
   </div>
 
   <script>
-    // 1. Cookie处理函数
+    // 1. Cookie处理函数（修复：统一跨域和安全配置）
     function setCookie(name, value, days, sameSite = 'Lax') {
       const expires = new Date();
       expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
@@ -1325,35 +1325,36 @@
       return null;
     }
 
-    // 初始化Cookie
-    if (!getCookie('user')) {
-      setCookie('user', '0', 30);
-    }
+    // 修复：移除自动设置user=0的逻辑（登录时由登录页设置，注销时彻底删除）
 
-    // 更新登录按钮文本和跳转链接（修复：确保登录后显示用户信息）
+    // 更新登录按钮文本和跳转链接（核心修复：严格判断登录状态）
     function updateLoginButton() {
       const userCookie = getCookie('user');
       const userDataStr = getCookie('userData');
       const loginText = document.getElementById('loginText');
       const loginButton = document.getElementById('loginButton');
       
-      // 登录状态：userCookie不为0且有userData
-      if (userCookie && userCookie !== '0' && userDataStr) {
+      // 严格登录判断：3个条件同时满足才视为登录
+      // 1. userCookie存在 2. userCookie不为空 3. userData存在且可解析
+      if (userCookie && userCookie !== '' && userDataStr) {
         try {
           const userData = JSON.parse(userDataStr);
           // 优先显示账号名称，无则显示userID
           loginText.textContent = userData['账号名称'] || userCookie;
-          // 登录后跳转个人中心
-          loginButton.href = 'https://godlive-web.github.io/personaldata';
+          // 跳转个人中心（补全.html）
+          loginButton.href = 'https://godlive-web.github.io/personaldata.html';
         } catch (e) {
           console.error('解析userData失败:', e);
-          loginText.textContent = userCookie;
-          loginButton.href = 'https://godlive-web.github.io/personaldata';
+          // 解析失败=无效登录，清理Cookie
+          setCookie('userData', '', -1);
+          setCookie('user', '', -1);
+          loginText.textContent = '点击登录';
+          loginButton.href = 'https://godlive-web.github.io/login.html';
         }
       } else {
         // 未登录状态
         loginText.textContent = '点击登录';
-        loginButton.href = 'https://godlive-web.github.io/login';
+        loginButton.href = 'https://godlive-web.github.io/login.html';
       }
     }
 
@@ -1361,7 +1362,7 @@
     const sections = document.querySelectorAll('.content-section');
     const sidebarLinks = document.querySelectorAll('.sidebar-link');
     const sidebarItems = document.querySelectorAll('.sidebar-item');
-    let currentIndex = 0;      // 默认选中索引3（神界议案库），与HTML中active类对应
+    let currentIndex = 3;      // 默认选中索引3（神界议案库），与HTML中active类对应
     let startY = 0;            
     let isDragging = false;    
     let dragDistance = 0;      
@@ -1687,7 +1688,7 @@
       // 3秒后自动关闭
       setTimeout(() => {
         messageBox.style.opacity = '0';
-        messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
+                messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
         setTimeout(() => {
           document.body.removeChild(messageBox);
         }, 300);
