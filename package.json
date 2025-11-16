@@ -2,6 +2,7 @@
   "name": "godlive-api",
   "version": "1.0.0",
   "dependencies": {
-    "@octokit/rest": "^20.0.0"
+    "@octokit/rest": "^20.0.0",
+    "bcrypt": "^5.1.1"  // 新增这一行
   }
 }
