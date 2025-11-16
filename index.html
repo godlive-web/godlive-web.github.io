@@ -1,1861 +1,1846 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>神界阁－探索神界圈</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      font-style: normal;
-    }
-    :root {
-      --bg-primary: #f8f9fa;
-      --bg-secondary: #ffffff;
-      --text-primary: #212529;
-      --text-secondary: #495057;
-      --accent-color: #6f42c1;
-      --accent-light: #e0d6ff;
-      --border-color: #dee2e6;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --card-bg: #ffffff;
-      --header-bg: rgba(255, 255, 255, 0.95);
-      --sidebar-bg: rgba(248, 249, 250, 0.9);
-      --content-bg: rgba(255, 255, 255, 0.7);
-      --sidebar-width: 260px;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg-primary: #0c0c1e;
-        --bg-secondary: #1a1a3a;
-        --text-primary: #e0e0ff;
-        --text-secondary: #a0a0ff;
-        --accent-color: #8a63d2;
-        --accent-light: rgba(100, 80, 255, 0.2);
-        --border-color: rgba(100, 80, 255, 0.3);
-        --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        --card-bg: rgba(20, 20, 45, 0.8);
-        --header-bg: rgba(15, 15, 35, 0.95);
-        --sidebar-bg: rgba(20, 20, 45, 0.8);
-        --content-bg: rgba(15, 15, 30, 0.5);
-      }
-    }
-    body {
-      font-family: "Microsoft YaHei", sans-serif;
-      overflow: hidden;
-      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-      color: var(--text-primary);
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    /* 顶部导航 */
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 70px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 25px;
-      background: var(--header-bg);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-      z-index: 999;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .logo {
-      height: 45px;
-      width: auto;
-    }
-    .site-title {
-      position: relative;
-      font-size: 24px;
-      font-weight: bold;
-      color: var(--text-primary);
-      text-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
-    }
-    .web-badge {
-      position: absolute;
-      top: -8px;
-      left: -20px;
-      font-size: 10px;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      padding: 2px 6px;
-      border-radius: 4px;
-      transform: rotate(-15deg);
-      color: white;
-    }
-    .header-right {
-      font-size: 16px;
-      color: var(--text-secondary);
-      font-weight: bold;
-    }
-
-    /* 汉堡菜单按钮 (移动端) */
-    .hamburger-menu {
-      display: none;
-      flex-direction: column;
-      justify-content: space-around;
-      width: 30px;
-      height: 25px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      z-index: 1000;
-    }
-    .hamburger-menu span {
-      width: 100%;
-      height: 3px;
-      background: var(--text-primary);
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-    .hamburger-menu.active span:nth-child(1) {
-      transform: rotate(45deg) translate(5px, 5px);
-    }
-    .hamburger-menu.active span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger-menu.active span:nth-child(3) {
-      transform: rotate(-45deg) translate(7px, -6px);
-    }
-
-    /* 主容器 */
-    .main-container {
-      display: flex;
-      margin-top: 70px;
-      height: calc(100vh - 70px);
-    }
-
-    /* 左侧导航栏 */
-    .sidebar {
-      width: var(--sidebar-width);
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      padding-bottom: 70px;
-      transition: transform 0.3s ease, width 0.3s ease;
-      z-index: 998;
-    }
-    .sidebar-nav {
-      padding: 12px 0;
-      flex: 1;
-    }
-    .sidebar-item {
-      border-bottom: 1px solid var(--border-color);
-    }
-    .sidebar-link {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 25px;
-      width: 100%;
-      font-size: 16px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-    .sidebar-link:hover {
-      background: var(--accent-light);
-      color: var(--text-primary);
-      transform: translateX(8px);
-    }
-    .sidebar-link.active {
-      background: var(--accent-light);
-      color: var(--accent-color);
-      transform: translateX(8px);
-    }
-    .sidebar-link.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 4px;
-      background: linear-gradient(to bottom, #6a11cb, #2575fc);
-    }
-    .arrow {
-      font-size: 12px;
-      transition: transform 0.3s ease;
-      color: var(--accent-color);
-    }
-    .sidebar-item.expanded .arrow {
-      transform: rotate(180deg);
-    }
-    .function-intro {
-      max-height: 0;
-      overflow: hidden;
-      padding: 0 25px;
-      background: var(--card-bg);
-      font-size: 13px;
-      color: var(--text-secondary);
-      transition: max-height 0.3s ease-out;
-    }
-    .sidebar-item.expanded .function-intro {
-      max-height: 100px;
-      padding: 10px 25px 14px;
-    }
-    
-    /* 登录按钮区域 - 固定在左下角 */
-    .login-section {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      z-index: 1000;
-      width: 220px;
-      transition: all 0.3s ease;
-    }
-    .login-btn {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 12px 16px;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
-      text-decoration: none;
-    }
-    .login-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
-    }
-    .login-btn:active {
-      transform: scale(1);
-    }
-    .login-arrow {
-      font-size: 16px;
-      text-decoration: none;
-    }
-
-    /* 右侧内容区 */
-    .content {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      background: var(--content-bg);
-      transition: margin-left 0.3s ease;
-    }
-    .content-section {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      padding: 40px 30px;
-      transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      color: var(--text-primary);
-      overflow-y: auto;
-      transform: translateY(calc(var(--section-index) * 100vh));
-    }
-    .content-section[data-index="0"] { --section-index: 0; }
-    .content-section[data-index="1"] { --section-index: 1; }
-    .content-section[data-index="2"] { --section-index: 2; }
-    .content-section[data-index="3"] { --section-index: 3; }
-    .content-section[data-index="4"] { --section-index: 4; }
-    .content-section[data-index="5"] { --section-index: 5; }
-    .content-section[data-index="6"] { --section-index: 6; }
-
-    .content-section h2 {
-      font-size: 32px;
-      margin-bottom: 25px;
-      color: var(--text-primary);
-      text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
-      position: relative;
-      padding-bottom: 15px;
-      font-weight: bold;
-    }
-    .content-section h2::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 60px;
-      height: 3px;
-      background: linear-gradient(to right, #6a11cb, #2575fc);
-      border-radius: 3px;
-    }
-    .content-section p {
-      margin-top: 20px;
-      font-size: 17px;
-      line-height: 1.7;
-      color: var(--text-secondary);
-    }
-    /* 通用说明文字隐藏类 */
-    .desc-hidden {
-      display: none;
-    }
-
-    /* ============= 议案库样式 ============= */
-    .bill-search-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 180px;
-      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-bottom: 40px;
-    }
-    .bill-search-center.active {
-      margin-top: -30px;
-      margin-bottom: 20px;
-      min-height: 120px;
-      opacity: 0.95;
-    }
-    .bill-search {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      max-width: 500px;
-      width: 90%;
-    }
-    #billSearchInput {
-      width: 100%;
-      padding: 12px 20px;
-      border: 2px solid #6f42c1;
-      border-radius: 50px;
-      font-size: 16px;
-      box-shadow: 0 4px 10px rgba(111, 66, 193, 0.2);
-      transition: all 0.3s ease;
-    }
-    #billSearchInput:focus {
-      outline: none;
-      border-color: #2575fc;
-      box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
-    }
-    #billSearchBtn {
-      padding: 12px 25px;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #billSearchBtn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
-    }
-
-    .bill-results-container {
-      display: none;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 15px;
-      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      opacity: 0;
-      transform: translateY(30px);
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      max-height: none;
-      overflow: visible;
-    }
-    .bill-results-container.active {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .bill-card {
-      background: var(--bg-secondary);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      width: calc(25% - 12px);
-      min-width: 220px;
-      margin: 0;
-    }
-    @media (max-width: 768px) {
-      .bill-card {
-        width: calc(50% - 8px);
-        min-width: 140px;
-      }
-    }
-    .bill-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    }
-    .bill-card-header {
-      padding: 12px 15px;
-      background: linear-gradient(135deg, rgba(106, 17, 203, 0.2) 0%, rgba(37, 117, 252, 0.2) 100%);
-    }
-    .bill-card-id {
-      font-size: 18px;
-      font-weight: bold;
-      color: var(--accent-color);
-    }
-    .bill-card-title {
-      font-size: 16px;
-      margin-top: 5px;
-      color: var(--text-primary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .bill-card-content {
-      padding: 12px 15px;
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      max-height: 90px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-    }
-    .bill-card-publish {
-      padding: 8px 15px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      border-top: 1px solid var(--border-color);
-    }
-
-    /* 通用错误/加载样式 */
-    .bill-error, .bill-loading, .user-error, .user-loading {
-      text-align: center;
-      padding: 30px 20px;
-      color: var(--text-secondary);
-      font-size: 16px;
-      width: 100%;
-    }
-    .bill-loading, .user-loading {
-      color: var(--accent-color);
-    }
-
-    /* ============= 成员信息库搜索样式（核心新增） ============= */
-    .user-search-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 160px;
-      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-bottom: 30px;
-    }
-    .user-search-center.active {
-      margin-top: -20px;
-      margin-bottom: 15px;
-      min-height: 100px;
-      opacity: 0.95;
-    }
-    #userSearchInput {
-      width: 100%;
-      padding: 12px 20px;
-      border: 2px solid var(--accent-color);
-      border-radius: 50px;
-      font-size: 16px;
-      box-shadow: 0 4px 10px rgba(111, 66, 193, 0.15);
-      transition: all 0.3s ease;
-    }
-    #userSearchInput:focus {
-      outline: none;
-      border-color: #2575fc;
-      box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.25);
-    }
-    #userSearchBtn {
-      padding: 12px 25px;
-      background: linear-gradient(135deg, #6f42c1 0%, #8a63d2 100%);
-      color: white;
-      border: none;
-      border-radius: 50px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(111, 66, 193, 0.25);
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    #userSearchBtn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
-      background: linear-gradient(135deg, #6a11cb 0%, #8a63d2 100%);
-    }
-
-    .user-results-container {
-      display: none;
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px 15px;
-      transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
-      opacity: 0;
-      transform: translateY(20px);
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-    .user-results-container.active {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .user-card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-      transition: all 0.3s ease;
-      width: calc(33.33% - 15px);
-      min-width: 280px;
-      border-top: 3px solid var(--accent-color);
-    }
-    @media (max-width: 768px) {
-      .user-card {
-        width: calc(50% - 10px);
-        min-width: 240px;
-      }
-    }
-    @media (max-width: 480px) {
-      .user-card {
-        width: 100%;
-        min-width: unset;
-      }
-    }
-    .user-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-      border-top-color: #2575fc;
-    }
-
-    .user-card-header {
-      padding: 16px 20px;
-      background-color: var(--accent-light);
-    }
-    .user-card-account {
-      font-size: 20px;
-      font-weight: bold;
-      color: var(--accent-color);
-      margin-bottom: 4px;
-    }
-    .user-card-id {
-      font-size: 14px;
-      color: var(--text-secondary);
-      opacity: 0.9;
-    }
-
-    .user-card-content {
-      padding: 18px 20px;
-      font-size: 15px;
-      color: var(--text-primary);
-    }
-    .user-info-row {
-      display: flex;
-      margin-bottom: 12px;
-      align-items: flex-start;
-    }
-    .user-info-label {
-      width: 80px;
-      font-weight: 600;
-      color: var(--text-secondary);
-    }
-    .user-info-value {
-      flex: 1;
-      line-height: 1.6;
-    }
-    .user-intro {
-      max-height: 80px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-    }
-
-    /* ============= 议案详情模态框 ============= */
-    .bill-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .bill-modal-content {
-      background: var(--bg-secondary);
-      border-radius: 15px;
-      max-width: 800px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      padding: 25px;
-      position: relative;
-      box-shadow: var(--shadow);
-    }
-    .bill-modal-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: color 0.3s ease;
-    }
-    .bill-modal-close:hover {
-      color: var(--accent-color);
-    }
-    .bill-modal-id {
-      font-size: 22px;
-      font-weight: bold;
-      color: var(--accent-color);
-      margin-bottom: 10px;
-    }
-    .bill-modal-title {
-      font-size: 18px;
-      margin-bottom: 15px;
-      color: var(--text-primary);
-    }
-    .bill-modal-body {
-      font-size: 15px;
-      line-height: 1.7;
-      margin-bottom: 20px;
-      color: var(--text-secondary);
-    }
-    .bill-modal-publish {
-      font-size: 14px;
-      color: var(--text-secondary);
-    }
-
-    /* ============= 神界文件库 ============= */
-    .doc-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin: 25px 0 0 0;
-      padding: 0 0;
-      max-width: 500px;
-    }
-    .doc-btn {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 16px;
-      background-color: var(--bg-secondary);
-      border-radius: 8px;
-      color: var(--text-primary);
-      font-size: 16px;
-      text-decoration: none;
-      box-shadow: var(--shadow);
-      transition: all 0.2s ease;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-    }
-    .doc-btn:hover {
-      background-color: var(--bg-primary);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      transform: translateX(2px);
-    }
-    .doc-icon {
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .doc-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    .github-tip {
-      text-align: left;
-      color: #e53e3e;
-      font-size: 14px;
-      margin-top: 30px;
-      line-height: 1.5;
-      padding: 0 0;
-    }
-
-    /* 跳转确认弹窗 */
-    .jump-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1001;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .jump-modal-content {
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 24px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: var(--shadow);
-    }
-    .jump-modal-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 12px;
-      text-align: center;
-    }
-    .jump-modal-desc {
-      font-size: 14px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .jump-modal-btns {
-      display: flex;
-      gap: 12px;
-    }
-    .jump-modal-btn {
-      flex: 1;
-      padding: 10px 0;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .jump-modal-btn.cancel {
-      background: var(--bg-primary);
-      color: var(--text-secondary);
-    }
-    .jump-modal-btn.cancel:hover {
-      background: var(--border-color);
-    }
-    .jump-modal-btn.confirm {
-      background: var(--accent-color);
-      color: white;
-    }
-    .jump-modal-btn.confirm:hover {
-      background: #5a36a8;
-    }
-
-    /* ============= 关于我们 ============= */
-    .about-top-img {
-      max-width: 600px;
-      margin: -10px 0 20px 0;
-    }
-    .about-top-img .image-ui {
-      width: 33%;
-      max-width: none;
-      min-width: 150px;
-      height: auto;
-      display: block;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      box-shadow: var(--shadow);
-      margin: 0;
-    }
-    .about-info {
-      width: 100%;
-      max-width: 600px;
-      margin-bottom: 20px;
-    }
-    .about-info dl {
-      display: grid;
-      grid-template-columns: max-content 1fr;
-      gap: 8px 20px;
-      font-size: 16px;
-      color: var(--text-secondary);
-    }
-    .about-info dt {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    .about-changelog {
-      width: 100%;
-      max-width: 600px;
-    }
-    .about-changelog .changelog-link {
-      display: block;
-      font-size: 20px;
-      color: var(--text-primary);
-      padding-bottom: 10px;
-      position: relative;
-      margin-bottom: 15px;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .about-changelog .changelog-link::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 60px;
-      height: 3px;
-      background: linear-gradient(to right, #6a11cb, #2575fc);
-      border-radius: 3px;
-      transition: width 0.3s ease;
-    }
-    .about-changelog .changelog-link:hover::after {
-      width: 80px;
-    }
-    .about-changelog .changelog-link .login-arrow {
-      margin-left: 8px;
-      transition: transform 0.3s ease;
-    }
-    .about-changelog .changelog-link:hover .login-arrow {
-      transform: translateX(5px);
-    }
-    .changelog-description {
-      margin-top: 15px;
-    }
-    .changelog-description p {
-      font-size: 14px;
-      margin: 5px 0;
-    }
-    .about-changelog p {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin: 8px 0;
-    }
-
-    /* ============= 全局移动端适配 ============= */
-    @media (max-width: 768px) {
-      .header {
-        padding: 0 15px;
-      }
-      .hamburger-menu {
-        display: flex;
-        margin-right: 15px;
-      }
-      .sidebar {
-        position: fixed;
-        top: 70px;
-        left: 0;
-        height: calc(100vh - 70px);
-        transform: translateX(-100%);
-        width: 80%;
-        max-width: 300px;
-        z-index: 997;
-        padding-bottom: 80px;
-      }
-      .sidebar.active {
-        transform: translateX(0);
-      }
-      .sidebar-link {
-        padding: 12px 20px;
-        font-size: 15px;
-      }
-      .function-intro {
-        padding: 0 20px;
-        font-size: 12px;
-      }
-      .sidebar-item.expanded .function-intro {
-        padding: 8px 20px 12px;
-      }
-      .login-section {
-        position: fixed;
-        bottom: 15px;
-        left: 15px;
-        width: calc(80% - 30px);
-        max-width: 270px;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-      .sidebar.active ~ .login-section {
-        transform: translateX(0);
-      }
-      .login-btn {
-        padding: 10px 14px;
-        font-size: 15px;
-      }
-      .content {
-        margin-left: 0 !important;
-      }
-      .content-section {
-        padding: 30px 20px;
-      }
-      .content-section h2 {
-        font-size: 26px;
-      }
-      .content-section p {
-        font-size: 15px;
-      }
-      /* 议案搜索适配 */
-      .bill-search-center {
-        min-height: 150px;
-      }
-      .bill-search-center.active {
-        margin-top: -30px;
-        min-height: 100px;
-      }
-      .bill-card-content {
-        max-height: 110px;
-        -webkit-line-clamp: 4;
-      }
-      /* 成员搜索适配 */
-      .user-search-center {
-        min-height: 140px;
-      }
-      .user-search-center.active {
-        margin-top: -20px;
-        min-height: 90px;
-      }
-      .user-card-header {
-        padding: 14px 18px;
-      }
-      .user-card-account {
-        font-size: 18px;
-      }
-      .user-card-content {
-        padding: 15px 18px;
-        font-size: 14px;
-      }
-      .user-info-row {
-        margin-bottom: 10px;
-      }
-      .user-info-label {
-        width: 70px;
-      }
-      /* 模态框适配 */
-      .bill-modal-content {
-        padding: 20px;
-      }
-      .bill-modal-id {
-        font-size: 20px;
-      }
-      .bill-modal-title {
-        font-size: 16px;
-      }
-      .bill-modal-body {
-        font-size: 14px;
-      }
-      /* 关于我们适配 */
-      .about-top-img {
-        max-width: 100%;
-        padding: 0 0;
-      }
-      .about-top-img .image-ui {
-        width: 100%;
-        max-width: 300px;
-        min-width: unset;
-      }
-      .about-info, .about-changelog {
-        max-width: 100%;
-        padding: 0 0;
-      }
-      .about-info dl {
-        gap: 6px 15px;
-        font-size: 15px;
-      }
-      .about-changelog .changelog-link {
-        font-size: 18px;
-      }
-      /* 文件库适配 */
-      .doc-buttons {
-        padding: 0 0;
-      }
-      .doc-btn {
-        padding: 10px 14px;
-        font-size: 14px;
-      }
-      .doc-icon {
-        width: 28px;
-        height: 28px;
-      }
-      .github-tip {
-        font-size: 13px;
-        padding: 0 0;
-      }
-    }
-
-    /* 小屏幕手机样式 */
-    @media (max-width: 480px) {
-      .sidebar {
-        width: 85%;
-      }
-      .login-section {
-        width: calc(85% - 30px);
-      }
-      .sidebar-link {
-        padding: 10px 15px;
-        font-size: 14px;
-      }
-      .arrow {
-        margin-left: 5px;
-      }
-      /* 议案搜索适配 */
-      .bill-search-center.active {
-        margin-top: -30px;
-      }
-      .bill-results-container {
-        gap: 15px;
-        padding: 8px;
-      }
-      /* 成员搜索适配 */
-      .user-search-center.active {
-        margin-top: -15px;
-      }
-      .user-results-container {
-        gap: 15px;
-        padding: 10px 8px;
-      }
-      .user-card-content {
-        padding: 12px 15px;
-      }
-      .user-intro {
-        -webkit-line-clamp: 2;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>神界阁－探索神界圈</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+font-style: normal;
+}
+:root {
+--bg-primary: #f8f9fa;
+--bg-secondary: #ffffff;
+--text-primary: #212529;
+--text-secondary: #495057;
+--accent-color: #6f42c1;
+--accent-light: #e0d6ff;
+--border-color: #dee2e6;
+--shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+--card-bg: #ffffff;
+--header-bg: rgba(255, 255, 255, 0.95);
+--sidebar-bg: rgba(248, 249, 250, 0.9);
+--content-bg: rgba(255, 255, 255, 0.7);
+--sidebar-width: 260px;
+}
+@media (prefers-color-scheme: dark) {
+:root {
+--bg-primary: #0c0c1e;
+--bg-secondary: #1a1a3a;
+--text-primary: #e0e0ff;
+--text-secondary: #a0a0ff;
+--accent-color: #8a63d2;
+--accent-light: rgba(100, 80, 255, 0.2);
+--border-color: rgba(100, 80, 255, 0.3);
+--shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+--card-bg: rgba(20, 20, 45, 0.8);
+--header-bg: rgba(15, 15, 35, 0.95);
+--sidebar-bg: rgba(20, 20, 45, 0.8);
+--content-bg: rgba(15, 15, 30, 0.5);
+}
+}
+body {
+font-family: "Microsoft YaHei", sans-serif;
+overflow: hidden;
+background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+color: var(--text-primary);
+transition: background 0.3s ease, color 0.3s ease;
+}
+/* 顶部导航 */
+.header {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 70px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 25px;
+background: var(--header-bg);
+box-shadow: var(--shadow);
+backdrop-filter: blur(10px);
+z-index: 999;
+border-bottom: 1px solid var(--border-color);
+}
+.header-left {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+.logo {
+height: 45px;
+width: auto;
+}
+.site-title {
+position: relative;
+font-size: 24px;
+font-weight: bold;
+color: var(--text-primary);
+text-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
+}
+.web-badge {
+position: absolute;
+top: -8px;
+left: -20px;
+font-size: 10px;
+background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+padding: 2px 6px;
+border-radius: 4px;
+transform: rotate(-15deg);
+color: white;
+}
+.header-right {
+font-size: 16px;
+color: var(--text-secondary);
+font-weight: bold;
+}
+/* 汉堡菜单按钮 (移动端) */
+.hamburger-menu {
+display: none;
+flex-direction: column;
+justify-content: space-around;
+width: 30px;
+height: 25px;
+background: transparent;
+border: none;
+cursor: pointer;
+padding: 0;
+z-index: 1000;
+}
+.hamburger-menu span {
+width: 100%;
+height: 3px;
+background: var(--text-primary);
+border-radius: 2px;
+transition: all 0.3s ease;
+}
+.hamburger-menu.active span:nth-child(1) {
+transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-menu.active span:nth-child(2) {
+opacity: 0;
+}
+.hamburger-menu.active span:nth-child(3) {
+transform: rotate(-45deg) translate(7px, -6px);
+}
+/* 主容器 */
+.main-container {
+display: flex;
+margin-top: 70px;
+height: calc(100vh - 70px);
+}
+/* 左侧导航栏 */
+.sidebar {
+width: var(--sidebar-width);
+background: var(--sidebar-bg);
+border-right: 1px solid var(--border-color);
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+display: flex;
+flex-direction: column;
+position: relative;
+padding-bottom: 70px;
+transition: transform 0.3s ease, width 0.3s ease;
+z-index: 998;
+}
+.sidebar-nav {
+padding: 12px 0;
+flex: 1;
+}
+.sidebar-item {
+border-bottom: 1px solid var(--border-color);
+}
+.sidebar-link {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 14px 25px;
+width: 100%;
+font-size: 16px;
+background: none;
+border: none;
+cursor: pointer;
+color: var(--text-secondary);
+transition: all 0.3s ease;
+position: relative;
+}
+.sidebar-link:hover {
+background: var(--accent-light);
+color: var(--text-primary);
+transform: translateX(8px);
+}
+.sidebar-link.active {
+background: var(--accent-light);
+color: var(--accent-color);
+transform: translateX(8px);
+}
+.sidebar-link.active::before {
+content: '';
+position: absolute;
+left: 0;
+top: 0;
+height: 100%;
+width: 4px;
+background: linear-gradient(to bottom, #6a11cb, #2575fc);
+}
+.arrow {
+font-size: 12px;
+transition: transform 0.3s ease;
+color: var(--accent-color);
+}
+.sidebar-item.expanded .arrow {
+transform: rotate(180deg);
+}
+.function-intro {
+max-height: 0;
+overflow: hidden;
+padding: 0 25px;
+background: var(--card-bg);
+font-size: 13px;
+color: var(--text-secondary);
+transition: max-height 0.3s ease-out;
+}
+.sidebar-item.expanded .function-intro {
+max-height: 100px;
+padding: 10px 25px 14px;
+}
+/* 登录按钮区域 - 固定在左下角 */
+.login-section {
+position: fixed;
+bottom: 20px;
+left: 20px;
+z-index: 1000;
+width: 220px;
+transition: all 0.3s ease;
+}
+.login-btn {
+display: flex;
+align-items: center;
+justify-content: space-between;
+width: 100%;
+padding: 12px 16px;
+background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+font-weight: bold;
+cursor: pointer;
+transition: all 0.3s ease;
+box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+text-decoration: none;
+}
+.login-btn:hover {
+transform: scale(1.05);
+box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+}
+.login-btn:active {
+transform: scale(1);
+}
+.login-arrow {
+font-size: 16px;
+text-decoration: none;
+}
+/* 右侧内容区 */
+.content {
+flex: 1;
+position: relative;
+overflow: hidden;
+background: var(--content-bg);
+transition: margin-left 0.3s ease;
+}
+.content-section {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+padding: 40px 30px;
+transition: transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+color: var(--text-primary);
+overflow-y: auto;
+transform: translateY(calc(var(--section-index) * 100vh));
+}
+.content-section[data-index="0"] { --section-index: 0; }
+.content-section[data-index="1"] { --section-index: 1; }
+.content-section[data-index="2"] { --section-index: 2; }
+.content-section[data-index="3"] { --section-index: 3; }
+.content-section[data-index="4"] { --section-index: 4; }
+.content-section[data-index="5"] { --section-index: 5; }
+.content-section[data-index="6"] { --section-index: 6; }
+.content-section h2 {
+font-size: 32px;
+margin-bottom: 25px;
+color: var(--text-primary);
+text-shadow: 0 0 10px rgba(111, 66, 193, 0.2);
+position: relative;
+padding-bottom: 15px;
+font-weight: bold;
+}
+.content-section h2::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+width: 60px;
+height: 3px;
+background: linear-gradient(to right, #6a11cb, #2575fc);
+border-radius: 3px;
+}
+.content-section p {
+margin-top: 20px;
+font-size: 17px;
+line-height: 1.7;
+color: var(--text-secondary);
+}
+/* 通用说明文字隐藏类 */
+.desc-hidden {
+display: none;
+}
+/* ============= 议案库样式 ============= */
+.bill-search-center {
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 180px;
+transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+margin-bottom: 40px;
+}
+.bill-search-center.active {
+margin-top: -30px;
+margin-bottom: 20px;
+min-height: 120px;
+opacity: 0.95;
+}
+.bill-search {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 15px;
+max-width: 500px;
+width: 90%;
+}
+#billSearchInput {
+width: 100%;
+padding: 12px 20px;
+border: 2px solid #6f42c1;
+border-radius: 50px;
+font-size: 16px;
+box-shadow: 0 4px 10px rgba(111, 66, 193, 0.2);
+transition: all 0.3s ease;
+}
+#billSearchInput:focus {
+outline: none;
+border-color: #2575fc;
+box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
+}
+#billSearchBtn {
+padding: 12px 25px;
+background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+color: white;
+border: none;
+border-radius: 50px;
+font-weight: bold;
+cursor: pointer;
+box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+#billSearchBtn:hover {
+transform: translateY(-3px);
+box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+}
+.bill-results-container {
+display: none;
+width: 100%;
+max-width: 1200px;
+margin: 0 auto;
+padding: 15px;
+transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+opacity: 0;
+transform: translateY(30px);
+flex-wrap: wrap;
+justify-content: center;
+gap: 15px;
+max-height: none;
+overflow: visible;
+}
+.bill-results-container.active {
+display: flex;
+opacity: 1;
+transform: translateY(0);
+}
+.bill-card {
+background: var(--bg-secondary);
+border-radius: 10px;
+overflow: hidden;
+box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+cursor: pointer;
+width: calc(25% - 12px);
+min-width: 220px;
+margin: 0;
+}
+@media (max-width: 768px) {
+.bill-card {
+width: calc(50% - 8px);
+min-width: 140px;
+}
+}
+.bill-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+.bill-card-header {
+padding: 12px 15px;
+background: linear-gradient(135deg, rgba(106, 17, 203, 0.2) 0%, rgba(37, 117, 252, 0.2) 100%);
+}
+.bill-card-id {
+font-size: 18px;
+font-weight: bold;
+color: var(--accent-color);
+}
+.bill-card-title {
+font-size: 16px;
+margin-top: 5px;
+color: var(--text-primary);
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.bill-card-content {
+padding: 12px 15px;
+font-size: 14px;
+color: var(--text-secondary);
+line-height: 1.6;
+max-height: 90px;
+overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+-webkit-box-orient: vertical;
+}
+.bill-card-publish {
+padding: 8px 15px;
+font-size: 12px;
+color: var(--text-secondary);
+border-top: 1px solid var(--border-color);
+}
+/* 通用错误/加载样式 */
+.bill-error, .bill-loading, .user-error, .user-loading {
+text-align: center;
+padding: 30px 20px;
+color: var(--text-secondary);
+font-size: 16px;
+width: 100%;
+}
+.bill-loading, .user-loading {
+color: var(--accent-color);
+}
+/* ============= 成员信息库搜索样式（核心新增） ============= */
+.user-search-center {
+display: flex;
+justify-content: center;
+align-items: center;
+min-height: 160px;
+transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+margin-bottom: 30px;
+}
+.user-search-center.active {
+margin-top: -20px;
+margin-bottom: 15px;
+min-height: 100px;
+opacity: 0.95;
+}
+#userSearchInput {
+width: 100%;
+padding: 12px 20px;
+border: 2px solid var(--accent-color);
+border-radius: 50px;
+font-size: 16px;
+box-shadow: 0 4px 10px rgba(111, 66, 193, 0.15);
+transition: all 0.3s ease;
+}
+#userSearchInput:focus {
+outline: none;
+border-color: #2575fc;
+box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.25);
+}
+#userSearchBtn {
+padding: 12px 25px;
+background: linear-gradient(135deg, #6f42c1 0%, #8a63d2 100%);
+color: white;
+border: none;
+border-radius: 50px;
+font-weight: bold;
+cursor: pointer;
+box-shadow: 0 4px 15px rgba(111, 66, 193, 0.25);
+transition: all 0.3s ease;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+#userSearchBtn:hover {
+transform: translateY(-3px);
+box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+background: linear-gradient(135deg, #6a11cb 0%, #8a63d2 100%);
+}
+.user-results-container {
+display: none;
+width: 100%;
+max-width: 1100px;
+margin: 0 auto;
+padding: 20px 15px;
+transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+opacity: 0;
+transform: translateY(20px);
+flex-wrap: wrap;
+justify-content: center;
+gap: 20px;
+}
+.user-results-container.active {
+display: flex;
+opacity: 1;
+transform: translateY(0);
+}
+.user-card {
+background: var(--card-bg);
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+transition: all 0.3s ease;
+width: calc(33.33% - 15px);
+min-width: 280px;
+border-top: 3px solid var(--accent-color);
+}
+@media (max-width: 768px) {
+.user-card {
+width: calc(50% - 10px);
+min-width: 240px;
+}
+}
+@media (max-width: 480px) {
+.user-card {
+width: 100%;
+min-width: unset;
+}
+}
+.user-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+border-top-color: #2575fc;
+}
+.user-card-header {
+padding: 16px 20px;
+background-color: var(--accent-light);
+}
+.user-card-account {
+font-size: 20px;
+font-weight: bold;
+color: var(--accent-color);
+margin-bottom: 4px;
+}
+.user-card-id {
+font-size: 14px;
+color: var(--text-secondary);
+opacity: 0.9;
+}
+.user-card-content {
+padding: 18px 20px;
+font-size: 15px;
+color: var(--text-primary);
+}
+.user-info-row {
+display: flex;
+margin-bottom: 12px;
+align-items: flex-start;
+}
+.user-info-label {
+width: 80px;
+font-weight: 600;
+color: var(--text-secondary);
+}
+.user-info-value {
+flex: 1;
+line-height: 1.6;
+}
+.user-intro {
+max-height: 80px;
+overflow: hidden;
+text-overflow: ellipsis;
+display: -webkit-box;
+-webkit-line-clamp: 3;
+-webkit-box-orient: vertical;
+}
+/* ============= 议案详情模态框 ============= */
+.bill-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.7);
+z-index: 1000;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+.bill-modal-content {
+background: var(--bg-secondary);
+border-radius: 15px;
+max-width: 800px;
+width: 90%;
+max-height: 80vh;
+overflow-y: auto;
+padding: 25px;
+position: relative;
+box-shadow: var(--shadow);
+}
+.bill-modal-close {
+position: absolute;
+top: 15px;
+right: 15px;
+background: none;
+border: none;
+font-size: 24px;
+cursor: pointer;
+color: var(--text-secondary);
+transition: color 0.3s ease;
+}
+.bill-modal-close:hover {
+color: var(--accent-color);
+}
+.bill-modal-id {
+font-size: 22px;
+font-weight: bold;
+color: var(--accent-color);
+margin-bottom: 10px;
+}
+.bill-modal-title {
+font-size: 18px;
+margin-bottom: 15px;
+color: var(--text-primary);
+}
+.bill-modal-body {
+font-size: 15px;
+line-height: 1.7;
+margin-bottom: 20px;
+color: var(--text-secondary);
+}
+.bill-modal-publish {
+font-size: 14px;
+color: var(--text-secondary);
+}
+/* ============= 神界文件库 ============= */
+.doc-buttons {
+display: flex;
+flex-direction: column;
+gap: 16px;
+margin: 25px 0 0 0;
+padding: 0 0;
+max-width: 500px;
+}
+.doc-btn {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 12px 16px;
+background-color: var(--bg-secondary);
+border-radius: 8px;
+color: var(--text-primary);
+font-size: 16px;
+text-decoration: none;
+box-shadow: var(--shadow);
+transition: all 0.2s ease;
+border: none;
+cursor: pointer;
+width: 100%;
+}
+.doc-btn:hover {
+background-color: var(--bg-primary);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+transform: translateX(2px);
+}
+.doc-icon {
+width: 32px;
+height: 32px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.doc-icon img {
+width: 100%;
+height: 100%;
+object-fit: contain;
+}
+.github-tip {
+text-align: left;
+color: #e53e3e;
+font-size: 14px;
+margin-top: 30px;
+line-height: 1.5;
+padding: 0 0;
+}
+/* 跳转确认弹窗 */
+.jump-modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+z-index: 1001;
+align-items: center;
+justify-content: center;
+padding: 20px;
+}
+.jump-modal-content {
+background: var(--bg-secondary);
+border-radius: 12px;
+padding: 24px;
+width: 100%;
+max-width: 400px;
+box-shadow: var(--shadow);
+}
+.jump-modal-title {
+font-size: 18px;
+font-weight: 600;
+color: var(--text-primary);
+margin-bottom: 12px;
+text-align: center;
+}
+.jump-modal-desc {
+font-size: 14px;
+color: var(--text-secondary);
+line-height: 1.6;
+margin-bottom: 20px;
+}
+.jump-modal-btns {
+display: flex;
+gap: 12px;
+}
+.jump-modal-btn {
+flex: 1;
+padding: 10px 0;
+border-radius: 8px;
+font-size: 14px;
+font-weight: 500;
+border: none;
+cursor: pointer;
+transition: all 0.2s ease;
+}
+.jump-modal-btn.cancel {
+background: var(--bg-primary);
+color: var(--text-secondary);
+}
+.jump-modal-btn.cancel:hover {
+background: var(--border-color);
+}
+.jump-modal-btn.confirm {
+background: var(--accent-color);
+color: white;
+}
+.jump-modal-btn.confirm:hover {
+background: #5a36a8;
+}
+/* ============= 关于我们 ============= */
+.about-top-img {
+max-width: 600px;
+margin: -10px 0 20px 0;
+}
+.about-top-img .image-ui {
+width: 33%;
+max-width: none;
+min-width: 150px;
+height: auto;
+display: block;
+border-radius: 8px;
+border: 1px solid var(--border-color);
+box-shadow: var(--shadow);
+margin: 0;
+}
+.about-info {
+width: 100%;
+max-width: 600px;
+margin-bottom: 20px;
+}
+.about-info dl {
+display: grid;
+grid-template-columns: max-content 1fr;
+gap: 8px 20px;
+font-size: 16px;
+color: var(--text-secondary);
+}
+.about-info dt {
+font-weight: 600;
+color: var(--text-primary);
+}
+.about-changelog {
+width: 100%;
+max-width: 600px;
+}
+.about-changelog .changelog-link {
+display: block;
+font-size: 20px;
+color: var(--text-primary);
+padding-bottom: 10px;
+position: relative;
+margin-bottom: 15px;
+text-decoration: none;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+.about-changelog .changelog-link::after {
+content: '';
+position: absolute;
+bottom: 0;
+left: 0;
+width: 60px;
+height: 3px;
+background: linear-gradient(to right, #6a11cb, #2575fc);
+border-radius: 3px;
+transition: width 0.3s ease;
+}
+.about-changelog .changelog-link:hover::after {
+width: 80px;
+}
+.about-changelog .changelog-link .login-arrow {
+margin-left: 8px;
+transition: transform 0.3s ease;
+}
+.about-changelog .changelog-link:hover .login-arrow {
+transform: translateX(5px);
+}
+.changelog-description {
+margin-top: 15px;
+}
+.changelog-description p {
+font-size: 14px;
+margin: 5px 0;
+}
+.about-changelog p {
+font-size: 15px;
+color: var(--text-secondary);
+line-height: 1.6;
+margin: 8px 0;
+}
+/* ============= 全局移动端适配 ============= */
+@media (max-width: 768px) {
+.header {
+padding: 0 15px;
+}
+.hamburger-menu {
+display: flex;
+margin-right: 15px;
+}
+.sidebar {
+position: fixed;
+top: 70px;
+left: 0;
+height: calc(100vh - 70px);
+transform: translateX(-100%);
+width: 80%;
+max-width: 300px;
+z-index: 997;
+padding-bottom: 80px;
+}
+.sidebar.active {
+transform: translateX(0);
+}
+.sidebar-link {
+padding: 12px 20px;
+font-size: 15px;
+}
+.function-intro {
+padding: 0 20px;
+font-size: 12px;
+}
+.sidebar-item.expanded .function-intro {
+padding: 8px 20px 12px;
+}
+.login-section {
+position: fixed;
+bottom: 15px;
+left: 15px;
+width: calc(80% - 30px);
+max-width: 270px;
+transform: translateX(-100%);
+transition: transform 0.3s ease;
+}
+.sidebar.active ~ .login-section {
+transform: translateX(0);
+}
+.login-btn {
+padding: 10px 14px;
+font-size: 15px;
+}
+.content {
+margin-left: 0 !important;
+}
+.content-section {
+padding: 30px 20px;
+}
+.content-section h2 {
+font-size: 26px;
+}
+.content-section p {
+font-size: 15px;
+}
+/* 议案搜索适配 */
+.bill-search-center {
+min-height: 150px;
+}
+.bill-search-center.active {
+margin-top: -30px;
+min-height: 100px;
+}
+.bill-card-content {
+max-height: 110px;
+-webkit-line-clamp: 4;
+}
+/* 成员搜索适配 */
+.user-search-center {
+min-height: 140px;
+}
+.user-search-center.active {
+margin-top: -20px;
+min-height: 90px;
+}
+.user-card-header {
+padding: 14px 18px;
+}
+.user-card-account {
+font-size: 18px;
+}
+.user-card-content {
+padding: 15px 18px;
+font-size: 14px;
+}
+.user-info-row {
+margin-bottom: 10px;
+}
+.user-info-label {
+width: 70px;
+}
+/* 模态框适配 */
+.bill-modal-content {
+padding: 20px;
+}
+.bill-modal-id {
+font-size: 20px;
+}
+.bill-modal-title {
+font-size: 16px;
+}
+.bill-modal-body {
+font-size: 14px;
+}
+/* 关于我们适配 */
+.about-top-img {
+max-width: 100%;
+padding: 0 0;
+}
+.about-top-img .image-ui {
+width: 100%;
+max-width: 300px;
+min-width: unset;
+}
+.about-info, .about-changelog {
+max-width: 100%;
+padding: 0 0;
+}
+.about-info dl {
+gap: 6px 15px;
+font-size: 15px;
+}
+.about-changelog .changelog-link {
+font-size: 18px;
+}
+/* 文件库适配 */
+.doc-buttons {
+padding: 0 0;
+}
+.doc-btn {
+padding: 10px 14px;
+font-size: 14px;
+}
+.doc-icon {
+width: 28px;
+height: 28px;
+}
+.github-tip {
+font-size: 13px;
+padding: 0 0;
+}
+}
+/* 小屏幕手机样式 */
+@media (max-width: 480px) {
+.sidebar {
+width: 85%;
+}
+.login-section {
+width: calc(85% - 30px);
+}
+.sidebar-link {
+padding: 10px 15px;
+font-size: 14px;
+}
+.arrow {
+margin-left: 5px;
+}
+/* 议案搜索适配 */
+.bill-search-center.active {
+margin-top: -30px;
+}
+.bill-results-container {
+gap: 15px;
+padding: 8px;
+}
+/* 成员搜索适配 */
+.user-search-center.active {
+margin-top: -15px;
+}
+.user-results-container {
+gap: 15px;
+padding: 10px 8px;
+}
+.user-card-content {
+padding: 12px 15px;
+}
+.user-intro {
+-webkit-line-clamp: 2;
+}
+}
+</style>
 </head>
 <body>
-  <!-- 顶部导航 -->
-  <header class="header">
-    <div class="header-left">
-      <button class="hamburger-menu" id="hamburgerMenu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
-      <div class="site-title">
-        <span class="web-badge">Web端</span>
-        神界阁
-      </div>
-    </div>
-    <div class="header-right">Beta2.0.1</div>
-  </header>
+<!-- 顶部导航 -->
+<header class="header">
+<div class="header-left">
+<button class="hamburger-menu" id="hamburgerMenu">
+<span></span>
+<span></span>
+<span></span>
+</button>
+<img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png" alt="神界阁Logo" class="logo">
+<div class="site-title">
+<span class="web-badge">Web端</span>
+神界阁
+</div>
+</div>
+<div class="header-right">Beta2.0.1</div>
+</header>
+<!-- 主容器 -->
+<div class="main-container">
+<!-- 左侧导航 -->
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<!-- 修改：将第一个菜单项设置为active -->
+<div class="sidebar-item" data-index="0">
+<button class="sidebar-link active">
+查看地图
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+在这里您可以查看官方已公开的神界小说系列官方地图，了解神界各国的基础信息。
+</div>
+</div>
+<div class="sidebar-item" data-index="1">
+<button class="sidebar-link">
+神界资讯
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+神界内阁会在此发布与神界圈、神界阁有关的资讯。
+</div>
+</div>
+<div class="sidebar-item" data-index="2">
+<button class="sidebar-link">
+成员信息库
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+神界圈成员的部分个人信息存储库，仅限已登录的神界成员查看。
+</div>
+</div>
+<div class="sidebar-item" data-index="3">
+<!-- 修改：移除议案库的active类 -->
+<button class="sidebar-link">
+神界议案库
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+发布神界内阁经讨论的公开信息。
+</div>
+</div>
+<div class="sidebar-item" data-index="4">
+<button class="sidebar-link">
+神界文件库
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+神界规约体系的律法组成部分，通过文字约束与保护每一位圈成员。
+</div>
+</div>
+<div class="sidebar-item" data-index="5">
+<button class="sidebar-link">
+神界圈介绍
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+有关神界圈的一些事。
+</div>
+</div>
+<div class="sidebar-item" data-index="6">
+<button class="sidebar-link">
+关于我们
+<span class="arrow">▼</span>
+</button>
+<div class="function-intro">
+有关该官网的基础信息。
+</div>
+</div>
+</nav>
+</aside>
+<!-- 登录按钮区域 - 固定在左下角 -->
+<div class="login-section">
+<a href="https://godlive-web.github.io/login.html" target="_blank" class="login-btn" id="loginButton">
+<span id="loginText">点击登录</span>
+<span class="login-arrow">→</span>
+</a>
+</div>
+<!-- 右侧内容区 -->
+<main class="content">
+<!-- 1. 查看地图 - 现在默认显示这个 -->
+<section class="content-section" data-index="0">
+<h2>查看地图</h2>
+<p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如"宙界"的地图也会公布在此。</p>
+<p> </p>
+<p>当前地图尚在绘制。您也可以通过"关于我们"板块，加入我们，帮助完善神界小说体系。</p>
+</section>
+<!-- 2. 神界资讯 -->
+<section class="content-section" data-index="1">
+<h2>神界资讯</h2>
+<p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
+</section>
+<!-- 3. 成员信息库（带搜索功能） -->
+<section class="content-section" data-index="2">
+<h2>成员信息库</h2>
+<!-- 说明文字 -->
+<p id="userDescText">查阅神界成员的基本信息。支持通过「账号名称」或「自设名称」搜索，结果将展示成员核心信息。</p>
+<!-- 成员搜索区域 -->
+<div id="userSearchContainer" class="user-search-center">
+<div class="bill-search">
+<input type="text" id="userSearchInput" placeholder="输入账号名称或自设名称搜索">
+<button id="userSearchBtn">
+<i class="search-icon">🔍</</i> 搜索成员
+</button>
+</div>
+</div>
+<!-- 成员搜索结果容器 -->
+<div id="userResults" class="user-results-container">
+<!-- 结果动态渲染 -->
+</div>
+</section>
+<!-- 4. 神界议案库 -->
+<section class="content-section" data-index="3">
+<h2>神界议案库</h2>
+<p id="billDescText">搜索并查看神界内阁公开的议案信息，支持按议案号或议案名检索。</p>
+<div id="billSearchContainer" class="bill-search-center">
+<div class="bill-search">
+<input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
+<button id="billSearchBtn">
+<i class="search-icon">🔍</</i> 搜索议案
+</button>
+</div>
+</div>
+<div id="billResults" class="bill-results-container">
+<!-- 议案结果动态渲染 -->
+</div>
+</section>
+<!-- 议案详情模态框 -->
+<div id="billModal" class="bill-modal">
+<div class="bill-modal-content">
+<button class="bill-modal-close">&times;</button>
+<div class="bill-modal-id" id="modalBillId"></div>
+<div class="bill-modal-title" id="modalBillTitle"></div>
+<div class="bill-modal-body" id="modalBillContent"></div>
+<div class="bill-modal-publish" id="modalBillPublish"></div>
+</div>
+</div>
+<!-- 5. 神界文件库 -->
+<section class="content-section" data-index="4">
+<h2>神界文件库</h2>
+<p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
+<div class="doc-buttons">
+<button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+<span class="doc-icon">
+<img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+</span>
+《神界宪章》
+</button>
+<button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+<span class="doc-icon">
+<img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+</span>
+《神界成员入圈标准指南》
+</button>
+<button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
+<span class="doc-icon">
+<img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
+</span>
+《神界纠纷处理办法》
+</button>
+</div>
+<p class="github-tip">
+此文件库由Github提供存储服务，可能存在访问不稳定情况。<br>
+</p>
+</section>
+<!-- 6. 神界圈介绍 -->
+<section class="content-section" data-index="5">
+<h2>神界圈介绍</h2>
+<p>了解神界圈的过往、来源、组织结构和未来发展。</p>
+</section>
+<!-- 7. 关于我们 -->
+<section class="content-section" data-index="6">
+<h2>关于我们</h2>
+<div class="about-top-img">
+<img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI界面" class="image-ui">
+</div>
+<div class="about-section">
+<div class="about-info">
+<dl>
+<dt>开发：</dt>
+<dd>
+<a
+href="https://auting-awf.github.io/about"
+target="_blank"
+style="color: var(--accent-color); text-decoration: underline; transition: all 0.2s ease;"
+onmouseover="this.style.color='#5a36a8'; this.style.textDecoration='underline 2px'"
+onmouseout="this.style.color='var(--accent-color)'; this.style.textDecoration='underline'"
+>
+Auting网页工作组
+</a>
+</dd>
+<dt>支持：</dt>
+<dd>Github Pages</dd>
+<dt>UI系统：</dt>
+<dd>ChunG UI 1.0</dd>
+<dt>Web版本：</dt>
+<dd>Beta2</dd>
+<dt>鸣谢：</dt>
+<dd>春国工作室丨Github</dd>
+</dl>
+</div>
+<div class="about-changelog">
+<a href="https://godlive-web.github.io/update" class="changelog-link">
+更新日志 <span class="login-arrow">→</span>
+</a>
+<div class="changelog-description">
+<p>ChunG UI version: 1.0</p>
+<p>made by Github Pages | 豆包×DeepSeek</p>
+<p>Copyright©秋风Auting_2025-至今</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<!-- 跳转确认弹窗 -->
+<div class="jump-modal" id="jumpModal">
+<div class="jump-modal-content">
+<div class="jump-modal-title">确认跳转</div>
+<div class="jump-modal-desc">
+即将跳转到Github仓库以查看文件，请注意：<br>
+1. Github连接可能受网络环境影响，存在无法稳定连接的可能；<br>
+2. 将创建<strong>新标签页</strong>打开Github链接。<br>
+是否确认继续跳转？
+</div>
+<div class="jump-modal-btns">
+<button class="jump-modal-btn cancel" id="cancelJump">取消</button>
+<button class="jump-modal-btn confirm" id="confirmJump">确认跳转</button>
+</div>
+</div>
+</div>
+<script>
+// 1. Cookie处理函数（修复：统一跨域和安全配置）
+function setCookie(name, value, days, sameSite = 'Lax') {
+const expires = new Date();
+expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;Secure;SameSite=${sameSite}`;
+}
+function getCookie(name) {
+const nameEQ = name + "=";
+const ca = document.cookie.split(';');
+for(let i = 0; i < ca.length; i++) {
+let c = ca[i];
+while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+}
+return null;
+}
+// 修复：移除自动设置user=0的逻辑（登录时由登录页设置，注销时彻底删除）
+// 更新登录按钮文本和跳转链接（核心修复：严格判断登录状态）
+function updateLoginButton() {
+const userCookie = getCookie('user');
+const userDataStr = getCookie('userData');
+const loginText = document.getElementById('loginText');
+const loginButton = document.getElementById('loginButton');
+// 强化登录状态校验
+let isLoggedIn = false;
+let userName = '点击登录';
+if (userCookie && userCookie !== '' && userDataStr) {
+try {
+const userData = JSON.parse(userDataStr);
+// 额外检查关键字段是否存在
+if (userData && (userData['账号名称'] || userCookie)) {
+isLoggedIn = true;
+userName = userData['账号名称'] || userCookie;
+}
+} catch (e) {
+console.error('解析userData失败:', e);
+// 解析失败=无效登录，清理Cookie
+setCookie('userData', '', -1);
+setCookie('user', '', -1);
+}
+}
+if (isLoggedIn) {
+loginText.textContent = userName;
+loginButton.href = 'https://godlive-web.github.io/personaldata.html';
+} else {
+// 未登录状态，彻底清理可能残留的Cookie
+setCookie('userData', '', -1);
+setCookie('user', '', -1);
+loginText.textContent = '点击登录';
+loginButton.href = 'https://godlive-web.github.io/login.html';
+}
+}
+// 2. 全局页面切换逻辑（确保滚动、点击、拖拽切换正常）
+const sections = document.querySelectorAll('.content-section');
+const sidebarLinks = document.querySelectorAll('.sidebar-link');
+const sidebarItems = document.querySelectorAll('.sidebar-item');
+// 修改：将默认索引改为0（第一个菜单：查看地图）
+let currentIndex = 0; // 默认选中索引0（查看地图），与HTML中active类对应
+let startY = 0;
+let isDragging = false;
+let dragDistance = 0;
+let dragStartTime = 0;
+const dragThreshold = 20; // 拖拽触发切换的最小距离
+// 同步左侧导航选中状态
+function syncSidebar() {
+sidebarLinks.forEach((link, index) => {
+link.classList.remove('active');
+sidebarItems[index].classList.remove('expanded');
+if (index === currentIndex) {
+link.classList.add('active');
+sidebarItems[index].classList.add('expanded');
+}
+});
+}
+// 初始化页面布局（设置初始显示的section）
+function initLayout() {
+syncSidebar();
+sections.forEach((sec, index) => {
+// 按currentIndex计算每个section的位置，确保默认显示索引0的section
+sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+});
+// 初始化搜索区域状态
+document.getElementById('billResults').classList.remove('active');
+document.getElementById('billSearchContainer').classList.remove('active');
+document.getElementById('billDescText').classList.remove('desc-hidden');
+document.getElementById('userResults').classList.remove('active');
+document.getElementById('userSearchContainer').classList.remove('active');
+document.getElementById('userDescText').classList.remove('desc-hidden');
+}
+// 拖拽开始（触摸/鼠标按下）
+function onDragStart(e) {
+if (e.type === 'touchstart') {
+startY = e.touches[0].clientY;
+} else {
+startY = e.clientY;
+}
+isDragging = true;
+dragDistance = 0;
+dragStartTime = Date.now();
+// 拖拽时暂时关闭过渡动画，避免卡顿
+sections.forEach(sec => sec.style.transition = 'none');
+}
+// 拖拽过程（触摸移动/鼠标移动）
+function onDragMove(e) {
+if (!isDragging) return;
+let currentY = 0;
+if (e.type === 'touchmove') {
+currentY = e.touches[0].clientY;
+e.preventDefault(); // 阻止页面滚动
+} else {
+currentY = e.clientY;
+}
+dragDistance = currentY - startY;
+// 实时更新section位置，模拟拖拽效果
+sections.forEach((sec, index) => {
+sec.style.transform = `translateY(${(index - currentIndex) * 100}vh + ${dragDistance}px)`;
+});
+}
+// 拖拽结束（触摸抬起/鼠标松开）
+function onDragEnd() {
+if (!isDragging) return;
+isDragging = false;
+// 恢复过渡动画
+sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+const threshold = window.innerHeight * 0.4;
+const dragTime = Date.now() - dragStartTime;
+const speed = Math.abs(dragDistance) / dragTime;
+// 判断是否触发页面切换（距离足够或速度足够快）
+const isDragValid = Math.abs(dragDistance) > dragThreshold || speed > 0.7;
+if (isDragValid) {
+// 向下拖拽（显示上一页）
+if (dragDistance > 0) {
+currentIndex = Math.max(currentIndex - 1, 0);
+}
+// 向上拖拽（显示下一页）
+else {
+currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+}
+// 更新所有section位置
+sections.forEach((sec, index) => {
+sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+});
+// 同步导航选中状态
+syncSidebar();
+} else {
+// 未触发切换，恢复原位
+sections.forEach((sec, index) => {
+sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+});
+}
+}
+// 绑定页面切换事件（拖拽、滚动、点击）
+const content = document.querySelector('.content');
+// 触摸事件（移动端上下滑动）
+content.addEventListener('touchstart', onDragStart);
+content.addEventListener('touchmove', onDragMove, { passive: false });
+content.addEventListener('touchend', onDragEnd);
+// 鼠标事件（桌面端拖拽）
+content.addEventListener('mousedown', onDragStart);
+content.addEventListener('mousemove', onDragMove);
+content.addEventListener('mouseup', onDragEnd);
+content.addEventListener('mouseleave', onDragEnd);
+// 鼠标滚轮事件（桌面端滚动切换）
+content.addEventListener('wheel', (e) => {
+e.preventDefault(); // 阻止页面默认滚动
+// 滚轮向下（显示下一页）
+if (e.deltaY > 0) {
+currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+}
+// 滚轮向上（显示上一页）
+else {
+currentIndex = Math.max(currentIndex - 1, 0);
+}
+// 更新section位置和导航状态
+sections.forEach((sec, index) => {
+sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
+});
+syncSidebar();
+}, { passive: false });
+// 左侧导航点击切换
+sidebarLinks.forEach((link, index) => {
+link.addEventListener('click', () => {
+currentIndex = index;
+// 更新section位置
+sections.forEach((sec, i) => {
+sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+});
+// 同步导航状态
+syncSidebar();
+// 移动端点击后关闭侧边栏
+if (window.innerWidth <= 768) {
+toggleSidebar();
+}
+});
+});
+// 3. 移动端汉堡菜单功能
+const hamburgerMenu = document.getElementById('hamburgerMenu');
+const sidebar = document.getElementById('sidebar');
+function toggleSidebar() {
+hamburgerMenu.classList.toggle('active');
+sidebar.classList.toggle('active');
+if (sidebar.classList.contains('active')) {
+createOverlay();
+} else {
+removeOverlay();
+}
+}
+function createOverlay() {
+const overlay = document.createElement('div');
+overlay.id = 'sidebar-overlay';
+overlay.style.position = 'fixed';
+overlay.style.top = '70px';
+overlay.style.left = '0';
+overlay.style.width = '100%';
+overlay.style.height = 'calc(100vh - 70px)';
+overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+overlay.style.zIndex = '996';
+overlay.addEventListener('click', toggleSidebar);
+document.body.appendChild(overlay);
+}
+function removeOverlay() {
+const overlay = document.getElementById('sidebar-overlay');
+if (overlay) {
+document.body.removeChild(overlay);
+}
+}
+hamburgerMenu.addEventListener('click', toggleSidebar);
+// 4. 议案搜索功能（核心修复：确保API调用和数据匹配）
+const billSearchContainer = document.getElementById('billSearchContainer');
+const billResults = document.getElementById('billResults');
+const billSearchInput = document.getElementById('billSearchInput');
+const billSearchBtn = document.getElementById('billSearchBtn');
+const billModal = document.getElementById('billModal');
+const modalClose = document.querySelector('.bill-modal-close');
+const billDescText = document.getElementById('billDescText');
+billSearchBtn.addEventListener('click', searchBills);
+billSearchInput.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') searchBills();
+});
+async function searchBills() {
+const input = billSearchInput.value.trim();
+billDescText.classList.add('desc-hidden');
+if (!input) {
+billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
+billSearchContainer.classList.add('active');
+billResults.classList.add('active');
+return;
+}
+try {
+billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
+billSearchContainer.classList.add('active');
+billResults.classList.add('active');
+// 议案API（正确的Vercel域名，确保无跨域问题）
+// 议案API（修复跨域配置）
+const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill', {
+  method: 'GET',
+  mode: 'cors', // 启用跨域模式
+  headers: {
+    'Content-Type': 'application/json'
+    // 移除多余的'Access-Control-Allow-Origin'（这个由服务器返回）
+  },
+  credentials: 'omit' // 不携带cookie（避免跨域权限问题）
+});
+if (!response.ok) throw new Error(`数据请求失败 (状态码: ${response.status})`);
+const bills = await response.json();
+// 模糊匹配议案号、议案名、议案内容（扩展匹配维度，避免漏查）
+const results = bills.filter(bill =>
+bill.id?.includes(input) || 
+bill.title?.includes(input) ||
+bill.content?.includes(input)
+);
+if (results.length === 0) {
+billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
+return;
+}
+// 渲染议案卡片（确保字段与API返回一致）
+let html = '';
+results.forEach(bill => {
+const contentText = bill.content?.length > 120
+? bill.content.substring(0, 120) + '...'
+: bill.content || '无内容';
+html += `
+<div class="bill-card" data-id="${bill.id}">
+<div class="bill-card-header">
+<div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
+<div class="bill-card-title">${bill.title || '无标题'}</div>
+</div>
+<div class="bill-card-content">${contentText}</div>
+<div class="bill-card-publish">${bill.publish_info || '未知发布信息'}</div>
+</div>
+`;
+});
+billResults.innerHTML = html;
+// 绑定议案卡片点击事件（显示详情模态框）
+document.querySelectorAll('.bill-card').forEach(card => {
+card.addEventListener('click', () => {
+const billId = card.getAttribute('data-id');
+const bill = results.find(b => b.id === billId);
+showBillDetails(bill);
+});
+});
+} catch (error) {
+console.error('搜索失败:', error);
+billResults.innerHTML = `<div class="bill-error">议案数据加载失败：${error.message}</div>`;
+}
+}
+// 显示议案详情模态框（确保字段匹配）
+function showBillDetails(bill) {
+document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
+document.getElementById('modalBillTitle').textContent = bill.title || '无标题';
+document.getElementById('modalBillContent').textContent = bill.content || '无详细内容';
+document.getElementById('modalBillPublish').textContent = bill.publish_info || '未知发布信息';
+billModal.style.display = 'flex';
+}
+// 关闭议案模态框
+modalClose.addEventListener('click', () => {
+billModal.style.display = 'none';
+});
+billModal.addEventListener('click', (e) => {
+if (e.target === billModal) billModal.style.display = 'none';
+});
+// 补充：提示函数（修复CSS变量读取，避免JS语法错误）
+function showMessage(text, type = 'info') {
+// 创建顶部临时提示框
+const messageBox = document.createElement('div');
+messageBox.style.position = 'fixed';
+messageBox.style.top = '20px';
+messageBox.style.left = '50%';
+messageBox.style.transform = 'translateX(-50%)';
+messageBox.style.padding = '12px 20px';
+messageBox.style.borderRadius = '8px';
+messageBox.style.zIndex = '9999';
+messageBox.style.color = 'white';
+messageBox.style.fontSize = '14px';
+messageBox.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+messageBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+messageBox.style.opacity = '0';
+messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
+// 修复：通过getComputedStyle读取CSS变量，避免JS直接使用var(--accent-color)报错
+const rootStyle = getComputedStyle(document.documentElement);
+const accentColor = rootStyle.getPropertyValue('--accent-color').trim();
+// 错误提示用红色，正常提示用CSS定义的强调色
+if (type === 'error') {
+messageBox.style.backgroundColor = '#dc3545';
+} else {
+messageBox.style.backgroundColor = accentColor;
+}
+messageBox.textContent = text;
+document.body.appendChild(messageBox);
+// 显示提示框
+setTimeout(() => {
+messageBox.style.opacity = '1';
+messageBox.style.transform = 'translateX(-50%) translateY(0)';
+}, 10);
+// 3秒后自动关闭
+setTimeout(() => {
+messageBox.style.opacity = '0';
+messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
+setTimeout(() => {
+document.body.removeChild(messageBox);
+}, 300);
+}, 3000);
+}
+// 5. 成员信息库搜索功能（核心修复：参数统一+错误处理优化）
+const userSearchContainer = document.getElementById('userSearchContainer');
+const userResults = document.getElementById('userResults');
+const userSearchInput = document.getElementById('userSearchInput');
+const userSearchBtn = document.getElementById('userSearchBtn');
+const userDescText = document.getElementById('userDescText');
+// 绑定搜索事件
+userSearchBtn.addEventListener('click', searchUsers);
+userSearchInput.addEventListener('keypress', (e) => {
+if (e.key === 'Enter') searchUsers();
+});
+async function searchUsers() {
+const input = userSearchInput.value.trim();
+userDescText.classList.add('desc-hidden');
+if (!input) {
+userResults.innerHTML = '<div class="user-error">请输入账号名称或自设名称</div>';
+userSearchContainer.classList.add('active');
+userResults.classList.add('active');
+return;
+}
+try {
+// 显示加载状态
+userResults.innerHTML = '<div class="user-loading">正在获取成员列表...</div>';
+userSearchContainer.classList.add('active');
+userResults.classList.add('active');
+const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
+// 1. 获取所有用户ID（修复参数传递格式）
+const userIDsResponse = await fetch(`${VERCEL_DOMAIN}/api/getAllUserIDs`, {
+  method: 'GET',
+  mode: 'cors', // 启用跨域模式
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'omit' // 不携带cookie
+});
+if (!userIDsResponse.ok) throw new Error(`获取用户列表失败 (状态码: ${userIDsResponse.status})`);
+const userIDsData = await userIDsResponse.json();
+if (!userIDsData.success || !userIDsData.data.length) {
+userResults.innerHTML = '<div class="user-error">未找到任何成员数据</div>';
+return;
+}
+const allUserIDs = userIDsData.data;
+const allUsers = [];
+const batchSize = 3; // 降低并发数避免API限制
+// 2. 分批获取用户详情（修复参数名：userID → userId，与API一致）
+for (let i = 0; i < allUserIDs.length; i += batchSize) {
+const batchIDs = allUserIDs.slice(i, i + batchSize);
+const batchPromises = batchIDs.map(id =>
+fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userId=${encodeURIComponent(id)}`, {
+  method: 'GET',
+  mode: 'cors', // 启用跨域模式
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'omit' // 不携带cookie
+})
+.then(res => {
+if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+return res.json();
+})
+.then(data => {
+if (data.success) {
+return { ...data.data, user: id }; // 确保包含用户ID
+}
+console.warn(`获取用户 ${id} 失败:`, data.msg);
+return null;
+})
+.catch(error => {
+console.error(`获取用户 ${id} 异常:`, error);
+return null;
+})
+);
+const batchResults = await Promise.all(batchPromises);
+allUsers.push(...batchResults.filter(user => user !== null));
+// 添加延迟避免触发GitHub API限制
+if (i + batchSize < allUserIDs.length) {
+await new Promise(resolve => setTimeout(resolve, 500));
+}
+}
+// 3. 模糊筛选匹配结果（不区分大小写，提升搜索体验）
+const searchStr = input.toLowerCase();
+const matchedUsers = allUsers.filter(user => {
+const accountName = (user['账号名称'] || '').toLowerCase();
+const customName = (user['自设名称'] || '').toLowerCase();
+return accountName.includes(searchStr) || customName.includes(searchStr);
+});
+// 4. 渲染成员卡片
+if (matchedUsers.length === 0) {
+userResults.innerHTML = '<div class="user-error">未找到匹配的成员</div>';
+return;
+}
+let html = '';
+matchedUsers.forEach(user => {
+html += `
+<div class="user-card">
+<div class="user-card-header">
+<div class="user-card-account">${user['账号名称'] || '未设置'}</div>
+<div class="user-card-id">ID: ${user.user || '未知'}</div>
+</div>
+<div class="user-card-content">
+<div class="user-info-row">
+<div class="user-info-label">自设名称:</div>
+<div class="user-info-value">${user['自设名称'] || '未设置'}</div>
+</div>
+<div class="user-info-row">
+<div class="user-info-label">入圈时间:</div>
+<div class="user-info-value">${user['入圈时间'] || '未知'}</div>
+</div>
+<div class="user-info-row">
+<div class="user-info-label">个人介绍:</div>
+<div class="user-info-value user-intro">${user['个人介绍'] || '无'}</div>
+</div>
+</div>
+</div>
+`;
+});
+userResults.innerHTML = html;
+} catch (error) {
+console.error('成员搜索失败:', error);
+userResults.innerHTML = `<div class="user-error">成员数据加载失败：${error.message}</div>`;
+showMessage(`成员搜索失败：${error.message}`, 'error');
+}
+}
+// 6. 文件库跳转确认弹窗逻辑（完整保留）
+const jumpModal = document.getElementById('jumpModal');
+const cancelJump = document.getElementById('cancelJump');
+const confirmJump = document.getElementById('confirmJump');
+const docBtns = document.querySelectorAll('.doc-btn');
+let targetHref = '';
+docBtns.forEach(btn => {
+btn.addEventListener('click', function() {
+targetHref = this.getAttribute('data-href');
+jumpModal.style.display = 'flex';
+});
+});
+cancelJump.addEventListener('click', function() {
+jumpModal.style.display = 'none';
+targetHref = '';
+});
+confirmJump.addEventListener('click', function() {
+if (targetHref) {
+window.open(targetHref, '_blank');
+jumpModal.style.display = 'none';
+targetHref = '';
+}
+});
+jumpModal.addEventListener('click', function(e) {
+if (e.target === jumpModal) {
+jumpModal.style.display = 'none';
+targetHref = '';
+}
+});
+// 7. 页面加载初始化（确保所有功能启动）
+document.addEventListener('DOMContentLoaded', function() {
+initLayout(); // 初始化页面布局（现在默认选中查看地图）
+updateLoginButton(); // 更新登录按钮状态（显示用户信息或"点击登录"）
+// 确保初始状态下搜索结果隐藏、说明文字显示
+document.getElementById('billResults').classList.remove('active');
+document.getElementById('billSearchContainer').classList.remove('active');
+billDescText.classList.remove('desc-hidden');
+document.getElementById('userResults').classList.remove('active');
+document.getElementById('userSearchContainer').classList.remove('active');
+userDescText.classList.remove('desc-hidden');
 
-  <!-- 主容器 -->
-  <div class="main-container">
-    <!-- 左侧导航 -->
-    <aside class="sidebar" id="sidebar">
-      <nav class="sidebar-nav">
-        <div class="sidebar-item" data-index="0">
-          <button class="sidebar-link">
-            查看地图
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            在这里您可以查看官方已公开的神界小说系列官方地图，了解神界各国的基础信息。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="1">
-          <button class="sidebar-link">
-            神界资讯
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            神界内阁会在此发布与神界圈、神界阁有关的资讯。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="2">
-          <button class="sidebar-link">
-            成员信息库
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            神界圈成员的部分个人信息存储库，仅限已登录的神界成员查看。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="3">
-          <button class="sidebar-link active">
-            神界议案库
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            发布神界内阁经讨论的公开信息。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="4">
-          <button class="sidebar-link">
-            神界文件库
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            神界规约体系的律法组成部分，通过文字约束与保护每一位圈成员。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="5">
-          <button class="sidebar-link">
-            神界圈介绍
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            有关神界圈的一些事。
-          </div>
-        </div>
-        <div class="sidebar-item" data-index="6">
-          <button class="sidebar-link">
-            关于我们
-            <span class="arrow">▼</span>
-          </button>
-          <div class="function-intro">
-            有关该官网的基础信息。
-          </div>
-        </div>
-      </nav>
-    </aside>
+// 补充：监听窗口大小变化，调整侧边栏状态
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768 && sidebar.classList.contains('active')) {
+    toggleSidebar(); // 大屏时自动关闭侧边栏
+  }
+});
 
-    <!-- 登录按钮区域 - 固定在左下角 -->
-    <div class="login-section">
-      <a href="https://godlive-web.github.io/login.html" target="_blank" class="login-btn" id="loginButton">
-        <span id="loginText">点击登录</span>
-        <span class="login-arrow">→</span>
-      </a>
-    </div>
-
-    <!-- 右侧内容区 -->
-    <main class="content">
-      <!-- 1. 查看地图 -->
-      <section class="content-section" data-index="0">
-        <h2>查看地图</h2>
-        <p>探索神界的广袤领域，了解神界疆域与行政区划。新区域，如"宙界"的地图也会公布在此。</p>
-        <p> </p>
-        <p>当前地图尚在绘制。您也可以通过"关于我们"板块，加入我们，帮助完善神界小说体系。</p>
-      </section>
-
-      <!-- 2. 神界资讯 -->
-      <section class="content-section" data-index="1">
-        <h2>神界资讯</h2>
-        <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
-      </section>
-
-      <!-- 3. 成员信息库（带搜索功能） -->
-      <section class="content-section" data-index="2">
-        <h2>成员信息库</h2>
-        <!-- 说明文字 -->
-        <p id="userDescText">查阅神界成员的基本信息。支持通过「账号名称」或「自设名称」搜索，结果将展示成员核心信息。</p>
-        
-        <!-- 成员搜索区域 -->
-        <div id="userSearchContainer" class="user-search-center">
-          <div class="bill-search">
-            <input type="text" id="userSearchInput" placeholder="输入账号名称或自设名称搜索">
-            <button id="userSearchBtn">
-              <i class="search-icon">🔍</i> 搜索成员
-            </button>
-          </div>
-        </div>
-        
-        <!-- 成员搜索结果容器 -->
-        <div id="userResults" class="user-results-container">
-          <!-- 结果动态渲染 -->
-        </div>
-      </section>
-
-      <!-- 4. 神界议案库 -->
-      <section class="content-section" data-index="3">
-        <h2>神界议案库</h2>
-        <p id="billDescText">搜索并查看神界内阁公开的议案信息，支持按议案号或议案名检索。</p>
-        
-        <div id="billSearchContainer" class="bill-search-center">
-          <div class="bill-search">
-            <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
-            <button id="billSearchBtn">
-              <i class="search-icon">🔍</i> 搜索议案
-            </button>
-          </div>
-        </div>
-        
-        <div id="billResults" class="bill-results-container">
-          <!-- 议案结果动态渲染 -->
-        </div>
-      </section>
-      
-      <!-- 议案详情模态框 -->
-      <div id="billModal" class="bill-modal">
-        <div class="bill-modal-content">
-          <button class="bill-modal-close">&times;</button>
-          <div class="bill-modal-id" id="modalBillId"></div>
-          <div class="bill-modal-title" id="modalBillTitle"></div>
-          <div class="bill-modal-body" id="modalBillContent"></div>
-          <div class="bill-modal-publish" id="modalBillPublish"></div>
-        </div>
-      </div>
-      
-      <!-- 5. 神界文件库 -->
-      <section class="content-section" data-index="4">
-        <h2>神界文件库</h2>
-        <p>查看神界规约体系。目前已发布《神界宪章》《神界成员入圈标准指南》《神界纠纷处理办法》。</p>
-        <div class="doc-buttons">
-          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
-            <span class="doc-icon">
-              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
-            </span>
-            《神界宪章》
-          </button>
-          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
-            <span class="doc-icon">
-              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
-            </span>
-            《神界成员入圈标准指南》
-          </button>
-          <button class="doc-btn" data-href="https://github.com/auting-AWF/GodLive/tree/%E7%A5%9E%E7%95%8Cword%E8%B5%84%E6%BA%90">
-            <span class="doc-icon">
-              <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-doc.svg" alt="Word Icon">
-            </span>
-            《神界纠纷处理办法》
-          </button>
-        </div>
-        <p class="github-tip">
-          此文件库由Github提供存储服务，可能存在访问不稳定情况。<br>
-        </p>
-      </section>
-
-      <!-- 6. 神界圈介绍 -->
-      <section class="content-section" data-index="5">
-        <h2>神界圈介绍</h2>
-        <p>了解神界圈的过往、来源、组织结构和未来发展。</p>
-      </section>
-
-      <!-- 7. 关于我们 -->
-      <section class="content-section" data-index="6">
-        <h2>关于我们</h2>
-        <div class="about-top-img">
-          <img src="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/ChunG%20UI%E5%B1%95%E7%A4%BA%E5%9B%BE.png" alt="ChunG UI界面" class="image-ui">
-        </div>
-        <div class="about-section">
-          <div class="about-info">
-            <dl>
-              <dt>开发：</dt>
-              <dd>
-                <a 
-                  href="https://auting-awf.github.io/about" 
-                  target="_blank" 
-                  style="color: var(--accent-color); text-decoration: underline; transition: all 0.2s ease;"
-                  onmouseover="this.style.color='#5a36a8'; this.style.textDecoration='underline 2px'"
-                  onmouseout="this.style.color='var(--accent-color)'; this.style.textDecoration='underline'"
-                >
-                  Auting网页工作组
-                </a>
-              </dd>
-              <dt>支持：</dt>
-              <dd>Github Pages</dd>
-              <dt>UI系统：</dt>
-              <dd>ChunG UI 1.0</dd>
-              <dt>Web版本：</dt>
-              <dd>Beta2</dd>
-              <dt>鸣谢：</dt>
-              <dd>春国工作室丨Github</dd>
-            </dl>
-          </div>
-          <div class="about-changelog">
-           <a href="https://godlive-web.github.io/update" class="changelog-link">
-             更新日志 <span class="login-arrow">→</span>
-           </a>
-           <div class="changelog-description">
-             <p>ChunG UI version: 1.0</p>
-             <p>made by Github Pages | 豆包×DeepSeek</p>
-             <p>Copyright©秋风Auting_2025-至今</p>
-           </div>
-         </div>
-       </section>
-    </main>
-  </div>
-
-  <!-- 跳转确认弹窗 -->
-  <div class="jump-modal" id="jumpModal">
-    <div class="jump-modal-content">
-      <div class="jump-modal-title">确认跳转</div>
-      <div class="jump-modal-desc">
-        即将跳转到Github仓库以查看文件，请注意：<br>
-        1. Github连接可能受网络环境影响，存在无法稳定连接的可能；<br>
-        2. 将创建<strong>新标签页</strong>打开Github链接。<br>
-        是否确认继续跳转？
-      </div>
-      <div class="jump-modal-btns">
-        <button class="jump-modal-btn cancel" id="cancelJump">取消</button>
-        <button class="jump-modal-btn confirm" id="confirmJump">确认跳转</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // 1. Cookie处理函数（修复：统一跨域和安全配置）
-    function setCookie(name, value, days, sameSite = 'Lax') {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;Secure;SameSite=${sameSite}`;
+// 补充：议案库和成员库切换时重置搜索状态
+sidebarLinks.forEach((link, index) => {
+  link.addEventListener('click', () => {
+    if (index !== 3) { // 非议案库页面
+      billResults.classList.remove('active');
+      billSearchContainer.classList.remove('active');
+      billDescText.classList.remove('desc-hidden');
+      billSearchInput.value = '';
     }
-
-    function getCookie(name) {
-      const nameEQ = name + "=";
-      const ca = document.cookie.split(';');
-      for(let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
-      }
-      return null;
+    if (index !== 2) { // 非成员库页面
+      userResults.classList.remove('active');
+      userSearchContainer.classList.remove('active');
+      userDescText.classList.remove('desc-hidden');
+      userSearchInput.value = '';
     }
+  });
+});
 
-    // 修复：移除自动设置user=0的逻辑（登录时由登录页设置，注销时彻底删除）
-
-    // 更新登录按钮文本和跳转链接（核心修复：严格判断登录状态）
-    function updateLoginButton() {
-      const userCookie = getCookie('user');
-      const userDataStr = getCookie('userData');
-      const loginText = document.getElementById('loginText');
-      const loginButton = document.getElementById('loginButton');
-      
-      // 严格登录判断：3个条件同时满足才视为登录
-      // 1. userCookie存在 2. userCookie不为空 3. userData存在且可解析
-      if (userCookie && userCookie !== '' && userDataStr) {
-        try {
-          const userData = JSON.parse(userDataStr);
-          // 优先显示账号名称，无则显示userID
-          loginText.textContent = userData['账号名称'] || userCookie;
-          // 跳转个人中心（补全.html）
-          loginButton.href = 'https://godlive-web.github.io/personaldata.html';
-        } catch (e) {
-          console.error('解析userData失败:', e);
-          // 解析失败=无效登录，清理Cookie
-          setCookie('userData', '', -1);
-          setCookie('user', '', -1);
-          loginText.textContent = '点击登录';
-          loginButton.href = 'https://godlive-web.github.io/login.html';
-        }
-      } else {
-        // 未登录状态
-        loginText.textContent = '点击登录';
-        loginButton.href = 'https://godlive-web.github.io/login.html';
-      }
+// 补充：登录状态变化时刷新成员信息库（避免未登录查看）
+const observer = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.target.id === 'loginText') {
+      // 登录状态变化时，清空成员搜索结果
+      userResults.innerHTML = '';
+      userResults.classList.remove('active');
+      userSearchInput.value = '';
     }
-
-    // 2. 全局页面切换逻辑（确保滚动、点击、拖拽切换正常）
-    const sections = document.querySelectorAll('.content-section');
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    const sidebarItems = document.querySelectorAll('.sidebar-item');
-    let currentIndex = 3;      // 默认选中索引3（神界议案库），与HTML中active类对应
-    let startY = 0;            
-    let isDragging = false;    
-    let dragDistance = 0;      
-    let dragStartTime = 0;     
-    const dragThreshold = 20;  // 拖拽触发切换的最小距离
-
-    // 同步左侧导航选中状态
-    function syncSidebar() {
-      sidebarLinks.forEach((link, index) => {
-        link.classList.remove('active');
-        sidebarItems[index].classList.remove('expanded');
-        if (index === currentIndex) {
-          link.classList.add('active');
-          sidebarItems[index].classList.add('expanded');
-        }
-      });
-    }
-
-    // 初始化页面布局（设置初始显示的section）
-    function initLayout() {
-      syncSidebar();
-      sections.forEach((sec, index) => {
-        // 按currentIndex计算每个section的位置，确保默认显示索引3的section
-        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-      });
-      // 初始化搜索区域状态
-      document.getElementById('billResults').classList.remove('active');
-      document.getElementById('billSearchContainer').classList.remove('active');
-      document.getElementById('billDescText').classList.remove('desc-hidden');
-      document.getElementById('userResults').classList.remove('active');
-      document.getElementById('userSearchContainer').classList.remove('active');
-      document.getElementById('userDescText').classList.remove('desc-hidden');
-    }
-
-    // 拖拽开始（触摸/鼠标按下）
-    function onDragStart(e) {
-      if (e.type === 'touchstart') {
-        startY = e.touches[0].clientY;
-      } else {
-        startY = e.clientY;
-      }
-      isDragging = true;
-      dragDistance = 0;
-      dragStartTime = Date.now();
-      // 拖拽时暂时关闭过渡动画，避免卡顿
-      sections.forEach(sec => sec.style.transition = 'none');
-    }
-
-    // 拖拽过程（触摸移动/鼠标移动）
-    function onDragMove(e) {
-      if (!isDragging) return;
-      let currentY = 0;
-      if (e.type === 'touchmove') {
-        currentY = e.touches[0].clientY;
-        e.preventDefault(); // 阻止页面滚动
-      } else {
-        currentY = e.clientY;
-      }
-      dragDistance = currentY - startY;
-      // 实时更新section位置，模拟拖拽效果
-      sections.forEach((sec, index) => {
-        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh + ${dragDistance}px)`;
-      });
-    }
-
-    // 拖拽结束（触摸抬起/鼠标松开）
-    function onDragEnd() {
-      if (!isDragging) return;
-      isDragging = false;
-      // 恢复过渡动画
-      sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
-
-      const threshold = window.innerHeight * 0.4; 
-      const dragTime = Date.now() - dragStartTime;
-      const speed = Math.abs(dragDistance) / dragTime;
-      // 判断是否触发页面切换（距离足够或速度足够快）
-      const isDragValid = Math.abs(dragDistance) > dragThreshold || speed > 0.7;
-
-      if (isDragValid) {
-        // 向下拖拽（显示上一页）
-        if (dragDistance > 0) {
-          currentIndex = Math.max(currentIndex - 1, 0);
-        } 
-        // 向上拖拽（显示下一页）
-        else {
-          currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-        }
-        // 更新所有section位置
-        sections.forEach((sec, index) => {
-          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-        });
-        // 同步导航选中状态
-        syncSidebar();
-      } else {
-        // 未触发切换，恢复原位
-        sections.forEach((sec, index) => {
-          sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-        });
-      }
-    }
-
-    // 绑定页面切换事件（拖拽、滚动、点击）
-    const content = document.querySelector('.content');
-    // 触摸事件（移动端上下滑动）
-    content.addEventListener('touchstart', onDragStart);
-    content.addEventListener('touchmove', onDragMove, { passive: false });
-    content.addEventListener('touchend', onDragEnd);
-    // 鼠标事件（桌面端拖拽）
-    content.addEventListener('mousedown', onDragStart);
-    content.addEventListener('mousemove', onDragMove);
-    content.addEventListener('mouseup', onDragEnd);
-    content.addEventListener('mouseleave', onDragEnd);
-    // 鼠标滚轮事件（桌面端滚动切换）
-    content.addEventListener('wheel', (e) => {
-      e.preventDefault(); // 阻止页面默认滚动
-      // 滚轮向下（显示下一页）
-      if (e.deltaY > 0) {
-        currentIndex = Math.min(currentIndex + 1, sections.length - 1);
-      } 
-      // 滚轮向上（显示上一页）
-      else {
-        currentIndex = Math.max(currentIndex - 1, 0);
-      }
-      // 更新section位置和导航状态
-      sections.forEach((sec, index) => {
-        sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-      });
-      syncSidebar();
-    }, { passive: false });
-
-    // 左侧导航点击切换
-    sidebarLinks.forEach((link, index) => {
-      link.addEventListener('click', () => {
-        currentIndex = index;
-        // 更新section位置
-        sections.forEach((sec, i) => {
-          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
-        });
-        // 同步导航状态
-        syncSidebar();
-        // 移动端点击后关闭侧边栏
-        if (window.innerWidth <= 768) {
-          toggleSidebar();
-        }
-      });
-    });
-
-    // 3. 移动端汉堡菜单功能
-    const hamburgerMenu = document.getElementById('hamburgerMenu');
-    const sidebar = document.getElementById('sidebar');
-    
-    function toggleSidebar() {
-      hamburgerMenu.classList.toggle('active');
-      sidebar.classList.toggle('active');
-      
-      if (sidebar.classList.contains('active')) {
-        createOverlay();
-      } else {
-        removeOverlay();
-      }
-    }
-    
-    function createOverlay() {
-      const overlay = document.createElement('div');
-      overlay.id = 'sidebar-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.top = '70px';
-      overlay.style.left = '0';
-      overlay.style.width = '100%';
-      overlay.style.height = 'calc(100vh - 70px)';
-      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-      overlay.style.zIndex = '996';
-      overlay.addEventListener('click', toggleSidebar);
-      document.body.appendChild(overlay);
-    }
-    
-    function removeOverlay() {
-      const overlay = document.getElementById('sidebar-overlay');
-      if (overlay) {
-        document.body.removeChild(overlay);
-      }
-    }
-    
-    hamburgerMenu.addEventListener('click', toggleSidebar);
-
-    // 4. 议案搜索功能
-    const billSearchContainer = document.getElementById('billSearchContainer');
-    const billResults = document.getElementById('billResults');
-    const billSearchInput = document.getElementById('billSearchInput');
-    const billSearchBtn = document.getElementById('billSearchBtn');
-    const billModal = document.getElementById('billModal');
-    const modalClose = document.querySelector('.bill-modal-close');
-    const billDescText = document.getElementById('billDescText');
-
-    billSearchBtn.addEventListener('click', searchBills);
-    billSearchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') searchBills();
-    });
-
-    async function searchBills() {
-      const input = billSearchInput.value.trim();
-      billDescText.classList.add('desc-hidden');
-      
-      if (!input) {
-        billResults.innerHTML = '<div class="bill-error">请输入搜索内容</div>';
-        billSearchContainer.classList.add('active');
-        billResults.classList.add('active');
-        return;
-      }
-
-      try {
-        billResults.innerHTML = '<div class="bill-loading">搜索中...</div>';
-        billSearchContainer.classList.add('active');
-        billResults.classList.add('active');
-
-        // 议案API（使用你的Vercel域名）
-        const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBill');
-        if (!response.ok) throw new Error('数据请求失败');
-        const bills = await response.json();
-
-        // 模糊匹配议案号或议案名
-        const results = bills.filter(bill => 
-          bill.id.includes(input) || bill.title.includes(input)
-        );
-
-        if (results.length === 0) {
-          billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>';
-          return;
-        }
-
-        // 渲染议案卡片
-        let html = '';
-        results.forEach(bill => {
-          const contentText = bill.content.length > 120 
-            ? bill.content.substring(0, 120) + '...' 
-            : bill.content;
-          
-          html += `
-            <div class="bill-card" data-id="${bill.id}">
-              <div class="bill-card-header">
-                <!-- 修正：billmodifier → bill.modifier -->
-                <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
-                <div class="bill-card-title">${bill.title}</div>
-              </div>
-              <div class="bill-card-content">${contentText}</div>
-              <div class="bill-card-publish">${bill.publish_info}</div>
-            </div>
-          `;
-        });
-        
-        billResults.innerHTML = html;
-
-        // 绑定议案卡片点击事件（显示详情模态框）
-        document.querySelectorAll('.bill-card').forEach(card => {
-          card.addEventListener('click', () => {
-            const billId = card.getAttribute('data-id');
-            const bill = results.find(b => b.id === billId);
-            showBillDetails(bill);
-          });
-        });
-
-      } catch (error) {
-        console.error('搜索失败:', error);
-        billResults.innerHTML = '<div class="bill-error">议案数据加载失败，请稍后再试</div>';
-      }
-    }
-
-    // 显示议案详情模态框
-    function showBillDetails(bill) {
-      document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
-      document.getElementById('modalBillTitle').textContent = bill.title;
-      document.getElementById('modalBillContent').textContent = bill.content;
-      document.getElementById('modalBillPublish').textContent = bill.publish_info;
-      billModal.style.display = 'flex';
-    }
-
-    // 关闭议案模态框
-    modalClose.addEventListener('click', () => {
-      billModal.style.display = 'none';
-    });
-    billModal.addEventListener('click', (e) => {
-      if (e.target === billModal) billModal.style.display = 'none';
-    });
-
-    // 补充：提示函数（修复CSS变量读取，避免JS语法错误）
-    function showMessage(text, type = 'info') {
-      // 创建顶部临时提示框
-      const messageBox = document.createElement('div');
-      messageBox.style.position = 'fixed';
-      messageBox.style.top = '20px';
-      messageBox.style.left = '50%';
-      messageBox.style.transform = 'translateX(-50%)';
-      messageBox.style.padding = '12px 20px';
-      messageBox.style.borderRadius = '8px';
-      messageBox.style.zIndex = '9999';
-      messageBox.style.color = 'white';
-      messageBox.style.fontSize = '14px';
-      messageBox.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-      messageBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      messageBox.style.opacity = '0';
-      messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
-  
-      // 修复：通过getComputedStyle读取CSS变量，避免JS直接使用var(--accent-color)报错
-      const rootStyle = getComputedStyle(document.documentElement);
-      const accentColor = rootStyle.getPropertyValue('--accent-color').trim();
-      
-      // 错误提示用红色，正常提示用CSS定义的强调色
-      if (type === 'error') {
-        messageBox.style.backgroundColor = '#dc3545';
-      } else {
-        messageBox.style.backgroundColor = accentColor;
-      }
-  
-      messageBox.textContent = text;
-      document.body.appendChild(messageBox);
-  
-      // 显示提示框
-      setTimeout(() => {
-        messageBox.style.opacity = '1';
-        messageBox.style.transform = 'translateX(-50%) translateY(0)';
-      }, 10);
-  
-      // 3秒后自动关闭
-      setTimeout(() => {
-        messageBox.style.opacity = '0';
-                messageBox.style.transform = 'translateX(-50%) translateY(-10px)';
-        setTimeout(() => {
-          document.body.removeChild(messageBox);
-        }, 300);
-      }, 3000);
-    }
-    
-    // 5. 成员信息库搜索功能（完整保留修复后的逻辑）
-    const userSearchContainer = document.getElementById('userSearchContainer');
-    const userResults = document.getElementById('userResults');
-    const userSearchInput = document.getElementById('userSearchInput');
-    const userSearchBtn = document.getElementById('userSearchBtn');
-    const userDescText = document.getElementById('userDescText');
-
-    // 绑定搜索事件
-    userSearchBtn.addEventListener('click', searchUsers);
-    userSearchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') searchUsers();
-    });
-
-    async function searchUsers() {
-      const input = userSearchInput.value.trim();
-      userDescText.classList.add('desc-hidden');
-
-      if (!input) {
-        userResults.innerHTML = '<div class="user-error">请输入账号名称或自设名称</div>';
-        userSearchContainer.classList.add('active');
-        userResults.classList.add('active');
-        return;
-      }
-
-      try {
-        // 显示加载状态
-        userResults.innerHTML = '<div class="user-loading">正在获取成员列表...</div>';
-        userSearchContainer.classList.add('active');
-        userResults.classList.add('active');
-
-        // Vercel项目域名（统一管理，便于后续修改）
-        const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
-
-        // 1. 获取所有用户ID
-        const userIDsResponse = await fetch(`${VERCEL_DOMAIN}/api/getAllUserIDs`);
-        if (!userIDsResponse.ok) throw new Error('获取用户列表失败');
-        const userIDsData = await userIDsResponse.json();
-        
-        if (!userIDsData.success || !userIDsData.data.length) {
-          userResults.innerHTML = '<div class="user-error">未找到任何成员数据</div>';
-          return;
-        }
-        const allUserIDs = userIDsData.data;
-
-        // 2. 分批次获取用户详情（控制并发数，避免接口限流）
-        const allUsers = [];
-        const batchSize = 5; // 每次请求5个用户，可根据需求调整
-        for (let i = 0; i < allUserIDs.length; i += batchSize) {
-          const batchIDs = allUserIDs.slice(i, i + batchSize);
-          const batchPromises = batchIDs.map(id => 
-            fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userID=${id}`)
-              .then(res => res.json())
-              .then(data => {
-                if (data.success) return data.data;
-                showMessage(data.msg, 'error');
-                return null;
-              })
-              .catch(() => {
-                showMessage('获取单个用户信息失败', 'error');
-                return null;
-              })
-          );
-          const batchResults = await Promise.all(batchPromises);
-          allUsers.push(...batchResults.filter(user => user !== null));
-        }
-
-        // 3. 模糊筛选匹配结果（不区分大小写）
-        const searchStr = input.toLowerCase();
-        const matchedUsers = allUsers.filter(user => {
-          const accountName = (user['账号名称'] || '').toLowerCase();
-          const customName = (user['自设名称'] || '').toLowerCase();
-          return accountName.includes(searchStr) || customName.includes(searchStr);
-        });
-
-        // 4. 渲染成员卡片
-        if (matchedUsers.length === 0) {
-          userResults.innerHTML = '<div class="user-error">未找到匹配的成员</div>';
-          return;
-        }
-
-        let html = '';
-        matchedUsers.forEach(user => {
-          html += `
-            <div class="user-card">
-              <div class="user-card-header">
-                <div class="user-card-account">${user['账号名称'] || '未设置'}</div>
-                <div class="user-card-id">ID: ${user.user || '未知'}</div>
-              </div>
-              <div class="user-card-content">
-                <div class="user-info-row">
-                  <div class="user-info-label">自设名称:</div>
-                  <div class="user-info-value">${user['自设名称'] || '未设置'}</div>
-                </div>
-                <div class="user-info-row">
-                  <div class="user-info-label">入圈时间:</div>
-                  <div class="user-info-value">${user['入圈时间'] || '未知'}</div>
-                </div>
-                <div class="user-info-row">
-                  <div class="user-info-label">个人介绍:</div>
-                  <div class="user-info-value user-intro">${user['个人介绍'] || '无'}</div>
-                </div>
-              </div>
-            </div>
-          `;
-        });
-        userResults.innerHTML = html;
-
-      } catch (error) {
-        console.error('成员搜索失败:', error);
-        showMessage('成员数据加载失败，请稍后再试', 'error');
-        userResults.innerHTML = '<div class="user-error">成员数据加载失败，请稍后再试</div>';
-      }
-    }
-
-    // 6. 文件库跳转确认弹窗逻辑（完整保留）
-    const jumpModal = document.getElementById('jumpModal');
-    const cancelJump = document.getElementById('cancelJump');
-    const confirmJump = document.getElementById('confirmJump');
-    const docBtns = document.querySelectorAll('.doc-btn');
-    let targetHref = '';
-
-    docBtns.forEach(btn => {
-      btn.addEventListener('click', function() {
-        targetHref = this.getAttribute('data-href');
-        jumpModal.style.display = 'flex';
-      });
-    });
-
-    cancelJump.addEventListener('click', function() {
-      jumpModal.style.display = 'none';
-      targetHref = '';
-    });
-
-    confirmJump.addEventListener('click', function() {
-      if (targetHref) {
-        window.open(targetHref, '_blank');
-        jumpModal.style.display = 'none';
-        targetHref = '';
-      }
-    });
-
-    jumpModal.addEventListener('click', function(e) {
-      if (e.target === jumpModal) {
-        jumpModal.style.display = 'none';
-        targetHref = '';
-      }
-    });
-
-    // 7. 页面加载初始化（确保所有功能启动）
-    document.addEventListener('DOMContentLoaded', function() {
-      initLayout(); // 初始化页面布局（默认选中神界议案库）
-      updateLoginButton(); // 更新登录按钮状态（显示用户信息或"点击登录"）
-      
-      // 确保初始状态下搜索结果隐藏、说明文字显示
-      document.getElementById('billResults').classList.remove('active');
-      document.getElementById('billSearchContainer').classList.remove('active');
-      document.getElementById('billDescText').classList.remove('desc-hidden');
-      document.getElementById('userResults').classList.remove('active');
-      document.getElementById('userSearchContainer').classList.remove('active');
-      document.getElementById('userDescText').classList.remove('desc-hidden');
-    });
-  </script>
+  });
+});
+observer.observe(document.getElementById('loginText'), {
+  characterData: true,
+  subtree: true,
+  childList: true
+});
+});
+</script>
 </body>
 </html>
