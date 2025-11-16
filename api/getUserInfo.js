@@ -6,6 +6,12 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   // ========================================
 
+    // 新增：处理OPTIONS预检请求
+  if (req.method === "OPTIONS") {
+    res.status(204).end(); // 204表示成功且无内容
+    return;
+  }
+
   // 把 userID 改成 userId
   const { userId } = req.query; 
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
