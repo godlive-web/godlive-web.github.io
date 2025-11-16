@@ -6,19 +6,18 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   // ========================================
 
-    // 新增：处理OPTIONS预检请求
+  // 处理OPTIONS预检请求
   if (req.method === "OPTIONS") {
-    res.status(204).end(); // 204表示成功且无内容
+    res.status(204).end();
     return;
   }
 
-  // 把 userID 改成 userId
-  const { userId } = req.query; 
+  // 接收全小写的userid参数（与前端实际传递的一致）
+  const { userid } = req.query; 
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const OWNER = "godlive-web";
   const REPO = "godlive";
-  // 把 userID 改成 userId
-  const FILE_PATH = `data/usersdata/${userId}.json`; 
+  const FILE_PATH = `data/usersdata/${userid}.json`; 
 
   try {
     const response = await fetch(
@@ -32,10 +31,9 @@ export default async function handler(req, res) {
     );
 
     if (!response.ok) {
-      // 把 userID 改成 userId
       return res.status(404).json({
         success: false,
-        msg: `未找到用户信息文件（ID: ${userId}），请检查ID是否正确`,
+        msg: `未找到用户信息文件（ID: ${userid}），请检查ID是否正确`,
       });
     }
 
