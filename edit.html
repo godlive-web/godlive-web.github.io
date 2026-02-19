@@ -91,6 +91,8 @@
   <script>
     // Vercel域名配置
     const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app";
+    // 新增：全局变量保存原有【认证成就】字段（防止修改时丢失）
+    let originalCertificationAchievements = '';
 
     // 显示结果提示
     function showResult(msg, type) {
@@ -134,6 +136,9 @@
         document.getElementById('模糊住址').value = latestData['模糊住址'] || '';
         document.getElementById('出生日期').value = latestData['出生日期'] || '';
         document.getElementById('个人介绍').value = latestData['个人介绍'] || '';
+        
+        // 关键修改：明确保存原有【认证成就】字段
+        originalCertificationAchievements = latestData['认证成就'] || '';
       } else {
         console.warn('未获取到最新用户数据，表单填充失败');
       }
@@ -148,14 +153,16 @@
         return;
       }
 
-      // 收集新输入的信息
+      // 收集新输入的信息 + 保留原有【认证成就】字段
       const newInfo = {
         userID: userID, // 传递用户ID给后端
         账号名称: document.getElementById("账号名称").value.trim(),
         自设名称: document.getElementById("自设名称").value.trim(),
         模糊住址: document.getElementById("模糊住址").value.trim(),
         出生日期: document.getElementById("出生日期").value.trim(),
-        个人介绍: document.getElementById("个人介绍").value.trim()
+        个人介绍: document.getElementById("个人介绍").value.trim(),
+        // 关键修改：明确写入【认证成就】字段，防止被覆盖删除
+        认证成就: originalCertificationAchievements
       };
 
       // 验证：至少填写一个字段
@@ -165,7 +172,7 @@
       }
 
       try {
-        // 调用Vercel的update接口，传递userID和新信息
+        // 调用Vercel的update接口，传递userID和新信息（包含【认证成就】字段）
         const res = await fetch(`https://${VERCEL_DOMAIN}/api/update`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
