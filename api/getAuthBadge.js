@@ -49,10 +49,12 @@ export default async function handler(req, res) {
     const encodedFileName = encodeURIComponent(fileName);
     const githubUrl = `https://github.com/${REPO_PATH}/blob/${branchHash}/${FOLDER_NAME}/${encodedFileName}`;
 
+    // ✅ 关键修复：把 outputUrl 包裹在 data 对象里，和 getBadgeDesc.js 保持一致
     return res.status(200).json({
       success: true,
-      input: achievement,
-      outputUrl: githubUrl
+      data: {
+        outputUrl: githubUrl
+      }
     });
   } catch (error) {
     return res.status(500).json({
