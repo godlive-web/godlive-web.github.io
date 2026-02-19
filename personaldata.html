@@ -24,7 +24,7 @@
       --card-bg: #ffffff;
       --header-bg: rgba(255, 255, 255, 0.95);
       --sidebar-bg: rgba(248, 249, 250, 0.9);
-      --content-bg: rgba(255, 255, 255, 0.95);
+      --content-bg: rgba(255, 255, 255, 1); /* 完全不透明 */
       --sidebar-width: 260px;
     }
     @media (prefers-color-scheme: dark) {
@@ -38,10 +38,10 @@
         --accent-light: rgba(100, 80, 255, 0.2);
         --border-color: rgba(100, 80, 255, 0.3);
         --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        --card-bg: rgba(20, 20, 45, 1);
+        --card-bg: rgba(20, 20, 45, 1); /* 完全不透明 */
         --header-bg: rgba(15, 15, 35, 0.95);
         --sidebar-bg: rgba(20, 20, 45, 0.8);
-        --content-bg: rgba(15, 15, 30, 0.95);
+        --content-bg: rgba(15, 15, 30, 1); /* 完全不透明 */
       }
     }
     body {
@@ -569,7 +569,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            展示您在神界阁和秋风Auting官网的授权认证信息
+            展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建
           </div>
         </div>
 
@@ -579,7 +579,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            反馈个人信息存在的问题
+            反馈您个人信息存在的问题
           </div>
         </div>
       </nav>
@@ -604,7 +604,7 @@
         </div>
       </section>
 
-      <!-- 认证信息区（完整替换为新功能） -->
+      <!-- 认证信息区 -->
       <section class="content-section" data-index="1">
         <h2>认证信息</h2>
         <p class="section-desc">查看您的神界阁官方认证成就与专属铭牌</p>
@@ -650,7 +650,7 @@
     <!-- 电脑端适配：不遮盖左侧汉堡菜单 -->
     <div id="categoryModalContent" style="width: 100%; height: 100%; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
-        <h3 id="categoryModalTitle" style="font-size: 20px; color: var(--text-primary); margin: 0;">分类铭牌</h3>
+        <h3 id="categoryModalTitle" style="font-size: 20px; color: var(--text-primary); margin: 0;">分类名称</h3>
         <button id="closeCategoryModalBtn" style="background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; padding: 0; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 50%;">×</button>
       </div>
       <div id="badgeListInModal" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
@@ -673,786 +673,783 @@
   </div>
 
   <script>
-   // Cookie处理函数
-// Cookie处理函数：确保跨域和安全配置
-function setCookie(name, value, days, sameSite = 'Lax') {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`;
-}
+    // 全局变量：保存最新的用户数据，绕过Cookie缓存问题
+    let globalLatestUserData = null;
+    // Vercel域名配置
+    const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
 
-// 读取Cookie函数
-function getCookie(name) {
-  const nameEQ = name + "=";
-  const ca = document.cookie.split(';');
-  for(let i = 0; i < ca.length; i++) {
-    let c = ca[i].trim();
-    if (c.indexOf(nameEQ) === 0) {
-      return decodeURIComponent(c.substring(nameEQ.length));
+    // Cookie处理函数
+    function setCookie(name, value, days, sameSite = 'Lax') {
+      const expires = new Date();
+      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`;
     }
-  }
-  return null;
-}
 
-// 显示消息提示
-function showMessage(text, type) {
-  const messageElement = document.getElementById('message');
-  if (messageElement) {
-    messageElement.textContent = text;
-    messageElement.className = 'message';
-    messageElement.classList.add(type);
-  }
-}
-
-// 注销功能（修改后：彻底清理Cookie+跳对页面）
-function setupLogoutFunction() {
-  const logoutLink = document.getElementById('logoutLink');
-  if (logoutLink) {
-    logoutLink.addEventListener('click', function() {
-      if (confirm('确定要注销账号吗？注销后将返回登录页')) {
-        setCookie('userData', '', -1); // 过期删除userData
-        setCookie('user', '', -1);     // 过期删除user（不再设为0）
-        window.location.href = 'https://godlive-web.github.io/login.html'; // 补全.html
+    // 读取Cookie函数
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) {
+          return decodeURIComponent(c.substring(nameEQ.length));
+        }
       }
-    });
-  }
-}
-
-// 检查登录状态（修改后：强化校验，未登录直接跳转）
-function checkLoginStatus() {
-  const userCookie = getCookie('user');
-  const userDataStr = getCookie('userData');
-  // 双重校验：必须有userCookie且不为空、有有效userData，才视为登录
-  if (!userCookie || userCookie === '' || !userDataStr) {
-    window.location.href = 'https://godlive-web.github.io/login.html';
-    return false; // 阻止后续代码执行
-  }
-  // 额外校验userData是否有效（防止篡改Cookie）
-  try {
-    JSON.parse(userDataStr);
-  } catch (e) {
-    // 无效Cookie直接清理并跳转
-    setCookie('userData', '', -1);
-    setCookie('user', '', -1);
-    window.location.href = 'https://godlive-web.github.io/login.html';
-    return false;
-  }
-  return true;
-}
-
-// 从后端接口获取最新用户信息（调用GitHub仓库数据）
-async function fetchLatestUserInfo() {
-  const userID = getCookie('user');
-  if (!userID) {
-    showMessage('未检测到登录状态，请重新登录', 'error');
-    return null;
-  }
-
-  try {
-    const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app"; // 你的Vercel项目域名
-    const response = await fetch(`https://${VERCEL_DOMAIN}/api/getUserInfo?userid=${userID}`);
-    const result = await response.json();
-    if (result.success) {
-      return result.data;
-    } else {
-      showMessage(result.msg, 'error');
       return null;
     }
-  } catch (error) {
-    console.error('获取最新用户信息失败:', error);
-    showMessage('网络错误，请稍后重试', 'error');
-    return null;
-  }
-}
 
-// 加载并显示基础信息（使用最新仓库数据）
-function loadBasicInfo(userData) {
-  const infoCard = document.getElementById('basicInfoCard');
-  const welcomeMessage = document.getElementById('welcomeMessage');
-  
-  if (!userData) {
-    infoCard.innerHTML = '<div class="info-error">未获取到用户信息，请重新登录</div>';
-    return;
-  }
-  
-  const userName = userData['账号名称'] || '用户';
-  if (welcomeMessage) {
-    welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请点击下方按钮。如需退出登录，<span class="logout-link" id="logoutLink">请点击</span>`;
-  }
-  setupLogoutFunction();
-  
-  setTimeout(() => {
-    try {
-      let infoHtml = '';
-      const fields = [
-        { key: 'user', label: 'ID' },
-        { key: '自设名称', label: '自设名称' },
-        { key: '入圈时间', label: '入圈时间' },
-        { key: '模糊住址', label: '模糊住址' },
-        { key: '出生日期', label: '出生日期' },
-        { key: '个人介绍', label: '个人介绍' },
-        { key: '账号状态', label: '账号状态' }
-      ];
-      
-      fields.forEach(field => {
-        let value = userData[field.key] || '未填写';
-        if (field.key === '账号状态') {
-          value = Number(value) === 0 ? '正常' : value;
-        }
-        infoHtml += `
-          <div class="info-item">
-            <div class="info-label">${field.label}</div>
-            <div class="info-value">${value}</div>
-          </div>
-        `;
-      });
-      if (infoCard) {
-        infoCard.innerHTML = infoHtml;
-      }
-    } catch (error) {
-      console.error('解析用户信息失败:', error);
-      if (infoCard) {
-        infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
+    // 显示消息提示
+    function showMessage(text, type) {
+      const messageElement = document.getElementById('message');
+      if (messageElement) {
+        messageElement.textContent = text;
+        messageElement.className = type;
       }
     }
-  }, 800);
-}
 
-// 编辑按钮逻辑：传递用户ID和数据到编辑页
-function setupEditButton() {
-  const editInfoBtn = document.getElementById('editInfoBtn');
-  if (editInfoBtn) {
-    editInfoBtn.addEventListener('click', function() {
-      const userID = getCookie('user');
-      const userDataStr = getCookie('userData');
-      if (userID && userDataStr) {
-        window.location.href = `edit.html?userData=${encodeURIComponent(userDataStr)}&userID=${userID}`;
-      } else {
-        showMessage('获取用户数据失败，请重新登录', 'error');
+    // 【修复】注销功能：清空所有数据和全局变量
+    function setupLogoutFunction() {
+      const logoutLink = document.getElementById('logoutLink');
+      if (logoutLink) {
+        logoutLink.addEventListener('click', function() {
+          if (confirm('确定要注销账号吗？注销后将返回登录页')) {
+            // 清空Cookie
+            setCookie('userData', '', -1);
+            setCookie('user', '', -1);
+            // 清空全局变量
+            globalLatestUserData = null;
+            // 跳转到登录页
+            window.location.href = 'https://godlive-web.github.io/login.html';
+          }
+        });
       }
-    });
-  }
-}
+    }
 
-// 反馈问题功能
-function setupFeedbackFunction() {
-  const submitBtn = document.getElementById('submitFeedback');
-  const cancelBtn = document.getElementById('cancelFeedback');
-  const problemField = document.getElementById('problemField');
-  const expectedValue = document.getElementById('expectedValue');
-  
-  if (submitBtn && cancelBtn && problemField && expectedValue) {
-    submitBtn.addEventListener('click', function() {
-      const problem = problemField.value.trim();
-      if (!problem) {
-        alert('请输入存在问题的数据项');
+    // 检查登录状态
+    function checkLoginStatus() {
+      const userCookie = getCookie('user');
+      const userDataStr = getCookie('userData');
+      if (!userCookie || userCookie === '' || !userDataStr) {
+        window.location.href = 'https://godlive-web.github.io/login.html';
+        return false;
+      }
+      // 校验Cookie里的用户数据格式
+      try {
+        JSON.parse(userDataStr);
+      } catch (e) {
+        setCookie('userData', '', -1);
+        setCookie('user', '', -1);
+        window.location.href = 'https://godlive-web.github.io/login.html';
+        return false;
+      }
+      return true;
+    }
+
+    // 从后端接口获取最新用户信息
+    async function fetchLatestUserInfo() {
+      const userID = getCookie('user');
+      if (!userID) {
+        showMessage('未检测到登录状态，请重新登录', 'error');
+        // 兜底：从Cookie读取
+        const userDataStr = getCookie('userData');
+        if (userDataStr) {
+          try {
+            return JSON.parse(userDataStr);
+          } catch (e) {
+            return null;
+          }
+        }
+        return null;
+      }
+
+      try {
+        const response = await fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userid=${userID}`, {
+          method: 'GET',
+          mode: 'cors'
+        });
+        if (!response.ok) throw new Error('接口请求失败');
+        const result = await response.json();
+        if (result.success) {
+          console.log('✅ 接口返回的最新用户数据：', result.data);
+          // 更新全局变量和Cookie
+          globalLatestUserData = result.data;
+          setCookie('userData', JSON.stringify(result.data), 7);
+          return result.data;
+        } else {
+          showMessage(result.msg, 'error');
+          const userDataStr = getCookie('userData');
+          if (userDataStr) return JSON.parse(userDataStr);
+          return null;
+        }
+      } catch (error) {
+        console.error('获取最新用户信息失败:', error);
+        const userDataStr = getCookie('userData');
+        if (userDataStr) {
+          try {
+            const data = JSON.parse(userDataStr);
+            globalLatestUserData = data;
+            return data;
+          } catch (e) {
+            return null;
+          }
+        }
+        showMessage('网络错误，已加载本地缓存数据', 'error');
+        return null;
+      }
+    }
+
+    // 加载并显示基础信息
+    function loadBasicInfo(userData) {
+      const infoCard = document.getElementById('basicInfoCard');
+      const welcomeMessage = document.getElementById('welcomeMessage');
+      
+      if (!userData) {
+        infoCard.innerHTML = '<div class="info-error">未获取到用户信息，请重新登录</div>';
         return;
       }
       
-      const expected = expectedValue.value.trim() || '未提供';
-      const feedbackText = `我的（${problem}）数据存在问题，原数据应该是（${expected}），请尽快解决。`;
+      const userName = userData['账号名称'] || userData['自设名称'] || '用户';
+      if (welcomeMessage) {
+        welcomeMessage.innerHTML = `欢迎您，${userName}。这里展示您的个人信息，如需修改，请点击下方按钮。如需退出登录，请点击<span class="logout-link" id="logoutLink">注销</span>`;
+      }
+      setupLogoutFunction();
       
-      if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
-        navigator.clipboard.writeText(feedbackText).then(() => {
-          const contactQQ = '458299675';
-          window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
-          alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
-        }).catch(err => {
-          console.error('复制失败:', err);
-          alert('复制内容失败，请手动复制：\n' + feedbackText);
+      setTimeout(() => {
+        try {
+          let infoHtml = '';
+          const fields = [
+            { key: 'user', label: 'ID' },
+            { key: '账号名称', label: '账号名称' },
+            { key: '自设名称', label: '自设名称' },
+            { key: '入圈时间', label: '入圈时间' },
+            { key: '模糊住址', label: '模糊住址' },
+            { key: '出生日期', label: '出生日期' },
+            { key: '个人介绍', label: '个人介绍' },
+            { key: '账号状态', label: '账号状态' }
+          ];
+          
+          fields.forEach(field => {
+            let value = userData[field.key] || '未填写';
+            if (field.key === '账号状态') {
+              value = Number(value) === 0 ? '正常' : value;
+            }
+            infoHtml += `
+              <div class="info-item">
+                <div class="info-label">${field.label}</div>
+                <div class="info-value">${value}</div>
+              </div>
+            `;
+          });
+          if (infoCard) {
+            infoCard.innerHTML = infoHtml;
+          }
+        } catch (error) {
+          console.error('解析用户信息失败:', error);
+          if (infoCard) {
+            infoCard.innerHTML = '<div class="info-error">信息加载失败，请稍后重试</div>';
+          }
+        }
+      }, 500);
+    }
+
+    // 编辑按钮逻辑
+    function setupEditButton() {
+      const editInfoBtn = document.getElementById('editInfoBtn');
+      if (editInfoBtn) {
+        editInfoBtn.addEventListener('click', function() {
+          const userID = getCookie('user');
+          const userDataStr = getCookie('userData');
+          if (userID && userDataStr) {
+            window.location.href = `edit.html?userData=${encodeURIComponent(userDataStr)}&userID=${userID}`;
+          } else {
+            showMessage('获取用户数据失败，请重新登录', 'error');
+          }
         });
       }
-    });
-    
-    cancelBtn.addEventListener('click', function() {
-      problemField.value = '';
-      expectedValue.value = '';
-    });
-  }
-}
+    }
 
-// 导航和滑动功能
-function setupNavigation() {
-  const sections = document.querySelectorAll('.content-section');
-  const sidebarLinks = document.querySelectorAll('.sidebar-link');
-  const sidebarItems = document.querySelectorAll('.sidebar-item');
-  const hamburgerMenu = document.getElementById('hamburgerMenu');
-  const sidebar = document.getElementById('sidebar');
-  
-  let currentIndex = 0;
-  let startY = 0;
-  let isDragging = false;
-  let dragDistance = 0;
-  let dragStartTime = 0;
-
-  function syncSidebar() {
-    sidebarLinks.forEach((link, index) => {
-      link.classList.remove('active');
-      sidebarItems[index].classList.remove('expanded');
-      if (index === currentIndex) {
-        link.classList.add('active');
-        sidebarItems[index].classList.add('expanded');
-      }
-    });
-  }
-
-  function switchContent(index) {
-    currentIndex = index;
-    sections.forEach((sec, i) => {
-      sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
-    });
-    syncSidebar();
-  }
-
-  if (sidebarLinks.length > 0) {
-    sidebarLinks.forEach((link, index) => {
-      link.addEventListener('click', () => {
-        switchContent(index);
-        if (window.innerWidth <= 768) {
-          toggleSidebar();
-        }
-      });
-    });
-  }
-
-  function toggleSidebar() {
-    if (hamburgerMenu && sidebar) {
-      hamburgerMenu.classList.toggle('active');
-      sidebar.classList.toggle('active');
-      if (sidebar.classList.contains('active')) {
-        createOverlay();
-      } else {
-        removeOverlay();
+    // 反馈问题功能
+    function setupFeedbackFunction() {
+      const submitBtn = document.getElementById('submitFeedback');
+      const cancelBtn = document.getElementById('cancelFeedback');
+      const problemField = document.getElementById('problemField');
+      const expectedValue = document.getElementById('expectedValue');
+      
+      if (submitBtn && cancelBtn && problemField && expectedValue) {
+        submitBtn.addEventListener('click', function() {
+          const problem = problemField.value.trim();
+          if (!problem) {
+            alert('请输入存在问题的数据项');
+            return;
+          }
+          
+          const expected = expectedValue.value.trim() || '未提供';
+          const feedbackText = `我的（${problem}）数据存在问题，原数据应该是（${expected}），请尽快解决。`;
+          
+          if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
+            navigator.clipboard.writeText(feedbackText).then(() => {
+              const contactQQ = '458299675';
+              window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
+              alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
+            }).catch(err => {
+              console.error('复制失败:', err);
+              alert('复制内容失败，请手动复制：\n' + feedbackText);
+            });
+          }
+        });
+        
+        cancelBtn.addEventListener('click', function() {
+          problemField.value = '';
+          expectedValue.value = '';
+        });
       }
     }
-  }
-  
-  function createOverlay() {
-    const overlay = document.createElement('div');
-    overlay.id = 'sidebar-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = '70px';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = 'calc(100vh - 70px)';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    overlay.style.zIndex = '996';
-    overlay.addEventListener('click', toggleSidebar);
-    document.body.appendChild(overlay);
-  }
-  
-  function removeOverlay() {
-    const overlay = document.getElementById('sidebar-overlay');
-    if (overlay) {
-      document.body.removeChild(overlay);
-    }
-  }
-  
-  if (hamburgerMenu) {
-    hamburgerMenu.addEventListener('click', toggleSidebar);
-  }
 
-  function onDragStart(e) {
-    if (e.type === 'touchstart') {
-      startY = e.touches[0].clientY;
-    } else {
-      startY = e.clientY;
-    }
-    isDragging = true;
-    dragDistance = 0;
-    dragStartTime = Date.now();
-    sections.forEach(sec => sec.style.transition = 'none');
-  }
+    // 导航和滑动功能
+    function setupNavigation() {
+      const sections = document.querySelectorAll('.content-section');
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+      const sidebarItems = document.querySelectorAll('.sidebar-item');
+      const hamburgerMenu = document.getElementById('hamburgerMenu');
+      const sidebar = document.getElementById('sidebar');
+      
+      let currentIndex = 0;
+      let startY = 0;
+      let isDragging = false;
+      let dragDistance = 0;
+      let dragStartTime = 0;
 
-  function onDragMove(e) {
-    if (!isDragging) return;
-    let currentY = 0;
-    if (e.type === 'touchmove') {
-      currentY = e.touches[0].clientY;
-    } else {
-      currentY = e.clientY;
-    }
-    dragDistance = currentY - startY;
-    sections.forEach((sec, index) => {
-      const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
-      sec.style.transform = `translateY(${targetY}vh)`;
-    });
-  }
-
-  function onDragEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
-    const threshold = window.innerHeight * 0.4;
-    const dragTime = Date.now() - dragStartTime;
-    const speed = Math.abs(dragDistance) / dragTime;
-
-    if (dragDistance < 0) {
-      if (Math.abs(dragDistance) > threshold || speed > 0.7) {
-        switchContent(Math.min(currentIndex + 1, sections.length - 1));
-      } else {
-        switchContent(currentIndex);
+      function syncSidebar() {
+        sidebarLinks.forEach((link, index) => {
+          link.classList.remove('active');
+          sidebarItems[index].classList.remove('expanded');
+          if (index === currentIndex) {
+            link.classList.add('active');
+            sidebarItems[index].classList.add('expanded');
+          }
+        });
       }
-    } else {
-      if (dragDistance > threshold || speed > 0.7) {
-        switchContent(Math.max(currentIndex - 1, 0));
-      } else {
-        switchContent(currentIndex);
+
+      function switchContent(index) {
+        currentIndex = index;
+        sections.forEach((sec, i) => {
+          sec.style.transform = `translateY(${(i - currentIndex) * 100}vh)`;
+        });
+        syncSidebar();
       }
-    }
-  }
 
-  const content = document.querySelector('.content');
-  if (content) {
-    content.addEventListener('touchstart', onDragStart);
-    content.addEventListener('touchmove', onDragMove);
-    content.addEventListener('touchend', onDragEnd);
-    content.addEventListener('mousedown', onDragStart);
-    content.addEventListener('mousemove', onDragMove);
-    content.addEventListener('mouseup', onDragEnd);
-    content.addEventListener('mouseleave', onDragEnd);
-    
-    content.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      if (e.deltaY > 0) {
-        switchContent(Math.min(currentIndex + 1, sections.length - 1));
-      } else {
-        switchContent(Math.max(currentIndex - 1, 0));
-      }
-    });
-  }
-
-  syncSidebar();
-}
-
-// ======================
-// 新增：认证铭牌完整功能
-// ======================
-// 仅需核对这1个配置：你的Vercel API域名
-const VERCEL_API_DOMAIN = "https://godlive-web-github-io.vercel.app";
-
-// 全局状态变量
-let currentCategory = '';
-let originalOverflow = '';
-let badgeModalClickX = 0;
-let badgeModalClickY = 0;
-
-// 大分类配置（按要求的顺序）
-const CATEGORIES = [
-  {
-    key: '特殊认证成就',
-    fileName: '认证铭牌_特殊认证成就.png',
-    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E7%89%B9%E6%AE%8A%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
-  },
-  {
-    key: '个人认证信息',
-    fileName: '认证铭牌_个人认证信息.png',
-    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E4%B8%AA%E4%BA%BA%E8%AE%A4%E8%AF%81%E4%BF%A1%E6%81%AF.png'
-  },
-  {
-    key: '2025年度认证成就',
-    fileName: '认证铭牌_2025年度认证成就.png',
-    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_2025%E5%B9%B4%E5%BA%A6%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
-  }
-];
-
-// 初始化认证铭牌功能
-function initAuthBadgeFeature() {
-  renderCategoryList();
-  bindCategoryModalEvents();
-  bindBadgeModalEvents();
-  hijackSidebarNavigation();
-}
-
-// 渲染大分类列表（第一层）
-function renderCategoryList() {
-  const categoryList = document.getElementById('categoryList');
-  if (!categoryList) return;
-  
-  categoryList.innerHTML = '';
-  CATEGORIES.forEach(category => {
-    const card = document.createElement('div');
-    // 布局：手机横向2张（50%），电脑横向4张（25%）
-    card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden;';
-    card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
-    card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
-    
-    card.innerHTML = `
-      <img src="${category.rawUrl}" alt="${category.key}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;">
-    `;
-    
-    // 点击打开分类详情弹窗
-    card.addEventListener('click', function(e) {
-      openCategoryModal(category.key);
-    });
-    
-    categoryList.appendChild(card);
-  });
-}
-
-// 绑定分类详情弹窗事件
-function bindCategoryModalEvents() {
-  const overlay = document.getElementById('categoryModalOverlay');
-  const modal = document.getElementById('categoryModal');
-  const closeBtn = document.getElementById('closeCategoryModalBtn');
-  const content = document.getElementById('categoryModalContent');
-  
-  if (!overlay || !modal || !closeBtn) return;
-  
-  // 点击顶部蒙版关闭
-  overlay.addEventListener('click', closeCategoryModal);
-  // 点击关闭按钮关闭
-  closeBtn.addEventListener('click', closeCategoryModal);
-  
-  // 电脑端适配：不遮盖左侧汉堡菜单
-  adjustModalForDesktop();
-  window.addEventListener('resize', adjustModalForDesktop);
-}
-
-// 电脑端适配：弹窗只显示在主内容区
-function adjustModalForDesktop() {
-  const modal = document.getElementById('categoryModal');
-  const content = document.getElementById('categoryModalContent');
-  const sidebar = document.getElementById('sidebar');
-  
-  if (!modal || !content) return;
-  
-  if (window.innerWidth > 768) {
-    // 电脑端：左侧留空给汉堡菜单
-    const sidebarWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width') || '260px';
-    modal.style.left = sidebarWidth;
-    modal.style.width = `calc(100% - ${sidebarWidth})`;
-    content.style.paddingLeft = '20px';
-  } else {
-    // 移动端：全屏
-    modal.style.left = '0';
-    modal.style.width = '100%';
-    content.style.paddingLeft = '15px';
-  }
-}
-
-// 打开分类详情弹窗（第二层）
-function openCategoryModal(categoryKey) {
-  currentCategory = categoryKey;
-  const overlay = document.getElementById('categoryModalOverlay');
-  const modal = document.getElementById('categoryModal');
-  const title = document.getElementById('categoryModalTitle');
-  const content = document.getElementById('categoryModalContent');
-  const badgeList = document.getElementById('badgeListInModal');
-  const badgeEmpty = document.getElementById('badgeEmptyInModal');
-  
-  if (!overlay || !modal || !title) return;
-  
-  // 更新标题
-  title.textContent = categoryKey;
-  
-  // 禁用主页面/汉堡菜单滚动
-  disableMainScroll();
-  
-  // 显示弹窗
-  overlay.style.display = 'block';
-  modal.style.display = 'block';
-  // 强制重绘，确保动画生效
-  requestAnimationFrame(() => {
-    overlay.style.opacity = '1';
-    modal.style.transform = 'translateY(0)';
-  });
-  
-  // 加载该分类下的铭牌
-  loadBadgesInCategory(categoryKey, badgeList, badgeEmpty);
-}
-
-// 关闭分类详情弹窗
-function closeCategoryModal() {
-  const overlay = document.getElementById('categoryModalOverlay');
-  const modal = document.getElementById('categoryModal');
-  
-  if (!overlay || !modal) return;
-  
-  // 隐藏弹窗
-  overlay.style.opacity = '0';
-  modal.style.transform = 'translateY(100%)';
-  
-  // 动画结束后完全隐藏
-  setTimeout(() => {
-    overlay.style.display = 'none';
-    modal.style.display = 'none';
-    // 恢复主页面滚动
-    enableMainScroll();
-  }, 300);
-  
-  currentCategory = '';
-}
-
-// 禁用主页面/汉堡菜单滚动
-function disableMainScroll() {
-  const content = document.querySelector('.content');
-  const sidebar = document.getElementById('sidebar');
-  if (content) {
-    originalOverflow = content.style.overflow;
-    content.style.overflow = 'hidden';
-  }
-  if (sidebar) {
-    sidebar.style.overflow = 'hidden';
-  }
-  document.body.style.overflow = 'hidden';
-}
-
-// 恢复主页面滚动
-function enableMainScroll() {
-  const content = document.querySelector('.content');
-  const sidebar = document.getElementById('sidebar');
-  if (content) {
-    content.style.overflow = originalOverflow || 'hidden';
-  }
-  if (sidebar) {
-    sidebar.style.overflow = 'auto';
-  }
-  document.body.style.overflow = 'hidden';
-}
-
-// 劫持左侧汉堡菜单导航：点击时关闭弹窗
-function hijackSidebarNavigation() {
-  const sidebarLinks = document.querySelectorAll('.sidebar-link');
-  sidebarLinks.forEach(link => {
-    // 保存原有的点击事件
-    const originalClick = link.onclick;
-    link.addEventListener('click', function() {
-      // 先关闭弹窗
-      if (currentCategory) {
-        closeCategoryModal();
-      }
-    });
-  });
-}
-
-// 加载分类下的铭牌（核心数据逻辑）
-async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
-  if (!badgeListEl || !badgeEmptyEl) return;
-  
-  // 清空列表
-  badgeListEl.innerHTML = '';
-  badgeEmptyEl.style.display = 'none';
-  badgeListEl.style.display = 'flex';
-  
-  try {
-    // 步骤1：从Cookie获取用户数据（复用原有的getCookie函数）
-    const userDataStr = getCookie('userData');
-    if (!userDataStr) {
-      badgeEmptyEl.style.display = 'block';
-      badgeListEl.style.display = 'none';
-      return;
-    }
-    
-    const userData = JSON.parse(userDataStr);
-    
-    // 步骤2：解析用户的成就字符串（格式："个人认证信息：蓝图画师（2024.7.26）、官方合作画师（2024.7.26）；特殊认证成就：探索者（2026.2.19）；2025年度认证成就："）
-    const achievementsStr = userData.achievements || userData['认证成就'] || userData['成就'] || '';
-    const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
-    
-    // 无成就，显示空状态
-    if (!categoryAchievements || categoryAchievements.length === 0) {
-      badgeEmptyEl.style.display = 'block';
-      badgeListEl.style.display = 'none';
-      // 禁用弹窗滚动（内容少时防止滚走）
-      document.getElementById('categoryModalContent').style.overflow = 'hidden';
-      return;
-    }
-    
-    // 启用弹窗滚动（内容多时）
-    document.getElementById('categoryModalContent').style.overflow = 'auto';
-    
-    // 步骤3：遍历成就，调用API获取URL+介绍
-    const badgeList = [];
-    for (const achievement of categoryAchievements) {
-      try {
-        // 并行调用两个API
-        const [badgeUrlRes, badgeDescRes] = await Promise.all([
-          fetch(`${VERCEL_API_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`),
-          fetch(`${VERCEL_API_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`)
-        ]);
-        // 解析响应
-        const urlData = await badgeUrlRes.json();
-        const descData = await badgeDescRes.json();
-        // 校验API返回结果
-        if (urlData.success && descData.success) {
-          badgeList.push({
-            name: achievement.name,
-            time: achievement.time,
-            url: urlData.data.outputUrl,
-            desc: descData.data.description
+      if (sidebarLinks.length > 0) {
+        sidebarLinks.forEach((link, index) => {
+          link.addEventListener('click', () => {
+            switchContent(index);
+            if (window.innerWidth <= 768) {
+              toggleSidebar();
+            }
           });
-        }
-      } catch (apiErr) {
-        console.error(`获取成就「${achievement.name}」信息失败：`, apiErr);
-        // 单个成就失败不影响其他成就
+        });
       }
-    }
-    
-    // 无有效铭牌，显示空状态
-    if (badgeList.length === 0) {
-      badgeEmptyEl.style.display = 'block';
-      badgeListEl.style.display = 'none';
-      document.getElementById('categoryModalContent').style.overflow = 'hidden';
-      return;
-    }
-    
-    // 步骤4：渲染铭牌列表
-    renderBadgeListInModal(badgeList, badgeListEl);
-    
-  } catch (error) {
-    console.error('加载分类铭牌失败：', error);
-    badgeEmptyEl.style.display = 'block';
-    badgeListEl.style.display = 'none';
-    document.getElementById('categoryModalContent').style.overflow = 'hidden';
-  }
-}
 
-// 解析成就字符串（适配中文冒号：和中文分号；）
-function parseAchievementsByCategory(achievementsStr, targetCategory) {
-  if (!achievementsStr) return [];
-  
-  const results = [];
-  // 用【中文分号；】分割不同分类
-  const categoryParts = achievementsStr.split('；');
-  
-  for (const part of categoryParts) {
-    // 用【中文冒号：】分割分类名和成就列表
-    const [categoryName, achievementsPart] = part.split('：');
-    if (!categoryName || !achievementsPart) continue;
-    
-    if (categoryName.trim() === targetCategory) {
-      const achievementItems = achievementsPart.split('、');
-      for (const item of achievementItems) {
-        if (!item.trim()) continue;
-        const match = item.match(/^(.+?)（(.+?)）$/);
-        if (match) {
-          results.push({
-            name: match[1].trim(),
-            time: match[2].trim()
-          });
+      function toggleSidebar() {
+        if (hamburgerMenu && sidebar) {
+          hamburgerMenu.classList.toggle('active');
+          sidebar.classList.toggle('active');
+          if (sidebar.classList.contains('active')) {
+            createOverlay();
+          } else {
+            removeOverlay();
+          }
+        }
+      }
+      
+      function createOverlay() {
+        const overlay = document.createElement('div');
+        overlay.id = 'sidebar-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '70px';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = 'calc(100vh - 70px)';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.zIndex = '996';
+        overlay.addEventListener('click', toggleSidebar);
+        document.body.appendChild(overlay);
+      }
+      
+      function removeOverlay() {
+        const overlay = document.getElementById('sidebar-overlay');
+        if (overlay) {
+          document.body.removeChild(overlay);
+        }
+      }
+      
+      if (hamburgerMenu) {
+        hamburgerMenu.addEventListener('click', toggleSidebar);
+      }
+
+      function onDragStart(e) {
+        if (e.type === 'touchstart') {
+          startY = e.touches[0].clientY;
         } else {
-          results.push({
-            name: item.trim(),
-            time: '未知'
-          });
+          startY = e.clientY;
+        }
+        isDragging = true;
+        dragDistance = 0;
+        dragStartTime = Date.now();
+        sections.forEach(sec => sec.style.transition = 'none');
+      }
+
+      function onDragMove(e) {
+        if (!isDragging) return;
+        let currentY = 0;
+        if (e.type === 'touchmove') {
+          currentY = e.touches[0].clientY;
+        } else {
+          currentY = e.clientY;
+        }
+        dragDistance = currentY - startY;
+        sections.forEach((sec, index) => {
+          const targetY = (index - currentIndex) * 100 + (dragDistance * 0.2); 
+          sec.style.transform = `translateY(${targetY}vh)`;
+        });
+      }
+
+      function onDragEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        sections.forEach(sec => sec.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.8, 0.25, 1)');
+        const threshold = window.innerHeight * 0.4;
+        const dragTime = Date.now() - dragStartTime;
+        const speed = Math.abs(dragDistance) / dragTime;
+
+        if (dragDistance < 0) {
+          if (Math.abs(dragDistance) > threshold || speed > 0.7) {
+            switchContent(Math.min(currentIndex + 1, sections.length - 1));
+          } else {
+            switchContent(currentIndex);
+          }
+        } else {
+          if (dragDistance > threshold || speed > 0.7) {
+            switchContent(Math.max(currentIndex - 1, 0));
+          } else {
+            switchContent(currentIndex);
+          }
         }
       }
-      break;
+
+      const content = document.querySelector('.content');
+      if (content) {
+        content.addEventListener('touchstart', onDragStart);
+        content.addEventListener('touchmove', onDragMove);
+        content.addEventListener('touchend', onDragEnd);
+        content.addEventListener('mousedown', onDragStart);
+        content.addEventListener('mousemove', onDragMove);
+        content.addEventListener('mouseup', onDragEnd);
+        content.addEventListener('mouseleave', onDragEnd);
+        
+        content.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          if (e.deltaY > 0) {
+            switchContent(Math.min(currentIndex + 1, sections.length - 1));
+          } else {
+            switchContent(Math.max(currentIndex - 1, 0));
+          }
+        });
+      }
+
+      syncSidebar();
     }
-  }
-  
-  return results;
-}
 
-// 渲染弹窗内的铭牌列表
-function renderBadgeListInModal(badgeList, badgeListEl) {
-  badgeListEl.innerHTML = '';
-  
-  badgeList.forEach(badge => {
-    const card = document.createElement('div');
-    // 布局：手机横向2张，电脑横向4张
-    card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden; background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px;';
-    card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
-    card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
-    
-    card.innerHTML = `
-      <img src="${badge.url}" alt="${badge.name}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" onerror="this.src='https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png'">
-      <div style="font-weight: bold; color: var(--text-primary); margin-bottom: 3px; font-size: 14px; text-align: center;">${badge.name}</div>
-      <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">获得时间：${badge.time}</div>
-    `;
-    
-    // 点击打开单个铭牌详情弹窗
-    card.addEventListener('click', function(e) {
-      // 记录点击位置，用于动画
-      badgeModalClickX = e.clientX;
-      badgeModalClickY = e.clientY;
-      openBadgeModal(badge);
+    // ======================
+    // 认证铭牌完整功能（修复版）
+    // ======================
+    let currentCategory = '';
+    let originalOverflow = '';
+    let badgeModalClickX = 0;
+    let badgeModalClickY = 0;
+
+    // 大分类配置
+    const CATEGORIES = [
+      {
+        key: '特殊认证成就',
+        fileName: '认证铭牌_特殊认证成就.png',
+        rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E7%89%B9%E6%AE%8A%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
+      },
+      {
+        key: '个人认证信息',
+        fileName: '认证铭牌_个人认证信息.png',
+        rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E4%B8%AA%E4%BA%BA%E8%AE%A4%E8%AF%81%E4%BF%A1%E6%81%AF.png'
+      },
+      {
+        key: '2025年度认证成就',
+        fileName: '认证铭牌_2025年度认证成就.png',
+        rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_2025%E5%B9%B4%E5%BA%A6%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
+      }
+    ];
+
+    // 初始化认证铭牌功能
+    function initAuthBadgeFeature() {
+      renderCategoryList();
+      bindCategoryModalEvents();
+      bindBadgeModalEvents();
+      hijackSidebarNavigation();
+      console.log('✅ 认证铭牌功能初始化完成');
+    }
+
+    // 渲染大分类列表
+    function renderCategoryList() {
+      const categoryList = document.getElementById('categoryList');
+      if (!categoryList) return;
+      
+      categoryList.innerHTML = '';
+      CATEGORIES.forEach(category => {
+        const card = document.createElement('div');
+        card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden;';
+        card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
+        card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
+        
+        card.innerHTML = `
+          <img src="${category.rawUrl}" alt="${category.key}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;" onerror="this.src='https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png'">
+        `;
+        
+        card.addEventListener('click', function(e) {
+          openCategoryModal(category.key);
+        });
+        
+        categoryList.appendChild(card);
+      });
+    }
+
+    // 绑定分类详情弹窗事件
+    function bindCategoryModalEvents() {
+      const overlay = document.getElementById('categoryModalOverlay');
+      const modal = document.getElementById('categoryModal');
+      const closeBtn = document.getElementById('closeCategoryModalBtn');
+      
+      if (!overlay || !modal || !closeBtn) return;
+      
+      overlay.addEventListener('click', closeCategoryModal);
+      closeBtn.addEventListener('click', closeCategoryModal);
+      adjustModalForDesktop();
+      window.addEventListener('resize', adjustModalForDesktop);
+    }
+
+    // 电脑端适配：弹窗不遮盖左侧汉堡菜单
+    function adjustModalForDesktop() {
+      const modal = document.getElementById('categoryModal');
+      const content = document.getElementById('categoryModalContent');
+      if (!modal || !content) return;
+      
+      if (window.innerWidth > 768) {
+        const sidebarWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width') || '260px';
+        modal.style.left = sidebarWidth;
+        modal.style.width = `calc(100% - ${sidebarWidth})`;
+        content.style.paddingLeft = '20px';
+      } else {
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        content.style.paddingLeft = '15px';
+      }
+    }
+
+    // 打开分类详情弹窗
+    function openCategoryModal(categoryKey) {
+      currentCategory = categoryKey;
+      const overlay = document.getElementById('categoryModalOverlay');
+      const modal = document.getElementById('categoryModal');
+      const title = document.getElementById('categoryModalTitle');
+      const badgeList = document.getElementById('badgeListInModal');
+      const badgeEmpty = document.getElementById('badgeEmptyInModal');
+      
+      if (!overlay || !modal || !title) return;
+      
+      title.textContent = categoryKey;
+      disableMainScroll();
+      
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        modal.style.transform = 'translateY(0)';
+      });
+      
+      loadBadgesInCategory(categoryKey, badgeList, badgeEmpty);
+    }
+
+    // 关闭分类详情弹窗
+    function closeCategoryModal() {
+      const overlay = document.getElementById('categoryModalOverlay');
+      const modal = document.getElementById('categoryModal');
+      
+      if (!overlay || !modal) return;
+      
+      overlay.style.opacity = '0';
+      modal.style.transform = 'translateY(100%)';
+      
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+        enableMainScroll();
+      }, 300);
+      
+      currentCategory = '';
+    }
+
+    // 禁用主页面滚动
+    function disableMainScroll() {
+      const content = document.querySelector('.content');
+      const sidebar = document.getElementById('sidebar');
+      if (content) {
+        originalOverflow = content.style.overflow;
+        content.style.overflow = 'hidden';
+      }
+      if (sidebar) {
+        sidebar.style.overflow = 'hidden';
+      }
+      document.body.style.overflow = 'hidden';
+    }
+
+    // 恢复主页面滚动
+    function enableMainScroll() {
+      const content = document.querySelector('.content');
+      const sidebar = document.getElementById('sidebar');
+      if (content) {
+        content.style.overflow = originalOverflow || 'hidden';
+      }
+      if (sidebar) {
+        sidebar.style.overflow = 'auto';
+      }
+      document.body.style.overflow = 'hidden';
+    }
+
+    // 劫持左侧导航：点击时关闭弹窗
+    function hijackSidebarNavigation() {
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          if (currentCategory) {
+            closeCategoryModal();
+          }
+        });
+      });
+    }
+
+    // 【核心修复】加载分类下的铭牌，加强容错处理
+    async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
+      if (!badgeListEl || !badgeEmptyEl) return;
+      
+      badgeListEl.innerHTML = '';
+      badgeEmptyEl.style.display = 'none';
+      badgeListEl.style.display = 'flex';
+      
+      try {
+        // 优先用全局最新数据，不用Cookie缓存
+        const userData = globalLatestUserData;
+        console.log('🔍 加载铭牌使用的用户数据：', userData);
+        if (!userData) {
+          badgeEmptyEl.style.display = 'block';
+          badgeListEl.style.display = 'none';
+          return;
+        }
+        
+        // 优先读取认证成就字段
+        const achievementsStr = userData['认证成就'] || userData['achievements'] || userData['成就'] || '';
+        console.log('🔍 读取到的认证成就字段：', achievementsStr);
+        
+        const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
+        console.log('🔍 解析到的当前分类成就：', categoryAchievements);
+        
+        if (!categoryAchievements || categoryAchievements.length === 0) {
+          badgeEmptyEl.style.display = 'block';
+          badgeListEl.style.display = 'none';
+          document.getElementById('categoryModalContent').style.overflow = 'hidden';
+          return;
+        }
+        
+        document.getElementById('categoryModalContent').style.overflow = 'auto';
+        
+        const badgeList = [];
+        for (const achievement of categoryAchievements) {
+          try {
+            console.log(`🔍 正在获取「${achievement.name}」的铭牌信息`);
+            const [badgeUrlRes, badgeDescRes] = await Promise.all([
+              fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`),
+              fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`)
+            ]);
+            const urlData = await badgeUrlRes.json();
+            const descData = await badgeDescRes.json();
+            console.log(`✅ 「${achievement.name}」API返回：`, {urlData, descData});
+            
+            // 【关键修复】只有接口成功且数据存在，才加入列表，否则跳过，不报错
+            if (urlData.success && descData.success && urlData.data && descData.data) {
+              badgeList.push({
+                name: achievement.name,
+                time: achievement.time,
+                url: urlData.data.outputUrl,
+                desc: descData.data.description
+              });
+            } else {
+              console.warn(`⚠️ 「${achievement.name}」接口返回失败，跳过该铭牌`);
+            }
+          } catch (apiErr) {
+            console.error(`❌ 获取成就「${achievement.name}」信息失败：`, apiErr);
+          }
+        }
+        
+        if (badgeList.length === 0) {
+          badgeEmptyEl.style.display = 'block';
+          badgeListEl.style.display = 'none';
+          document.getElementById('categoryModalContent').style.overflow = 'hidden';
+          return;
+        }
+        
+        renderBadgeListInModal(badgeList, badgeListEl);
+        
+      } catch (error) {
+        console.error('❌ 加载分类铭牌失败：', error);
+        badgeEmptyEl.style.display = 'block';
+        badgeListEl.style.display = 'none';
+        document.getElementById('categoryModalContent').style.overflow = 'hidden';
+      }
+    }
+
+    // 解析成就字符串（适配中文冒号：和中文分号；）
+    function parseAchievementsByCategory(achievementsStr, targetCategory) {
+      if (!achievementsStr) return [];
+      
+      const results = [];
+      // 用【中文分号；】分割不同分类
+      const categoryParts = achievementsStr.split('；');
+      console.log('🔍 分割后的分类列表：', categoryParts);
+      
+      for (const part of categoryParts) {
+        // 用【中文冒号：】分割分类名和成就列表
+        const [categoryName, achievementsPart] = part.split('：');
+        console.log('🔍 分割分类名和成就：', {categoryName, achievementsPart});
+        
+        if (!categoryName || !achievementsPart) continue;
+        
+        if (categoryName.trim() === targetCategory) {
+          const achievementItems = achievementsPart.split('、');
+          for (const item of achievementItems) {
+            if (!item.trim()) continue;
+            const match = item.match(/^(.+?)（(.+?)）$/);
+            if (match) {
+              results.push({
+                name: match[1].trim(),
+                time: match[2].trim()
+              });
+            } else {
+              results.push({
+                name: item.trim(),
+                time: '未知'
+              });
+            }
+          }
+          break;
+        }
+      }
+      
+      return results;
+    }
+
+    // 渲染弹窗内的铭牌列表
+    function renderBadgeListInModal(badgeList, badgeListEl) {
+      badgeListEl.innerHTML = '';
+      
+      badgeList.forEach(badge => {
+        const card = document.createElement('div');
+        card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden; background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px;';
+        card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
+        card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
+        
+        card.innerHTML = `
+          <img src="${badge.url}" alt="${badge.name}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" onerror="this.src='https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png'">
+          <div style="font-weight: bold; color: var(--text-primary); margin-bottom: 3px; font-size: 14px; text-align: center;">${badge.name}</div>
+          <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">获得时间：${badge.time}</div>
+        `;
+        
+        card.addEventListener('click', function(e) {
+          badgeModalClickX = e.clientX;
+          badgeModalClickY = e.clientY;
+          openBadgeModal(badge);
+        });
+        
+        badgeListEl.appendChild(card);
+      });
+      console.log('✅ 铭牌列表渲染完成，共', badgeList.length, '个');
+    }
+
+    // 绑定单个铭牌弹窗事件
+    function bindBadgeModalEvents() {
+      const overlay = document.getElementById('badgeModalOverlay');
+      const modal = document.getElementById('badgeModal');
+      const closeBtn = document.getElementById('closeBadgeModalBtn');
+      
+      if (!overlay || !modal || !closeBtn) return;
+      
+      overlay.addEventListener('click', closeBadgeModal);
+      closeBtn.addEventListener('click', closeBadgeModal);
+    }
+
+    // 打开单个铭牌详情弹窗
+    function openBadgeModal(badge) {
+      const overlay = document.getElementById('badgeModalOverlay');
+      const modal = document.getElementById('badgeModal');
+      const title = document.getElementById('badgeModalTitle');
+      const img = document.getElementById('badgeModalImg');
+      const time = document.getElementById('badgeModalTime');
+      const desc = document.getElementById('badgeModalDesc');
+      
+      if (!overlay || !modal || !title) return;
+      
+      title.textContent = badge.name;
+      img.src = badge.url;
+      img.onerror = function() {
+        this.src = 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png';
+      };
+      time.textContent = `获得时间：${badge.time}`;
+      desc.textContent = badge.desc;
+      
+      overlay.style.display = 'block';
+      modal.style.display = 'block';
+      
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        modal.style.opacity = '1';
+        modal.style.transform = 'translate(-50%, -50%) scale(1)';
+      });
+    }
+
+    // 关闭单个铭牌详情弹窗
+    function closeBadgeModal() {
+      const overlay = document.getElementById('badgeModalOverlay');
+      const modal = document.getElementById('badgeModal');
+      
+      if (!overlay || !modal) return;
+      
+      overlay.style.opacity = '0';
+      modal.style.opacity = '0';
+      modal.style.transform = 'translate(-50%, -50%) scale(0.8)';
+      
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        modal.style.display = 'none';
+      }, 300);
+    }
+
+    // 页面加载时统一初始化
+    document.addEventListener('DOMContentLoaded', async function() {
+      const isLogin = checkLoginStatus();
+      if (!isLogin) return;
+      
+      const latestData = await fetchLatestUserInfo();
+      loadBasicInfo(latestData);
+      setupFeedbackFunction();
+      setupNavigation();
+      setupEditButton();
+      // 确保用户数据加载完成后，再初始化铭牌功能
+      initAuthBadgeFeature();
     });
-    
-    badgeListEl.appendChild(card);
-  });
-}
-
-// 绑定单个铭牌详情弹窗事件
-function bindBadgeModalEvents() {
-  const overlay = document.getElementById('badgeModalOverlay');
-  const modal = document.getElementById('badgeModal');
-  const closeBtn = document.getElementById('closeBadgeModalBtn');
-  
-  if (!overlay || !modal || !closeBtn) return;
-  
-  // 点击蒙版关闭
-  overlay.addEventListener('click', closeBadgeModal);
-  // 点击关闭按钮关闭
-  closeBtn.addEventListener('click', closeBadgeModal);
-}
-
-// 打开单个铭牌详情弹窗（第三层：从点击位置弹出动画）
-function openBadgeModal(badge) {
-  const overlay = document.getElementById('badgeModalOverlay');
-  const modal = document.getElementById('badgeModal');
-  const title = document.getElementById('badgeModalTitle');
-  const img = document.getElementById('badgeModalImg');
-  const time = document.getElementById('badgeModalTime');
-  const desc = document.getElementById('badgeModalDesc');
-  
-  if (!overlay || !modal || !title) return;
-  
-  // 更新内容
-  title.textContent = badge.name;
-  img.src = badge.url;
-  img.onerror = function() {
-    this.src = 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png';
-  };
-  time.textContent = `获得时间：${badge.time}`;
-  desc.textContent = badge.desc;
-  
-  // 显示弹窗
-  overlay.style.display = 'block';
-  modal.style.display = 'block';
-  
-  // 强制重绘
-  requestAnimationFrame(() => {
-    overlay.style.opacity = '1';
-    modal.style.opacity = '1';
-    modal.style.transform = 'translate(-50%, -50%) scale(1)';
-  });
-}
-
-// 关闭单个铭牌详情弹窗
-function closeBadgeModal() {
-  const overlay = document.getElementById('badgeModalOverlay');
-  const modal = document.getElementById('badgeModal');
-  
-  if (!overlay || !modal) return;
-  
-  // 隐藏弹窗
-  overlay.style.opacity = '0';
-  modal.style.opacity = '0';
-  modal.style.transform = 'translate(-50%, -50%) scale(0.8)';
-  
-  // 动画结束后完全隐藏
-  setTimeout(() => {
-    overlay.style.display = 'none';
-    modal.style.display = 'none';
-  }, 300);
-}
-
-// 页面加载时统一初始化所有功能
-document.addEventListener('DOMContentLoaded', async function() {
-  const isLogin = checkLoginStatus();
-  if (!isLogin) return;
-  
-  const latestData = await fetchLatestUserInfo();
-  loadBasicInfo(latestData);
-  setupFeedbackFunction();
-  setupNavigation();
-  setupEditButton();
-  
-  // 初始化认证铭牌功能
-  initAuthBadgeFeature();
-});
   </script>
 </body>
 </html>
