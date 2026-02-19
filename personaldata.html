@@ -1308,26 +1308,23 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
   }
 }
 
-// 解析成就字符串：按分类提取
+// 解析成就字符串（适配中文冒号：和中文分号；）
 function parseAchievementsByCategory(achievementsStr, targetCategory) {
   if (!achievementsStr) return [];
   
   const results = [];
-  // 按分号分割各个分类
+  // 用【中文分号；】分割不同分类
   const categoryParts = achievementsStr.split('；');
   
   for (const part of categoryParts) {
-    // 按冒号分割分类名和成就列表
+    // 用【中文冒号：】分割分类名和成就列表
     const [categoryName, achievementsPart] = part.split('：');
     if (!categoryName || !achievementsPart) continue;
     
-    // 找到目标分类
     if (categoryName.trim() === targetCategory) {
-      // 按顿号分割各个成就
       const achievementItems = achievementsPart.split('、');
       for (const item of achievementItems) {
         if (!item.trim()) continue;
-        // 提取成就名和时间（格式："蓝图画师（2024.7.26）"）
         const match = item.match(/^(.+?)（(.+?)）$/);
         if (match) {
           results.push({
