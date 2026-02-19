@@ -43,13 +43,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 自动生成铭牌URL
+    // 自动生成铭牌URL（关键修复：使用raw链接，而不是blob链接）
     const branchHash = ACHIEVEMENT_BRANCH_MAP[achievement];
     const fileName = `${FILE_PREFIX}${achievement}.png`;
     const encodedFileName = encodeURIComponent(fileName);
-    const githubUrl = `https://github.com/${REPO_PATH}/blob/${branchHash}/${FOLDER_NAME}/${encodedFileName}`;
+    // ✅ 关键修改：把github.com换成raw.githubusercontent.com，去掉blob/部分
+    const githubUrl = `https://raw.githubusercontent.com/${REPO_PATH}/${branchHash}/${FOLDER_NAME}/${encodedFileName}`;
 
-    // ✅ 关键修复：把 outputUrl 包裹在 data 对象里，和 getBadgeDesc.js 保持一致
+    // 返回成功结果（和getBadgeDesc.js保持一致的结构）
     return res.status(200).json({
       success: true,
       data: {
