@@ -569,7 +569,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建
+            展示您在神界阁和秋风Auting官网的授权认证信息
           </div>
         </div>
 
@@ -579,7 +579,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            反馈您个人信息存在的问题
+            反馈个人信息存在的问题
           </div>
         </div>
       </nav>
@@ -604,15 +604,14 @@
         </div>
       </section>
 
-      <!-- 认证信息区 -->
+      <!-- 认证信息区（完整替换为新功能） -->
       <section class="content-section" data-index="1">
         <h2>认证信息</h2>
-        <p class="section-desc">展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建</p>
+        <p class="section-desc">查看您的神界阁官方认证成就与专属铭牌</p>
         
-        <div class="auth-placeholder">
-          <div class="auth-message">
-            该数据库尚在搭建，敬请期待
-          </div>
+        <!-- 第一层：大分类展示 -->
+        <div class="info-card" id="categoryCard" style="max-height: none;">
+          <div id="categoryList" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
         </div>
       </section>
 
@@ -643,6 +642,34 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- 第二层：分类详情弹窗 -->
+  <div id="categoryModalOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998; display: none; opacity: 0; transition: opacity 0.3s ease;"></div>
+  <div id="categoryModal" style="position: fixed; bottom: 0; left: 0; width: 100%; height: 80vh; background: var(--content-bg); z-index: 9999; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); border-top-left-radius: 16px; border-top-right-radius: 16px; overflow: hidden;">
+    <!-- 电脑端适配：不遮盖左侧汉堡菜单 -->
+    <div id="categoryModalContent" style="width: 100%; height: 100%; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+        <h3 id="categoryModalTitle" style="font-size: 20px; color: var(--text-primary); margin: 0;">分类铭牌</h3>
+        <button id="closeCategoryModalBtn" style="background: none; border: none; font-size: 24px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; padding: 0; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 50%;">×</button>
+      </div>
+      <div id="badgeListInModal" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
+      <div id="badgeEmptyInModal" class="info-empty" style="display: none; padding: 40px 0;">您还没有该分类下的铭牌</div>
+    </div>
+  </div>
+
+  <!-- 第三层：单个铭牌详情弹窗 -->
+  <div id="badgeModalOverlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; display: none; opacity: 0; transition: opacity 0.3s ease;"></div>
+  <div id="badgeModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: var(--card-bg); border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--border-color); max-width: 90%; width: 500px; max-height: 80vh; overflow: hidden; z-index: 10001; opacity: 0; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color);">
+      <h3 id="badgeModalTitle" style="font-size: 18px; color: var(--text-primary); margin: 0;">铭牌名称</h3>
+      <button id="closeBadgeModalBtn" style="background: none; border: none; font-size: 22px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; padding: 0; width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; border-radius: 50%;">×</button>
+    </div>
+    <div style="padding: 20px; text-align: center; overflow-y: auto; max-height: calc(80vh - 60px);">
+      <img id="badgeModalImg" src="" alt="铭牌" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;">
+      <div id="badgeModalTime" style="font-size: 14px; color: var(--text-secondary); margin-bottom: 10px;">获得时间：——</div>
+      <div id="badgeModalDesc" style="font-size: 15px; color: var(--text-primary); line-height: 1.6; text-align: left;">——</div>
+    </div>
   </div>
 
   <script>
@@ -998,7 +1025,424 @@ function setupNavigation() {
   syncSidebar();
 }
 
-// 页面加载时统一初始化所有功能（修改后：先校验登录）
+// ======================
+// 新增：认证铭牌完整功能
+// ======================
+// 仅需核对这1个配置：你的Vercel API域名
+const VERCEL_API_DOMAIN = "https://godlive-web-github-io.vercel.app";
+
+// 全局状态变量
+let currentCategory = '';
+let originalOverflow = '';
+let badgeModalClickX = 0;
+let badgeModalClickY = 0;
+
+// 大分类配置（按要求的顺序）
+const CATEGORIES = [
+  {
+    key: '特殊认证成就',
+    fileName: '认证铭牌_特殊认证成就.png',
+    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E7%89%B9%E6%AE%8A%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
+  },
+  {
+    key: '个人认证信息',
+    fileName: '认证铭牌_个人认证信息.png',
+    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_%E4%B8%AA%E4%BA%BA%E8%AE%A4%E8%AF%81%E4%BF%A1%E6%81%AF.png'
+  },
+  {
+    key: '2025年度认证成就',
+    fileName: '认证铭牌_2025年度认证成就.png',
+    rawUrl: 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/8fc4e2c2ad5666dd64924a3262a5c9ae81e65a18/authentication/%E8%AE%A4%E8%AF%81%E9%93%AD%E7%89%8C_2025%E5%B9%B4%E5%BA%A6%E8%AE%A4%E8%AF%81%E6%88%90%E5%B0%B1.png'
+  }
+];
+
+// 初始化认证铭牌功能
+function initAuthBadgeFeature() {
+  renderCategoryList();
+  bindCategoryModalEvents();
+  bindBadgeModalEvents();
+  hijackSidebarNavigation();
+}
+
+// 渲染大分类列表（第一层）
+function renderCategoryList() {
+  const categoryList = document.getElementById('categoryList');
+  if (!categoryList) return;
+  
+  categoryList.innerHTML = '';
+  CATEGORIES.forEach(category => {
+    const card = document.createElement('div');
+    // 布局：手机横向2张（50%），电脑横向4张（25%）
+    card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden;';
+    card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
+    card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
+    
+    card.innerHTML = `
+      <img src="${category.rawUrl}" alt="${category.key}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px;">
+    `;
+    
+    // 点击打开分类详情弹窗
+    card.addEventListener('click', function(e) {
+      openCategoryModal(category.key);
+    });
+    
+    categoryList.appendChild(card);
+  });
+}
+
+// 绑定分类详情弹窗事件
+function bindCategoryModalEvents() {
+  const overlay = document.getElementById('categoryModalOverlay');
+  const modal = document.getElementById('categoryModal');
+  const closeBtn = document.getElementById('closeCategoryModalBtn');
+  const content = document.getElementById('categoryModalContent');
+  
+  if (!overlay || !modal || !closeBtn) return;
+  
+  // 点击顶部蒙版关闭
+  overlay.addEventListener('click', closeCategoryModal);
+  // 点击关闭按钮关闭
+  closeBtn.addEventListener('click', closeCategoryModal);
+  
+  // 电脑端适配：不遮盖左侧汉堡菜单
+  adjustModalForDesktop();
+  window.addEventListener('resize', adjustModalForDesktop);
+}
+
+// 电脑端适配：弹窗只显示在主内容区
+function adjustModalForDesktop() {
+  const modal = document.getElementById('categoryModal');
+  const content = document.getElementById('categoryModalContent');
+  const sidebar = document.getElementById('sidebar');
+  
+  if (!modal || !content) return;
+  
+  if (window.innerWidth > 768) {
+    // 电脑端：左侧留空给汉堡菜单
+    const sidebarWidth = getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width') || '260px';
+    modal.style.left = sidebarWidth;
+    modal.style.width = `calc(100% - ${sidebarWidth})`;
+    content.style.paddingLeft = '20px';
+  } else {
+    // 移动端：全屏
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    content.style.paddingLeft = '15px';
+  }
+}
+
+// 打开分类详情弹窗（第二层）
+function openCategoryModal(categoryKey) {
+  currentCategory = categoryKey;
+  const overlay = document.getElementById('categoryModalOverlay');
+  const modal = document.getElementById('categoryModal');
+  const title = document.getElementById('categoryModalTitle');
+  const content = document.getElementById('categoryModalContent');
+  const badgeList = document.getElementById('badgeListInModal');
+  const badgeEmpty = document.getElementById('badgeEmptyInModal');
+  
+  if (!overlay || !modal || !title) return;
+  
+  // 更新标题
+  title.textContent = categoryKey;
+  
+  // 禁用主页面/汉堡菜单滚动
+  disableMainScroll();
+  
+  // 显示弹窗
+  overlay.style.display = 'block';
+  modal.style.display = 'block';
+  // 强制重绘，确保动画生效
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    modal.style.transform = 'translateY(0)';
+  });
+  
+  // 加载该分类下的铭牌
+  loadBadgesInCategory(categoryKey, badgeList, badgeEmpty);
+}
+
+// 关闭分类详情弹窗
+function closeCategoryModal() {
+  const overlay = document.getElementById('categoryModalOverlay');
+  const modal = document.getElementById('categoryModal');
+  
+  if (!overlay || !modal) return;
+  
+  // 隐藏弹窗
+  overlay.style.opacity = '0';
+  modal.style.transform = 'translateY(100%)';
+  
+  // 动画结束后完全隐藏
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+    // 恢复主页面滚动
+    enableMainScroll();
+  }, 300);
+  
+  currentCategory = '';
+}
+
+// 禁用主页面/汉堡菜单滚动
+function disableMainScroll() {
+  const content = document.querySelector('.content');
+  const sidebar = document.getElementById('sidebar');
+  if (content) {
+    originalOverflow = content.style.overflow;
+    content.style.overflow = 'hidden';
+  }
+  if (sidebar) {
+    sidebar.style.overflow = 'hidden';
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+// 恢复主页面滚动
+function enableMainScroll() {
+  const content = document.querySelector('.content');
+  const sidebar = document.getElementById('sidebar');
+  if (content) {
+    content.style.overflow = originalOverflow || 'hidden';
+  }
+  if (sidebar) {
+    sidebar.style.overflow = 'auto';
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+// 劫持左侧汉堡菜单导航：点击时关闭弹窗
+function hijackSidebarNavigation() {
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  sidebarLinks.forEach(link => {
+    // 保存原有的点击事件
+    const originalClick = link.onclick;
+    link.addEventListener('click', function() {
+      // 先关闭弹窗
+      if (currentCategory) {
+        closeCategoryModal();
+      }
+    });
+  });
+}
+
+// 加载分类下的铭牌（核心数据逻辑）
+async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
+  if (!badgeListEl || !badgeEmptyEl) return;
+  
+  // 清空列表
+  badgeListEl.innerHTML = '';
+  badgeEmptyEl.style.display = 'none';
+  badgeListEl.style.display = 'flex';
+  
+  try {
+    // 步骤1：从Cookie获取用户数据（复用原有的getCookie函数）
+    const userDataStr = getCookie('userData');
+    if (!userDataStr) {
+      badgeEmptyEl.style.display = 'block';
+      badgeListEl.style.display = 'none';
+      return;
+    }
+    
+    const userData = JSON.parse(userDataStr);
+    
+    // 步骤2：解析用户的成就字符串（格式："个人认证信息：蓝图画师（2024.7.26）、官方合作画师（2024.7.26）；特殊认证成就：探索者（2026.2.19）；2025年度认证成就："）
+    const achievementsStr = userData.achievements || userData['认证成就'] || userData['成就'] || '';
+    const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
+    
+    // 无成就，显示空状态
+    if (!categoryAchievements || categoryAchievements.length === 0) {
+      badgeEmptyEl.style.display = 'block';
+      badgeListEl.style.display = 'none';
+      // 禁用弹窗滚动（内容少时防止滚走）
+      document.getElementById('categoryModalContent').style.overflow = 'hidden';
+      return;
+    }
+    
+    // 启用弹窗滚动（内容多时）
+    document.getElementById('categoryModalContent').style.overflow = 'auto';
+    
+    // 步骤3：遍历成就，调用API获取URL+介绍
+    const badgeList = [];
+    for (const achievement of categoryAchievements) {
+      try {
+        // 并行调用两个API
+        const [badgeUrlRes, badgeDescRes] = await Promise.all([
+          fetch(`${VERCEL_API_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`),
+          fetch(`${VERCEL_API_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`)
+        ]);
+        // 解析响应
+        const urlData = await badgeUrlRes.json();
+        const descData = await badgeDescRes.json();
+        // 校验API返回结果
+        if (urlData.success && descData.success) {
+          badgeList.push({
+            name: achievement.name,
+            time: achievement.time,
+            url: urlData.data.outputUrl,
+            desc: descData.data.description
+          });
+        }
+      } catch (apiErr) {
+        console.error(`获取成就「${achievement.name}」信息失败：`, apiErr);
+        // 单个成就失败不影响其他成就
+      }
+    }
+    
+    // 无有效铭牌，显示空状态
+    if (badgeList.length === 0) {
+      badgeEmptyEl.style.display = 'block';
+      badgeListEl.style.display = 'none';
+      document.getElementById('categoryModalContent').style.overflow = 'hidden';
+      return;
+    }
+    
+    // 步骤4：渲染铭牌列表
+    renderBadgeListInModal(badgeList, badgeListEl);
+    
+  } catch (error) {
+    console.error('加载分类铭牌失败：', error);
+    badgeEmptyEl.style.display = 'block';
+    badgeListEl.style.display = 'none';
+    document.getElementById('categoryModalContent').style.overflow = 'hidden';
+  }
+}
+
+// 解析成就字符串：按分类提取
+function parseAchievementsByCategory(achievementsStr, targetCategory) {
+  if (!achievementsStr) return [];
+  
+  const results = [];
+  // 按分号分割各个分类
+  const categoryParts = achievementsStr.split('；');
+  
+  for (const part of categoryParts) {
+    // 按冒号分割分类名和成就列表
+    const [categoryName, achievementsPart] = part.split('：');
+    if (!categoryName || !achievementsPart) continue;
+    
+    // 找到目标分类
+    if (categoryName.trim() === targetCategory) {
+      // 按顿号分割各个成就
+      const achievementItems = achievementsPart.split('、');
+      for (const item of achievementItems) {
+        if (!item.trim()) continue;
+        // 提取成就名和时间（格式："蓝图画师（2024.7.26）"）
+        const match = item.match(/^(.+?)（(.+?)）$/);
+        if (match) {
+          results.push({
+            name: match[1].trim(),
+            time: match[2].trim()
+          });
+        } else {
+          results.push({
+            name: item.trim(),
+            time: '未知'
+          });
+        }
+      }
+      break;
+    }
+  }
+  
+  return results;
+}
+
+// 渲染弹窗内的铭牌列表
+function renderBadgeListInModal(badgeList, badgeListEl) {
+  badgeListEl.innerHTML = '';
+  
+  badgeList.forEach(badge => {
+    const card = document.createElement('div');
+    // 布局：手机横向2张，电脑横向4张
+    card.style.cssText = 'flex: 1 1 calc(50% - 7.5px); min-width: 150px; max-width: calc(25% - 11.25px); cursor: pointer; transition: all 0.3s ease; border-radius: 8px; overflow: hidden; background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px;';
+    card.onmouseover = function() { this.style.transform = 'scale(1.03)'; this.style.boxShadow = 'var(--shadow)'; };
+    card.onmouseout = function() { this.style.transform = 'scale(1)'; this.style.boxShadow = 'none'; };
+    
+    card.innerHTML = `
+      <img src="${badge.url}" alt="${badge.name}" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; margin-bottom: 8px;" onerror="this.src='https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png'">
+      <div style="font-weight: bold; color: var(--text-primary); margin-bottom: 3px; font-size: 14px; text-align: center;">${badge.name}</div>
+      <div style="font-size: 12px; color: var(--text-secondary); text-align: center;">获得时间：${badge.time}</div>
+    `;
+    
+    // 点击打开单个铭牌详情弹窗
+    card.addEventListener('click', function(e) {
+      // 记录点击位置，用于动画
+      badgeModalClickX = e.clientX;
+      badgeModalClickY = e.clientY;
+      openBadgeModal(badge);
+    });
+    
+    badgeListEl.appendChild(card);
+  });
+}
+
+// 绑定单个铭牌详情弹窗事件
+function bindBadgeModalEvents() {
+  const overlay = document.getElementById('badgeModalOverlay');
+  const modal = document.getElementById('badgeModal');
+  const closeBtn = document.getElementById('closeBadgeModalBtn');
+  
+  if (!overlay || !modal || !closeBtn) return;
+  
+  // 点击蒙版关闭
+  overlay.addEventListener('click', closeBadgeModal);
+  // 点击关闭按钮关闭
+  closeBtn.addEventListener('click', closeBadgeModal);
+}
+
+// 打开单个铭牌详情弹窗（第三层：从点击位置弹出动画）
+function openBadgeModal(badge) {
+  const overlay = document.getElementById('badgeModalOverlay');
+  const modal = document.getElementById('badgeModal');
+  const title = document.getElementById('badgeModalTitle');
+  const img = document.getElementById('badgeModalImg');
+  const time = document.getElementById('badgeModalTime');
+  const desc = document.getElementById('badgeModalDesc');
+  
+  if (!overlay || !modal || !title) return;
+  
+  // 更新内容
+  title.textContent = badge.name;
+  img.src = badge.url;
+  img.onerror = function() {
+    this.src = 'https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/refs/heads/file/%E7%A5%9E%E7%95%8C%E5%AE%98%E7%BD%91icon_20240814_181538_0000.png';
+  };
+  time.textContent = `获得时间：${badge.time}`;
+  desc.textContent = badge.desc;
+  
+  // 显示弹窗
+  overlay.style.display = 'block';
+  modal.style.display = 'block';
+  
+  // 强制重绘
+  requestAnimationFrame(() => {
+    overlay.style.opacity = '1';
+    modal.style.opacity = '1';
+    modal.style.transform = 'translate(-50%, -50%) scale(1)';
+  });
+}
+
+// 关闭单个铭牌详情弹窗
+function closeBadgeModal() {
+  const overlay = document.getElementById('badgeModalOverlay');
+  const modal = document.getElementById('badgeModal');
+  
+  if (!overlay || !modal) return;
+  
+  // 隐藏弹窗
+  overlay.style.opacity = '0';
+  modal.style.opacity = '0';
+  modal.style.transform = 'translate(-50%, -50%) scale(0.8)';
+  
+  // 动画结束后完全隐藏
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    modal.style.display = 'none';
+  }, 300);
+}
+
+// 页面加载时统一初始化所有功能
 document.addEventListener('DOMContentLoaded', async function() {
   const isLogin = checkLoginStatus();
   if (!isLogin) return;
@@ -1008,6 +1452,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   setupFeedbackFunction();
   setupNavigation();
   setupEditButton();
+  
+  // 初始化认证铭牌功能
+  initAuthBadgeFeature();
 });
   </script>
 </body>
