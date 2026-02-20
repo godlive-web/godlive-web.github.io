@@ -366,16 +366,24 @@
     </div>
   </div>
 
-  <script>
-// Cookie处理函数（适配godlive-web.github.io域名）
-// 替换原setCookie函数（只保留这一段）
+<script>
+// Cookie处理函数（修复版，兼容github.io & 本地调试）
 function setCookie(name, value, days) {
   const expires = new Date();
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  // 适配github.io的Cookie规则：去掉domain，调整SameSite
-  document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=None;Secure`;
+
+  let cookieStr = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;`;
+
+  if (window.location.protocol === 'https:') {
+    cookieStr += 'Secure;SameSite=None;';
+  } else {
+    cookieStr += 'SameSite=Lax;';
+  }
+
+  document.cookie = cookieStr;
 }
 
+// 获取Cookie（修复空值报错）
 function getCookie(name) {
   const nameEQ = name + "=";
   const ca = document.cookie.split(';');
@@ -383,7 +391,8 @@ function getCookie(name) {
     let c = ca[i].trim();
     if (c.indexOf(nameEQ) === 0) {
       const value = decodeURIComponent(c.substring(nameEQ.length));
-      console.log(`获取Cookie ${name}：${value.substring(0, 10)}...`); // 打印摘要
+      const logValue = value ? value.substring(0, 10) : '';
+      console.log(`获取Cookie ${name}：${logValue}...`);
       return value;
     }
   }
@@ -391,29 +400,36 @@ function getCookie(name) {
   return null;
 }
 
-// 显示消息提示
+// 消息提示
 function showMessage(text, type) {
   const messageElement = document.getElementById('message');
+  if (!messageElement) return;
   messageElement.textContent = text;
-  messageElement.className = 'message';
-  messageElement.classList.add(type);
-  console.log(`显示消息[${type}]：${text}`);
+  messageElement.className = 'message ' + type;
+  console.log(`[${type}] ${text}`);
 }
 
-// 重置登录按钮状态
+// 重置登录按钮
 function resetLoginButton() {
   const loginButton = document.getElementById('loginButton');
+  if (!loginButton) return;
   loginButton.disabled = false;
   loginButton.classList.remove('loading');
   loginButton.textContent = '登录';
-  console.log('登录按钮已重置');
 }
 
-// 页面加载完成后初始化所有功能
+// 带超时的请求（防卡死）
+function fetchWithTimeout(url, options, timeout = 10000) {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('请求超时，请检查网络')), timeout)
+    )
+  ]);
+}
+
+// 页面初始化
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('页面加载完成，开始初始化登录功能');
-  
-  // DOM元素获取
   const loginForm = document.getElementById('loginForm');
   const accountInput = document.getElementById('account');
   const passwordInput = document.getElementById('password');
@@ -421,109 +437,94 @@ document.addEventListener('DOMContentLoaded', function() {
   const togglePassword = document.getElementById('togglePassword');
   const registerLink = document.getElementById('registerLink');
   const forgotLink = document.getElementById('forgotLink');
-  const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app"; // Vercel域名
-  
-  // 检查是否已登录：已登录直接跳转
+  const VERCEL_DOMAIN = "godlive-web-github-io.vercel.app";
+
+  // 已登录直接跳转
   const currentUser = getCookie('user');
   if (currentUser && currentUser !== '0') {
     showMessage('您已登录，正在跳转...', 'success');
-    console.log('检测到已登录用户，准备跳转个人信息页');
-    // 立即跳转，不延迟（避免用户等待）
     setTimeout(() => {
       window.location.replace('https://godlive-web.github.io/personaldata.html');
     }, 500);
-    return; // 终止后续初始化
+    return;
   }
-  
-  // 显示/隐藏密码功能
+
+  // 显示/隐藏密码
   togglePassword?.addEventListener('click', function() {
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-    togglePassword.textContent = type === 'password' ? '显示' : '隐藏';
-    console.log(`密码框状态切换为：${type}`);
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+    this.textContent = type === 'password' ? '显示' : '隐藏';
   });
-  
-  // 底部链接事件
+
+  // 注册提示
   registerLink?.addEventListener('click', function(e) {
     e.preventDefault();
-    showMessage('请联系任意论坛群内的秋风新增或刷新成员个人信息', 'success');
+    showMessage('请联系群内秋风新增账号', 'success');
   });
-  
+
+  // 忘记密码
   forgotLink?.addEventListener('click', function(e) {
     e.preventDefault();
-    showMessage('请联系任意论坛群内的秋风重置密码', 'success');
+    showMessage('请联系群内秋风重置密码', 'success');
   });
-  
-  // 表单提交处理（核心登录逻辑）
+
+  // 登录提交
   loginForm?.addEventListener('submit', async function(e) {
-    // 优先阻止默认提交行为（防止刷新）
     e.preventDefault();
-    e.stopPropagation();
-    console.log('表单提交已阻止默认刷新行为');
-    
-    // 获取输入值
     const account = accountInput.value.trim();
     const password = passwordInput.value.trim();
-    console.log(`登录请求参数：账号=${account}，密码长度=${password.length}`);
-    
-    // 基础验证
+
     if (!account || !password) {
       showMessage('请输入账号和密码', 'error');
       return;
     }
-    
-    // 显示加载状态
+
     loginButton.disabled = true;
     loginButton.classList.add('loading');
-    loginButton.textContent = '';
-    showMessage('正在验证账号密码...', 'success');
-    
+    loginButton.textContent = '登录中...';
+    showMessage('正在验证...', 'success');
+
     try {
-      // 发起登录请求
-      console.log(`开始请求Vercel接口：https://${VERCEL_DOMAIN}/api/login`);
-      const response = await fetch(`https://${VERCEL_DOMAIN}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: account, password: password })
-      });
-      
-      // 处理响应
-      console.log(`Vercel响应状态码：${response.status}`);
+      const response = await fetchWithTimeout(
+        `https://${VERCEL_DOMAIN}/api/login`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: account, password })
+        }
+      );
+
       if (!response.ok) {
-        throw new Error(`服务器返回异常状态：${response.status}`);
+        throw new Error(`服务器错误 ${response.status}`);
       }
-      
+
       const result = await response.json();
-      console.log('Vercel返回数据：', result);
-      
-      // 登录成功处理
+      console.log('登录结果：', result);
+
       if (result.success) {
-        showMessage('登录成功，立即跳转...', 'success');
-        // 设置Cookie
+        // 登录成功 → 存Cookie → 再跳转
         setCookie('user', account, 30);
-        setCookie('userData', JSON.stringify(result.userInfo), 30);
-  
-        // 等100ms确保Cookie写入，再强制跳转
+        setCookie('userData', JSON.stringify(result.userInfo || {}), 30);
+
+        showMessage('登录成功，正在进入个人中心...', 'success');
+        
+        // 确保Cookie写入再跳
         setTimeout(() => {
           window.location.replace('https://godlive-web.github.io/personaldata.html');
-        }, 100);
-        return;
+        }, 500);
+      } else {
+        throw new Error(result.msg || '账号或密码错误');
       }
-      
-      // 登录失败（账号/密码错误等）
-      showMessage(result.msg || '登录失败，请检查账号密码', 'error');
-      resetLoginButton();
-      
-    } catch (error) {
-      // 捕获所有错误（网络问题、接口报错等）
-      console.error('登录过程出错：', error);
-      showMessage('登录失败，请检查网络或稍后重试', 'error');
+
+    } catch (err) {
+      console.error('登录失败：', err);
+      showMessage(err.message || '登录失败，请稍后重试', 'error');
       resetLoginButton();
     }
   });
-  
-  console.log('登录功能初始化完成');
+
+  console.log('登录页初始化完成');
 });
-  </script>
+</script>
 </body>
 </html>
