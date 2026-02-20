@@ -11,12 +11,13 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 提前校验参数
-  const { userid } = req.query; 
-  if (!userid || userid.trim() === '') {
+  // 🔴 修复1：参数名从 userid 改成 userId（和前端一致）
+  const { userId } = req.query; 
+  // 🔴 修复2：校验时用 userId 而不是 userid
+  if (!userId || userId.trim() === '') {
     return res.status(400).json({
       success: false,
-      msg: "请传入userid参数"
+      msg: "请传入userId参数"
     });
   }
 
@@ -32,7 +33,8 @@ export default async function handler(req, res) {
 
   const OWNER = "godlive-web";
   const REPO = "godlive";
-  const FILE_PATH = `data/usersdata/${userid}.json`; 
+  // 🔴 修复3：文件路径里用 userId 而不是 userid
+  const FILE_PATH = `data/usersdata/${userId}.json`; 
 
   try {
     // 请求GitHub文件
@@ -48,9 +50,10 @@ export default async function handler(req, res) {
 
     // 文件不存在处理
     if (!response.ok) {
+      // 🔴 修复4：提示文字里用 userId
       return res.status(404).json({
         success: false,
-        msg: `未找到用户信息文件（ID: ${userid}），请检查ID是否正确`,
+        msg: `未找到用户信息文件（ID: ${userId}），请检查ID是否正确`,
       });
     }
 
@@ -64,9 +67,10 @@ export default async function handler(req, res) {
       userData = JSON.parse(content);
     } catch (jsonErr) {
       console.error("用户JSON文件解析失败:", jsonErr, "文件原始内容:", content);
+      // 🔴 修复5：提示文字里用 userId
       return res.status(500).json({
         success: false,
-        msg: `用户${userid}的JSON文件格式错误，请检查语法：${jsonErr.message}`
+        msg: `用户${userId}的JSON文件格式错误，请检查语法：${jsonErr.message}`
       });
     }
 
