@@ -1,7 +1,22 @@
 export default async function handler(req, res) {
   // ======================
-  // 【成就配置区：只需要改成就名称，不用改哈希了！】
-  // 格式：'成就名称': '存放图片的分支名'（比如file）
+  // 【修改这里：完整的CORS配置（替换原来的两行）】
+  // ======================
+  // 👇👇👇 这是新增/修改的CORS配置 👇👇👇
+  res.setHeader('Access-Control-Allow-Origin', '*'); // 保留原来的，但新增下面4行
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS'); // 新增
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // 新增
+  res.setHeader('Access-Control-Max-Age', '86400'); // 新增
+
+  // 新增：处理OPTIONS预检请求（关键！之前没有这个）
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  // ☝️☝️☝️ 新增/修改的部分结束 ☝️☝️☝️
+
+  // ======================
+  // 【成就配置区：完全不动】
   // ======================
   const ACHIEVEMENT_BRANCH_MAP = {
     '官方合作画师': 'file',
@@ -21,8 +36,7 @@ export default async function handler(req, res) {
   // ======================
   // 【核心逻辑，无需修改】
   // ======================
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/json'); // 这行保留，不用动
 
   // 获取成就名称参数
   const { achievement } = req.query;
