@@ -1,20 +1,17 @@
 export default async function handler(req, res) {
-  // ======================
-  // 【新增完整的CORS配置】
-  // ======================
+  // 【完整 CORS 配置，必须包含 OPTIONS 处理】
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.setHeader('Access-Control-Max-Age', '86400');
 
+  // 关键：处理 OPTIONS 预检请求
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // ======================
-  // 【铭牌介绍配置：完全不动】
-  // ======================
+  // 【下面的逻辑保持不变】
   const BADGE_DESC_MAP = {
     '蓝图画师': '秋风Auting的蓝图画师专属认证铭牌...',
     '官方合作画师': '秋风Auting的官方合作画师认证铭牌...',
@@ -22,9 +19,6 @@ export default async function handler(req, res) {
     '探索者': '神界阁新功能专属自定义成就铭牌...',
   };
 
-  // ======================
-  // 【核心逻辑，无需修改】
-  // ======================
   res.setHeader('Content-Type', 'application/json');
 
   const { achievement } = req.query;
