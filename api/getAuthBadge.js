@@ -1,27 +1,26 @@
-export default async function handler(req, res) {
-  // ========== 第一步：先处理CORS（必须在所有逻辑最前面） ==========
-  // 针对中文参数的GET请求，强化CORS配置
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept, X-Requested-With');
-  res.setHeader('Access-Control-Max-Age', '86400');
+import { Octokit } from '@octokit/rest';
 
-  // 处理OPTIONS预检（中文参数的GET请求，预检更严格）
-  if (req.method === 'OPTIONS' || req.method === 'HEAD') {
-    res.status(200).end();
+export default async function handler(req, res) {
+  // ========== 完全对齐 getBill.js 的 CORS 配置 ==========
+  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
+  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
     return;
   }
+  // ======================================================
 
-  // ========== 第二步：业务逻辑（仅强化中文参数处理） ==========
   res.setHeader('Content-Type', 'application/json');
 
-  // 强化：解码中文参数（防止编码/解码不一致）
+  // 强化：解码中文参数
   let achievement = req.query.achievement;
   if (achievement) {
-    achievement = decodeURIComponent(achievement); // 主动解码一次
+    achievement = decodeURIComponent(achievement);
   }
 
-  // 成就配置（不变）
   const ACHIEVEMENT_BRANCH_MAP = {
     '官方合作画师': 'file',
     '蓝图画师': 'file',
@@ -29,7 +28,6 @@ export default async function handler(req, res) {
     '探索者': 'file',
   };
 
-  // 参数校验（不变）
   if (!achievement) {
     return res.status(400).json({ success: false, message: '请传入achievement参数' });
   }
@@ -37,7 +35,6 @@ export default async function handler(req, res) {
     return res.status(404).json({ success: false, message: `未配置${achievement}的分支名` });
   }
 
-  // 生成URL（不变）
   try {
     const branchName = ACHIEVEMENT_BRANCH_MAP[achievement];
     const fileName = `认证铭牌_${achievement}.png`;
