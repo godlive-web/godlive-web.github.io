@@ -1,5 +1,3 @@
-import { Octokit } from '@octokit/rest';
-
 export default async function handler(req, res) {
   // ========== 完全对齐 getBill.js 的 CORS 配置 ==========
   const FRONTEND_ORIGIN = "https://godlive-web.github.io";
