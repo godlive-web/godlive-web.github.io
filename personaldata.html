@@ -1233,80 +1233,84 @@
       });
     }
 
-  // 【核心修复】加载分类下的铭牌，同时获取图片和介绍
+  // 【核心修复】把 Promise.all 改成分别调用，避免一个接口失败就全盘失败
   async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
     if (!badgeListEl || !badgeEmptyEl) return;
-  
+
     badgeListEl.innerHTML = '';
     badgeEmptyEl.style.display = 'none';
     badgeListEl.style.display = 'flex';
-  
+
     try {
-      // 优先用全局最新数据，不用Cookie缓存
       const userData = globalLatestUserData;
-      console.log('🔍 加载铭牌使用的用户数据：', userData);
       if (!userData) {
         badgeEmptyEl.style.display = 'block';
         badgeListEl.style.display = 'none';
         return;
       }
-    
-      // 优先读取认证成就字段
+
       const achievementsStr = userData['认证成就'] || userData['achievements'] || userData['成就'] || '';
-      console.log('🔍 读取到的认证成就字段：', achievementsStr);
-    
       const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
-      console.log('🔍 解析到的当前分类成就：', categoryAchievements);
-    
+
       if (!categoryAchievements || categoryAchievements.length === 0) {
         badgeEmptyEl.style.display = 'block';
         badgeListEl.style.display = 'none';
         document.getElementById('categoryModalContent').style.overflow = 'hidden';
         return;
       }
-    
+
       document.getElementById('categoryModalContent').style.overflow = 'auto';
-    
       const badgeList = [];
+
       for (const achievement of categoryAchievements) {
         try {
           console.log(`🔍 正在获取「${achievement.name}」的铭牌信息`);
-          // 同时调用两个接口
-          const [badgeUrlRes, badgeDescRes] = await Promise.all([
-            fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`),
-            fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`)
-          ]);
-          const urlData = await badgeUrlRes.json();
-          const descData = await badgeDescRes.json();
-          console.log(`✅ 「${achievement.name}」API返回：`, {urlData, descData});
         
+          // 分别调用两个接口，而不是同时调用
+          let urlData = null;
+          let descData = null;
+        
+          try {
+            const badgeUrlRes = await fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`);
+            urlData = await badgeUrlRes.json();
+          } catch (urlErr) {
+            console.error(`❌ 获取「${achievement.name}」图片URL失败：`, urlErr);
+          }
+        
+          try {
+            const badgeDescRes = await fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`);
+            descData = await badgeDescRes.json();
+          } catch (descErr) {
+            console.error(`❌ 获取「${achievement.name}」介绍失败：`, descErr);
+          }
+
           // 只要图片地址存在，就显示铭牌，描述优先用接口返回的介绍
-          if (urlData.success && urlData.data && urlData.data.outputUrl) {
+          if (urlData && urlData.success && urlData.data && urlData.data.outputUrl) {
             badgeList.push({
               name: achievement.name,
               time: achievement.time,
               url: urlData.data.outputUrl,
-              desc: descData.success && descData.data && descData.data.description 
+              desc: (descData && descData.success && descData.data && descData.data.description) 
                 ? descData.data.description 
                 : achievement.name // 兜底：如果介绍接口失败，用成就名称
             });
           } else {
-            console.warn(`⚠️ 「${achievement.name}」接口返回失败，跳过该铭牌`);
+            console.warn(`⚠️ 「${achievement.name}」图片URL获取失败，跳过该铭牌`);
           }
         } catch (apiErr) {
-          console.error(`❌ 获取成就「${achievement.name}」信息失败：`, apiErr);
+          console.error(`❌ 处理成就「${achievement.name}」时发生未知错误：`, apiErr);
         }
       }
-    
+
       if (badgeList.length === 0) {
         badgeEmptyEl.style.display = 'block';
         badgeListEl.style.display = 'none';
         document.getElementById('categoryModalContent').style.overflow = 'hidden';
         return;
       }
-    
-     renderBadgeListInModal(badgeList, badgeListEl);
-    
+
+      renderBadgeListInModal(badgeList, badgeListEl);
+
     } catch (error) {
       console.error('❌ 加载分类铭牌失败：', error);
       badgeEmptyEl.style.display = 'block';
