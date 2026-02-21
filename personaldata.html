@@ -1233,7 +1233,7 @@
       });
     }
 
-// 【最终完整版】加载分类下的铭牌（直接复制覆盖原有函数）
+// 【最终版】加载分类下的铭牌（已写死正确的Vercel域名）
 async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
   if (!badgeListEl || !badgeEmptyEl) return;
 
@@ -1241,7 +1241,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
   badgeEmptyEl.style.display = 'none';
   badgeListEl.style.display = 'flex';
 
-  // ✅ 关键修复1：手动写死正确的Vercel域名（避免变量找不到/写错）
+  // ✅ 写死你确认过的正确Vercel域名（一字不差）
   const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
 
   try {
@@ -1271,33 +1271,36 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         
         let urlData = null;
         let descData = null;
+        // 编码成就名称（和你成功访问的URL里的编码一致）
         const achievementName = encodeURIComponent(achievement.name);
         
-        // --- 1. 获取图片URL（补全所有fetch配置）---
+        // --- 1. 调用正确的getAuthBadge API ---
         try {
-          const badgeUrlRes = await fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${achievementName}`, {
-            method: 'GET',          // 显式指定GET方法
-            mode: 'cors',           // 强制跨域模式（关键！）
-            cache: 'no-cache',      // 禁用缓存
-            headers: {              // 显式指定请求头
+          // 拼接和你地址栏里完全一致的URL
+          const badgeUrl = `${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${achievementName}`;
+          const badgeUrlRes = await fetch(badgeUrl, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
               'Content-Type': 'application/json'
             }
           });
 
-          // 检查HTTP状态码
           if (!badgeUrlRes.ok) {
-            throw new Error(`API返回错误状态码: ${badgeUrlRes.status}，请检查Vercel域名是否正确`);
+            throw new Error(`API请求失败，状态码：${badgeUrlRes.status}`);
           }
 
           urlData = await badgeUrlRes.json();
-          console.log(`✅ 「${achievement.name}」getAuthBadge返回:`, urlData);
+          console.log(`✅ 「${achievement.name}」API返回数据：`, urlData);
         } catch (urlErr) {
           console.error(`❌ 获取「${achievement.name}」图片URL失败：`, urlErr);
         }
         
-        // --- 2. 获取铭牌介绍（同样补全fetch配置）---
+        // --- 2. 调用getBadgeDesc API（同样用正确域名）---
         try {
-          const badgeDescRes = await fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${achievementName}`, {
+          const badgeDescUrl = `${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${achievementName}`;
+          const badgeDescRes = await fetch(badgeDescUrl, {
             method: 'GET',
             mode: 'cors',
             cache: 'no-cache',
@@ -1307,32 +1310,28 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
           });
 
           if (!badgeDescRes.ok) {
-            throw new Error(`API返回错误状态码: ${badgeDescRes.status}`);
+            throw new Error(`API请求失败，状态码：${badgeDescRes.status}`);
           }
 
           descData = await badgeDescRes.json();
-          console.log(`✅ 「${achievement.name}」getBadgeDesc返回:`, descData);
         } catch (descErr) {
           console.error(`❌ 获取「${achievement.name}」介绍失败：`, descErr);
         }
 
-        // --- 3. 核心判断：只要图片URL存在，就显示铭牌 ---
-        if (urlData && typeof urlData.success === 'boolean' && urlData.success && urlData.data && urlData.data.outputUrl) {
+        // --- 3. 只要API返回正确的图片URL，就显示铭牌 ---
+        if (urlData && urlData.success && urlData.data && urlData.data.outputUrl) {
           badgeList.push({
             name: achievement.name,
             time: achievement.time,
             url: urlData.data.outputUrl,
-            desc: (descData && descData.success && descData.data && descData.data.description) 
-              ? descData.data.description 
-              : achievement.name // 兜底：如果介绍接口失败，用成就名称
+            desc: (descData && descData.success && descData.data.description) || achievement.name
           });
-          console.log(`✅ 「${achievement.name}」已添加到列表`);
+          console.log(`✅ 「${achievement.name}」铭牌已添加到列表`);
         } else {
-          // 调试：打印出urlData，看看为什么判断失败了
-          console.warn(`⚠️ 「${achievement.name}」图片URL获取失败，跳过该铭牌。urlData的值是:`, urlData);
+          console.warn(`⚠️ 「${achievement.name}」跳过，返回数据：`, urlData);
         }
       } catch (apiErr) {
-        console.error(`❌ 处理成就「${achievement.name}」时发生未知错误：`, apiErr);
+        console.error(`❌ 处理「${achievement.name}」失败：`, apiErr);
       }
     }
 
@@ -1343,10 +1342,11 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       return;
     }
 
+    // 渲染铭牌列表
     renderBadgeListInModal(badgeList, badgeListEl);
 
   } catch (error) {
-    console.error('❌ 加载分类铭牌失败：', error);
+    console.error('❌ 加载铭牌失败：', error);
     badgeEmptyEl.style.display = 'block';
     badgeListEl.style.display = 'none';
     document.getElementById('categoryModalContent').style.overflow = 'hidden';
