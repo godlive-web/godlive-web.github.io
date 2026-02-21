@@ -1233,91 +1233,111 @@
       });
     }
 
-  // 【核心修复】把 Promise.all 改成分别调用，避免一个接口失败就全盘失败
-  async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
-    if (!badgeListEl || !badgeEmptyEl) return;
+// 【核心修复】增强版加载分类下的铭牌
+async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
+  if (!badgeListEl || !badgeEmptyEl) return;
 
-    badgeListEl.innerHTML = '';
-    badgeEmptyEl.style.display = 'none';
-    badgeListEl.style.display = 'flex';
+  badgeListEl.innerHTML = '';
+  badgeEmptyEl.style.display = 'none';
+  badgeListEl.style.display = 'flex';
 
-    try {
-      const userData = globalLatestUserData;
-      if (!userData) {
-        badgeEmptyEl.style.display = 'block';
-        badgeListEl.style.display = 'none';
-        return;
-      }
+  try {
+    const userData = globalLatestUserData;
+    if (!userData) {
+      badgeEmptyEl.style.display = 'block';
+      badgeListEl.style.display = 'none';
+      return;
+    }
 
-      const achievementsStr = userData['认证成就'] || userData['achievements'] || userData['成就'] || '';
-      const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
+    const achievementsStr = userData['认证成就'] || userData['achievements'] || userData['成就'] || '';
+    const categoryAchievements = parseAchievementsByCategory(achievementsStr, categoryKey);
 
-      if (!categoryAchievements || categoryAchievements.length === 0) {
-        badgeEmptyEl.style.display = 'block';
-        badgeListEl.style.display = 'none';
-        document.getElementById('categoryModalContent').style.overflow = 'hidden';
-        return;
-      }
-
-      document.getElementById('categoryModalContent').style.overflow = 'auto';
-      const badgeList = [];
-
-      for (const achievement of categoryAchievements) {
-        try {
-          console.log(`🔍 正在获取「${achievement.name}」的铭牌信息`);
-        
-          // 分别调用两个接口，而不是同时调用
-          let urlData = null;
-          let descData = null;
-        
-          try {
-            const badgeUrlRes = await fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`);
-            urlData = await badgeUrlRes.json();
-          } catch (urlErr) {
-            console.error(`❌ 获取「${achievement.name}」图片URL失败：`, urlErr);
-          }
-        
-          try {
-            const badgeDescRes = await fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`);
-            descData = await badgeDescRes.json();
-          } catch (descErr) {
-            console.error(`❌ 获取「${achievement.name}」介绍失败：`, descErr);
-          }
-
-          // 只要图片地址存在，就显示铭牌，描述优先用接口返回的介绍
-          if (urlData && urlData.success && urlData.data && urlData.data.outputUrl) {
-            badgeList.push({
-              name: achievement.name,
-              time: achievement.time,
-              url: urlData.data.outputUrl,
-              desc: (descData && descData.success && descData.data && descData.data.description) 
-                ? descData.data.description 
-                : achievement.name // 兜底：如果介绍接口失败，用成就名称
-            });
-          } else {
-            console.warn(`⚠️ 「${achievement.name}」图片URL获取失败，跳过该铭牌`);
-          }
-        } catch (apiErr) {
-          console.error(`❌ 处理成就「${achievement.name}」时发生未知错误：`, apiErr);
-        }
-      }
-
-      if (badgeList.length === 0) {
-        badgeEmptyEl.style.display = 'block';
-        badgeListEl.style.display = 'none';
-        document.getElementById('categoryModalContent').style.overflow = 'hidden';
-        return;
-      }
-
-      renderBadgeListInModal(badgeList, badgeListEl);
-
-    } catch (error) {
-      console.error('❌ 加载分类铭牌失败：', error);
+    if (!categoryAchievements || categoryAchievements.length === 0) {
       badgeEmptyEl.style.display = 'block';
       badgeListEl.style.display = 'none';
       document.getElementById('categoryModalContent').style.overflow = 'hidden';
+      return;
     }
+
+    document.getElementById('categoryModalContent').style.overflow = 'auto';
+    const badgeList = [];
+
+    for (const achievement of categoryAchievements) {
+      try {
+        console.log(`🔍 正在获取「${achievement.name}」的铭牌信息`);
+        
+        let urlData = null;
+        let descData = null;
+        
+        // --- 1. 获取图片URL ---
+        try {
+          const badgeUrlRes = await fetch(`${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${encodeURIComponent(achievement.name)}`, {
+            cache: 'no-cache' // 禁用缓存
+          });
+
+          // 关键修复：检查HTTP状态码
+          if (!badgeUrlRes.ok) {
+            throw new Error(`API返回了错误的状态码: ${badgeUrlRes.status}`);
+          }
+
+          urlData = await badgeUrlRes.json();
+          console.log(`✅ 「${achievement.name}」getAuthBadge返回:`, urlData);
+        } catch (urlErr) {
+          console.error(`❌ 获取「${achievement.name}」图片URL失败：`, urlErr);
+        }
+        
+        // --- 2. 获取铭牌介绍 ---
+        try {
+          const badgeDescRes = await fetch(`${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${encodeURIComponent(achievement.name)}`, {
+            cache: 'no-cache' // 禁用缓存
+          });
+
+          if (!badgeDescRes.ok) {
+            throw new Error(`API返回了错误的状态码: ${badgeDescRes.status}`);
+          }
+
+          descData = await badgeDescRes.json();
+          console.log(`✅ 「${achievement.name}」getBadgeDesc返回:`, descData);
+        } catch (descErr) {
+          console.error(`❌ 获取「${achievement.name}」介绍失败：`, descErr);
+        }
+
+        // --- 3. 核心判断：只要图片URL存在，就显示铭牌 ---
+        if (urlData && typeof urlData.success === 'boolean' && urlData.success && urlData.data && urlData.data.outputUrl) {
+          badgeList.push({
+            name: achievement.name,
+            time: achievement.time,
+            url: urlData.data.outputUrl,
+            desc: (descData && descData.success && descData.data && descData.data.description) 
+              ? descData.data.description 
+              : achievement.name // 兜底：如果介绍接口失败，用成就名称
+          });
+          console.log(`✅ 「${achievement.name}」已添加到列表`);
+        } else {
+          // 调试：打印出urlData，看看为什么判断失败了
+          console.warn(`⚠️ 「${achievement.name}」图片URL获取失败，跳过该铭牌。urlData的值是:`, urlData);
+        }
+      } catch (apiErr) {
+        console.error(`❌ 处理成就「${achievement.name}」时发生未知错误：`, apiErr);
+      }
+    }
+
+    if (badgeList.length === 0) {
+      badgeEmptyEl.style.display = 'block';
+      badgeListEl.style.display = 'none';
+      document.getElementById('categoryModalContent').style.overflow = 'hidden';
+      return;
+    }
+
+    renderBadgeListInModal(badgeList, badgeListEl);
+
+  } catch (error) {
+    console.error('❌ 加载分类铭牌失败：', error);
+    badgeEmptyEl.style.display = 'block';
+    badgeListEl.style.display = 'none';
+    document.getElementById('categoryModalContent').style.overflow = 'hidden';
   }
+}
 
     // 解析成就字符串（适配中文冒号：和中文分号；）
     function parseAchievementsByCategory(achievementsStr, targetCategory) {
