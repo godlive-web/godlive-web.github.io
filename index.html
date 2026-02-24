@@ -653,7 +653,7 @@ color: var(--text-secondary);
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background-color: #2563eb;
+  background-color: #6f42c1;
   color: white;
   border: none;
   border-radius: 6px;
@@ -664,7 +664,7 @@ color: var(--text-secondary);
 }
 
 .custom-pdf-btn:hover {
-  background-color: #1d4ed8;
+  background-color: #5a32a1;
 }
 
 .custom-pdf-btn img {
@@ -1689,34 +1689,27 @@ function showBillDetails(bill) {
   const pdfBtnContainer = document.getElementById('modalBillPdfBtnContainer');
   pdfBtnContainer.innerHTML = ''; // 清空容器（避免多次点击残留）
   if (pdfRawUrl) {
-    // 生成多个PDF预览链接选项
+    const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
+    const proxyPdfUrl = `${VERCEL_DOMAIN}/api/getPdf?url=${encodeURIComponent(pdfRawUrl)}`;
+    
+    // 生成PDF预览链接选项（使用Vercel API代理）
     const previewOptions = [
       {
-        name: 'Google Docs Viewer',
-        url: `https://docs.google.com/viewer?url=${encodeURIComponent(pdfRawUrl)}`,
-        desc: '稳定可靠，谷歌官方服务'
+        name: '在线预览PDF',
+        url: `https://docs.google.com/viewer?url=${encodeURIComponent(proxyPdfUrl)}`,
+        desc: '使用Google Docs Viewer在线预览'
       },
       {
-        name: 'Adobe Acrobat Online',
-        url: `https://acrobat.adobe.com/us/en/acrobat/pdf-viewer.html?PDF=${encodeURIComponent(pdfRawUrl)}`,
-        desc: 'Adobe官方出品，功能完整'
-      },
-      {
-        name: 'DocFly',
-        url: `https://www.docfly.com/pdf-viewer?url=${encodeURIComponent(pdfRawUrl)}`,
-        desc: '简洁易用，支持远程链接'
-      },
-      {
-        name: '直接下载',
-        url: pdfRawUrl,
-        desc: '直接下载PDF文件到本地查看'
+        name: '直接访问PDF',
+        url: proxyPdfUrl,
+        desc: '直接查看PDF文件'
       }
     ];
     
     // 创建按钮标题
     const btnTitle = document.createElement('div');
     btnTitle.className = 'pdf-btn-title';
-    btnTitle.textContent = '选择查看方式：';
+    btnTitle.textContent = 'PDF查看选项：';
     pdfBtnContainer.appendChild(btnTitle);
     
     // 创建按钮组
