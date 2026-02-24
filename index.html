@@ -641,6 +641,62 @@ color: var(--text-secondary);
 font-size: 14px;
 color: var(--text-secondary);
 }
+/* ============= PDF按钮样式 ============= */
+.pdf-btn-container {
+  margin: 16px 0;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.custom-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.custom-pdf-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.custom-pdf-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+/* PDF按钮组样式 */
+.pdf-btn-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+}
+
+.pdf-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdf-btn-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pdf-btn-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 26px; /* 与按钮图标对齐 */
+}
 /* ============= 神界文件库 ============= */
 .doc-buttons {
 display: flex;
@@ -1007,37 +1063,7 @@ margin-top: -30px;
 gap: 15px;
 padding: 8px;
 }
-/* 新增：PDF按钮容器样式 */
-.pdf-btn-container {
-  margin: 16px 0;
-  padding-top: 12px;
-  border-top: 1px solid #eee;
-}
 
-/* 新增：自定义PDF按钮样式（美观易点击） */
-.custom-pdf-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background-color: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  text-decoration: none;
-  transition: background-color 0.2s ease;
-}
-
-.custom-pdf-btn:hover {
-  background-color: #1d4ed8;
-}
-
-.custom-pdf-btn img {
-  width: 18px;
-  height: 18px;
-}
 /* 成员搜索适配 */
 .user-search-center.active {
 margin-top: -15px;
@@ -1175,7 +1201,7 @@ padding: 12px 15px;
 <div class="bill-search">
 <input type="text" id="userSearchInput" placeholder="输入账号名称或自设名称搜索">
 <button id="userSearchBtn">
-<i class="search-icon">🔍</</i> 搜索成员
+<i class="search-icon">🔍</i> 搜索成员
 </button>
 </div>
 </div>
@@ -1192,7 +1218,7 @@ padding: 12px 15px;
 <div class="bill-search">
 <input type="text" id="billSearchInput" placeholder="输入议案号或议案名">
 <button id="billSearchBtn">
-<i class="search-icon">🔍</</i> 搜索议案
+<i class="search-icon">🔍</i> 搜索议案
 </button>
 </div>
 </div>
@@ -1571,6 +1597,10 @@ const response = await fetch('https://godlive-web-github-io.vercel.app/api/getBi
 });
 if (!response.ok) throw new Error(`数据请求失败 (状态码: ${response.status})`);
 const bills = await response.json();
+// 检查返回数据格式
+if (!Array.isArray(bills)) {
+  throw new Error('返回数据格式错误，期望数组');
+}
 // 模糊匹配议案号、议案名、议案内容（扩展匹配维度，避免漏查）
 const results = bills.filter(bill =>
 bill.id?.includes(input) || 
@@ -1582,34 +1612,53 @@ billResults.innerHTML = '<div class="bill-error">未找到匹配的议案</div>'
 return;
 }
 // 渲染议案卡片（确保字段与API返回一致）
-let html = '';
+// 使用DocumentFragment优化DOM操作
+const fragment = document.createDocumentFragment();
 results.forEach(bill => {
 const contentText = bill.content?.length > 120
 ? bill.content.substring(0, 120) + '...'
 : bill.content || '无内容';
-html += `
-<div class="bill-card" data-id="${bill.id}">
+
+const card = document.createElement('div');
+card.className = 'bill-card';
+card.setAttribute('data-id', bill.id);
+card.innerHTML = `
 <div class="bill-card-header">
 <div class="bill-card-id">${bill.id} ${bill.modifier ? `(${bill.modifier})` : ''}</div>
 <div class="bill-card-title">${bill.title || '无标题'}</div>
 </div>
 <div class="bill-card-content">${contentText}</div>
 <div class="bill-card-publish">${bill.publish_info || '未知发布信息'}</div>
-</div>
 `;
-});
-billResults.innerHTML = html;
-// 绑定议案卡片点击事件（显示详情模态框）
-document.querySelectorAll('.bill-card').forEach(card => {
+
+// 绑定点击事件
 card.addEventListener('click', () => {
 const billId = card.getAttribute('data-id');
 const bill = results.find(b => b.id === billId);
 showBillDetails(bill);
 });
+
+fragment.appendChild(card);
 });
+
+// 清空容器并添加所有卡片
+billResults.innerHTML = '';
+billResults.appendChild(fragment);
 } catch (error) {
 console.error('搜索失败:', error);
-billResults.innerHTML = `<div class="bill-error">议案数据加载失败：${error.message}</div>`;
+// 更友好的错误提示
+let errorMessage = '议案数据加载失败';
+if (error.message.includes('网络')) {
+  errorMessage = '网络连接失败，请检查网络设置';
+} else if (error.message.includes('404')) {
+  errorMessage = 'API接口不存在，请稍后再试';
+} else if (error.message.includes('500')) {
+  errorMessage = '服务器内部错误，请稍后再试';
+} else {
+  errorMessage = `议案数据加载失败：${error.message}`;
+}
+billResults.innerHTML = `<div class="bill-error">${errorMessage}</div>`;
+showMessage(errorMessage, 'error');
 }
 }
 // 显示议案详情模态框（第一步+第二步完整逻辑）
@@ -1640,19 +1689,66 @@ function showBillDetails(bill) {
   const pdfBtnContainer = document.getElementById('modalBillPdfBtnContainer');
   pdfBtnContainer.innerHTML = ''; // 清空容器（避免多次点击残留）
   if (pdfRawUrl) {
-    // 生成Google Docs Viewer预览链接
-    const previewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfRawUrl)}`;
-    // 创建按钮元素
-    const pdfBtn = document.createElement('a');
-    pdfBtn.href = previewUrl;
-    pdfBtn.target = '_blank'; // 新标签页打开
-    pdfBtn.className = 'custom-pdf-btn'; // 应用自定义样式
-    // 按钮内容（含PDF图标）
-    pdfBtn.innerHTML = `
-      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-pdf.svg" alt="PDF图标">
-      查看完整文件
-    `;
-    pdfBtnContainer.appendChild(pdfBtn);
+    // 生成多个PDF预览链接选项
+    const previewOptions = [
+      {
+        name: 'Google Docs Viewer',
+        url: `https://docs.google.com/viewer?url=${encodeURIComponent(pdfRawUrl)}`,
+        desc: '稳定可靠，谷歌官方服务'
+      },
+      {
+        name: 'Adobe Acrobat Online',
+        url: `https://acrobat.adobe.com/us/en/acrobat/pdf-viewer.html?PDF=${encodeURIComponent(pdfRawUrl)}`,
+        desc: 'Adobe官方出品，功能完整'
+      },
+      {
+        name: 'DocFly',
+        url: `https://www.docfly.com/pdf-viewer?url=${encodeURIComponent(pdfRawUrl)}`,
+        desc: '简洁易用，支持远程链接'
+      },
+      {
+        name: '直接下载',
+        url: pdfRawUrl,
+        desc: '直接下载PDF文件到本地查看'
+      }
+    ];
+    
+    // 创建按钮标题
+    const btnTitle = document.createElement('div');
+    btnTitle.className = 'pdf-btn-title';
+    btnTitle.textContent = '选择查看方式：';
+    pdfBtnContainer.appendChild(btnTitle);
+    
+    // 创建按钮组
+    const btnGroup = document.createElement('div');
+    btnGroup.className = 'pdf-btn-group';
+    
+    // 添加每个预览选项按钮
+    previewOptions.forEach(option => {
+      const pdfBtn = document.createElement('a');
+      pdfBtn.href = option.url;
+      pdfBtn.target = '_blank'; // 新标签页打开
+      pdfBtn.className = 'custom-pdf-btn'; // 应用自定义样式
+      // 按钮内容（含PDF图标）
+      pdfBtn.innerHTML = `
+        <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-pdf.svg" alt="PDF图标">
+        ${option.name}
+      `;
+      // 添加按钮描述
+      const btnDesc = document.createElement('div');
+      btnDesc.className = 'pdf-btn-desc';
+      btnDesc.textContent = option.desc;
+      
+      // 创建按钮容器
+      const btnContainer = document.createElement('div');
+      btnContainer.className = 'pdf-btn-item';
+      btnContainer.appendChild(pdfBtn);
+      btnContainer.appendChild(btnDesc);
+      
+      btnGroup.appendChild(btnContainer);
+    });
+    
+    pdfBtnContainer.appendChild(btnGroup);
   }
 
   // 5. 显示弹窗
@@ -1798,10 +1894,12 @@ if (matchedUsers.length === 0) {
 userResults.innerHTML = '<div class="user-error">未找到匹配的成员</div>';
 return;
 }
-let html = '';
+// 使用DocumentFragment优化DOM操作
+const fragment = document.createDocumentFragment();
 matchedUsers.forEach(user => {
-html += `
-<div class="user-card">
+const card = document.createElement('div');
+card.className = 'user-card';
+card.innerHTML = `
 <div class="user-card-header">
 <div class="user-card-account">${user['账号名称'] || '未设置'}</div>
 <div class="user-card-id">ID: ${user.user || '未知'}</div>
@@ -1822,12 +1920,28 @@ html += `
 </div>
 </div>
 `;
+
+fragment.appendChild(card);
 });
-userResults.innerHTML = html;
+
+// 清空容器并添加所有卡片
+userResults.innerHTML = '';
+userResults.appendChild(fragment);
 } catch (error) {
 console.error('成员搜索失败:', error);
-userResults.innerHTML = `<div class="user-error">成员数据加载失败：${error.message}</div>`;
-showMessage(`成员搜索失败：${error.message}`, 'error');
+// 更友好的错误提示
+let errorMessage = '成员数据加载失败';
+if (error.message.includes('网络')) {
+  errorMessage = '网络连接失败，请检查网络设置';
+} else if (error.message.includes('404')) {
+  errorMessage = 'API接口不存在，请稍后再试';
+} else if (error.message.includes('500')) {
+  errorMessage = '服务器内部错误，请稍后再试';
+} else {
+  errorMessage = `成员数据加载失败：${error.message}`;
+}
+userResults.innerHTML = `<div class="user-error">${errorMessage}</div>`;
+showMessage(errorMessage, 'error');
 }
 }
 // 6. 文件库跳转确认弹窗逻辑（完整保留）
