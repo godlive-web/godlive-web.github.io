@@ -1692,12 +1692,17 @@ function showBillDetails(bill) {
     const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
     const proxyPdfUrl = `${VERCEL_DOMAIN}/api/getPdf?url=${encodeURIComponent(pdfRawUrl)}`;
     
-    // 生成PDF预览链接选项（使用Vercel API代理）
+    // 生成PDF预览链接选项
     const previewOptions = [
       {
         name: '在线预览PDF',
-        url: `https://docs.google.com/viewer?url=${encodeURIComponent(proxyPdfUrl)}`,
-        desc: '使用Google Docs Viewer在线预览'
+        url: `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(proxyPdfUrl)}`,
+        desc: '使用Microsoft Office Online预览'
+      },
+      {
+        name: 'PDF.js在线预览',
+        url: `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(proxyPdfUrl)}`,
+        desc: '使用PDF.js开源库预览'
       },
       {
         name: '直接访问PDF',
