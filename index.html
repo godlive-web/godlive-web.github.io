@@ -1663,8 +1663,8 @@ showMessage(errorMessage, 'error');
 }
 // 显示议案详情模态框（第一步+第二步完整逻辑）
 function showBillDetails(bill) {
-  // 1. 定义正则：匹配目标文本段 + 捕获括号内的链接
-  const targetTextRegex = /需要查看全文，请点击按钮\(([^)]+)\)/;
+  // 1. 定义正则：匹配目标文本段 + 捕获括号内的链接（支持中文括号）
+  const targetTextRegex = /需要查看全文，请点击按钮[\(（]([^\)）]+)[\)）]/;
   let displayContent = bill.content || '无详细内容';
   let pdfRawUrl = null; // 存储提取的raw链接
 
