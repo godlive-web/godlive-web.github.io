@@ -14507,7 +14507,7 @@ initCom(PDFViewerApplication);
   PDFPrintServiceFactory.initGlobals(PDFViewerApplication);
 }
 {
-  const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io"];
+  const HOSTED_VIEWER_ORIGINS = ["null", "http://mozilla.github.io", "https://mozilla.github.io", "https://godlive-web.github.io", "https://godlive-web-github-io.vercel.app"];
   var validateFileURL = function (file) {
     if (!file) {
       return;
