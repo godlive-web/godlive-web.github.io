@@ -1007,6 +1007,37 @@ margin-top: -30px;
 gap: 15px;
 padding: 8px;
 }
+/* 新增：PDF按钮容器样式 */
+.pdf-btn-container {
+  margin: 16px 0;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+/* 新增：自定义PDF按钮样式（美观易点击） */
+.custom-pdf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.custom-pdf-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.custom-pdf-btn img {
+  width: 18px;
+  height: 18px;
+}
 /* 成员搜索适配 */
 .user-search-center.active {
 margin-top: -15px;
@@ -1176,6 +1207,7 @@ padding: 12px 15px;
 <div class="bill-modal-id" id="modalBillId"></div>
 <div class="bill-modal-title" id="modalBillTitle"></div>
 <div class="bill-modal-body" id="modalBillContent"></div>
+<div id="modalBillPdfBtnContainer" class="pdf-btn-container"></div>
 <div class="bill-modal-publish" id="modalBillPublish"></div>
 </div>
 </div>
@@ -1580,13 +1612,51 @@ console.error('搜索失败:', error);
 billResults.innerHTML = `<div class="bill-error">议案数据加载失败：${error.message}</div>`;
 }
 }
-// 显示议案详情模态框（确保字段匹配）
+// 显示议案详情模态框（第一步+第二步完整逻辑）
 function showBillDetails(bill) {
-document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
-document.getElementById('modalBillTitle').textContent = bill.title || '无标题';
-document.getElementById('modalBillContent').textContent = bill.content || '无详细内容';
-document.getElementById('modalBillPublish').textContent = bill.publish_info || '未知发布信息';
-billModal.style.display = 'flex';
+  // 1. 定义正则：匹配目标文本段 + 捕获括号内的链接
+  const targetTextRegex = /需要查看全文，请点击按钮\(([^)]+)\)/;
+  let displayContent = bill.content || '无详细内容';
+  let pdfRawUrl = null; // 存储提取的raw链接
+
+  // 2. 处理文本+提取raw链接
+  if (targetTextRegex.test(displayContent)) {
+    // 提取括号内的raw链接（你已确认无需转换，直接用）
+    const matchResult = displayContent.match(targetTextRegex);
+    if (matchResult) {
+      pdfRawUrl = matchResult[1]; // 第1个分组就是括号内的链接
+    }
+    // 删除目标文本段，保留前置内容（第一步逻辑）
+    displayContent = displayContent.replace(targetTextRegex, '').trim();
+  }
+
+  // 3. 渲染基础信息（原有逻辑）
+  document.getElementById('modalBillId').textContent = bill.id + (bill.modifier ? ` (${bill.modifier})` : '');
+  document.getElementById('modalBillTitle').textContent = bill.title || '无标题';
+  document.getElementById('modalBillContent').textContent = displayContent;
+  document.getElementById('modalBillPublish').textContent = bill.publish_info || '未知发布信息';
+
+  // 4. 渲染PDF按钮（仅当有raw链接时显示）
+  const pdfBtnContainer = document.getElementById('modalBillPdfBtnContainer');
+  pdfBtnContainer.innerHTML = ''; // 清空容器（避免多次点击残留）
+  if (pdfRawUrl) {
+    // 生成Google Docs Viewer预览链接
+    const previewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfRawUrl)}`;
+    // 创建按钮元素
+    const pdfBtn = document.createElement('a');
+    pdfBtn.href = previewUrl;
+    pdfBtn.target = '_blank'; // 新标签页打开
+    pdfBtn.className = 'custom-pdf-btn'; // 应用自定义样式
+    // 按钮内容（含PDF图标）
+    pdfBtn.innerHTML = `
+      <img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/icons/filetype-pdf.svg" alt="PDF图标">
+      查看完整文件
+    `;
+    pdfBtnContainer.appendChild(pdfBtn);
+  }
+
+  // 5. 显示弹窗
+  billModal.style.display = 'flex';
 }
 // 关闭议案模态框
 modalClose.addEventListener('click', () => {
