@@ -61,6 +61,9 @@ export default async function handler(req, res) {
     console.log('解析后的参数:', { owner, repo, ref, filePath });
 
     try {
+      console.log('准备调用GitHub API:', { owner, repo, path: filePath, ref });
+      console.log('GitHub Token配置状态:', process.env.GITHUB_TOKEN ? '已配置' : '未配置');
+      
       // 调用GitHub API获取文件内容
       const { data } = await octokit.repos.getContent({
         owner,
@@ -69,12 +72,16 @@ export default async function handler(req, res) {
         ref,
       });
 
+      console.log('GitHub API调用成功，返回数据类型:', typeof data);
+      
       // 检查返回数据
       if (!data || !data.content) {
         console.error('文件内容获取失败:', data);
-        return res.status(500).json({ error: "文件内容获取失败" });
+        return res.status(500).json({ error: "文件内容获取失败", details: JSON.stringify(data) });
       }
 
+      console.log('文件内容存在，编码类型:', data.encoding);
+      
       // 解码Base64内容
       const pdfContent = Buffer.from(data.content, "base64");
       console.log('PDF文件获取成功，大小:', pdfContent.length, '字节');
@@ -95,7 +102,18 @@ export default async function handler(req, res) {
       console.error('GitHub API调用失败:', octokitError);
       console.error('错误详情:', octokitError.message);
       console.error('错误状态:', octokitError.status);
-      res.status(500).json({ error: "GitHub API调用失败", details: octokitError.message });
+      console.error('错误完整信息:', JSON.stringify(octokitError));
+      
+      // 分类处理不同类型的错误
+      if (octokitError.status === 401) {
+        res.status(401).json({ error: "GitHub Token认证失败", details: "Token无效或权限不足" });
+      } else if (octokitError.status === 403) {
+        res.status(403).json({ error: "访问权限不足", details: "Token没有访问该私有仓库的权限" });
+      } else if (octokitError.status === 404) {
+        res.status(404).json({ error: "文件不存在", details: `无法找到文件: ${filePath}` });
+      } else {
+        res.status(500).json({ error: "GitHub API调用失败", details: octokitError.message });
+      }
     }
   } catch (error) {
     console.error("获取PDF文件失败:", error);
