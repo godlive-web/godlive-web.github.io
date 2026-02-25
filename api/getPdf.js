@@ -1,67 +1,11 @@
 import { Octokit } from '@octokit/rest';
-import { createHash } from 'crypto';
-import { promises as fs } from 'fs';
-import path from 'path';
 
-// 缓存目录
-const CACHE_DIR = path.join(process.cwd(), 'cache');
-
-// 确保缓存目录存在
-async function ensureCacheDir() {
-  try {
-    await fs.mkdir(CACHE_DIR, { recursive: true });
-  } catch (error) {
-    console.error('创建缓存目录失败:', error);
-  }
-}
-
-// 生成缓存文件名
-function generateCacheKey(url) {
-  return createHash('md5').update(url).digest('hex') + '.pdf';
-}
-
-// 检查缓存是否存在
-async function checkCache(url) {
-  const cacheKey = generateCacheKey(url);
-  const cachePath = path.join(CACHE_DIR, cacheKey);
-  
-  try {
-    const stats = await fs.stat(cachePath);
-    // 检查缓存是否在24小时内
-    const now = Date.now();
-    const cacheTime = stats.mtime.getTime();
-    const cacheAge = now - cacheTime;
-    const maxCacheAge = 24 * 60 * 60 * 1000; // 24小时
-    
-    if (cacheAge < maxCacheAge) {
-      console.log('使用缓存的PDF文件:', cachePath);
-      return await fs.readFile(cachePath);
-    } else {
-      // 缓存过期，删除
-      await fs.unlink(cachePath);
-      return null;
-    }
-  } catch (error) {
-    // 缓存不存在或读取失败
-    return null;
-  }
-}
-
-// 保存到缓存
-async function saveToCache(url, content) {
-  const cacheKey = generateCacheKey(url);
-  const cachePath = path.join(CACHE_DIR, cacheKey);
-  
-  try {
-    await fs.writeFile(cachePath, content);
-    console.log('PDF文件已缓存:', cachePath);
-  } catch (error) {
-    console.error('保存缓存失败:', error);
-  }
-}
+// 内存缓存（适合Serverless环境，函数执行期间有效）
+const memoryCache = new Map();
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24小时缓存
 
 export default async function handler(req, res) {
-  // 配置CORS，允许所有域名访问（因为需要支持外部预览服务）
+  // 配置CORS，允许所有域名访问
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin");
@@ -80,20 +24,19 @@ export default async function handler(req, res) {
 
     console.log('接收到的PDF URL:', url);
 
-    // 确保缓存目录存在
-    await ensureCacheDir();
-
-    // 检查缓存
-    const cachedContent = await checkCache(url);
-    if (cachedContent) {
+    // 检查内存缓存
+    const cacheKey = url;
+    const cachedItem = memoryCache.get(cacheKey);
+    const now = Date.now();
+    
+    if (cachedItem && (now - cachedItem.timestamp) < CACHE_EXPIRY) {
+      console.log('使用内存缓存的PDF文件');
       // 设置响应头，返回缓存的PDF文件
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline; filename=document.pdf");
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin");
+      res.setHeader("Cache-Control", "public, max-age=86400"); // 客户端缓存24小时
       res.setHeader("X-Cache", "HIT");
-      res.status(200).send(cachedContent);
+      res.status(200).send(cachedItem.content);
       return;
     }
 
@@ -114,15 +57,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "无效的GitHub文件URL" });
     }
 
-    const [, , owner, repo, ref, path] = urlParts;
-    console.log('解析后的参数:', { owner, repo, ref, path });
+    const [, , owner, repo, ref, filePath] = urlParts;
+    console.log('解析后的参数:', { owner, repo, ref, filePath });
 
     try {
       // 调用GitHub API获取文件内容
       const { data } = await octokit.repos.getContent({
         owner,
         repo,
-        path,
+        path: filePath,
         ref,
       });
 
@@ -136,15 +79,16 @@ export default async function handler(req, res) {
       const pdfContent = Buffer.from(data.content, "base64");
       console.log('PDF文件获取成功，大小:', pdfContent.length, '字节');
 
-      // 保存到缓存
-      await saveToCache(url, pdfContent);
+      // 保存到内存缓存
+      memoryCache.set(cacheKey, {
+        content: pdfContent,
+        timestamp: now
+      });
 
       // 设置响应头，返回PDF文件
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", "inline; filename=document.pdf");
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin");
+      res.setHeader("Cache-Control", "public, max-age=86400"); // 客户端缓存24小时
       res.setHeader("X-Cache", "MISS");
       res.status(200).send(pdfContent);
     } catch (octokitError) {
