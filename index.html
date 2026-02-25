@@ -653,19 +653,19 @@ color: var(--text-secondary);
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background-color: #8a63d2;
+  background: linear-gradient(135deg, #c7a9ff 0%, #8a63d2 100%);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(138, 99, 210, 0.3);
 }
 
 .custom-pdf-btn:hover {
-  background-color: #7a53c2;
+  background: linear-gradient(135deg, #b591ff 0%, #7a53c2 100%);
   box-shadow: 0 4px 12px rgba(138, 99, 210, 0.5);
   transform: translateY(-1px);
 }
@@ -1618,9 +1618,15 @@ return;
 // 使用DocumentFragment优化DOM操作
 const fragment = document.createDocumentFragment();
 results.forEach(bill => {
-const contentText = bill.content?.length > 120
-? bill.content.substring(0, 120) + '...'
-: bill.content || '无内容';
+// 过滤掉PDF链接提示文本，与弹窗逻辑一致
+const targetTextRegex = /需要查看全文，请点击按钮[\(（]([^\)）]+)[\)）]/;
+let filteredContent = bill.content || '无内容';
+if (targetTextRegex.test(filteredContent)) {
+  filteredContent = filteredContent.replace(targetTextRegex, '').trim();
+}
+const contentText = filteredContent?.length > 120
+? filteredContent.substring(0, 120) + '...'
+: filteredContent || '无内容';
 
 const card = document.createElement('div');
 card.className = 'bill-card';
@@ -1698,16 +1704,16 @@ function showBillDetails(bill) {
     // 生成PDF预览链接选项（使用本地部署的PDF.js）
     const previewOptions = [
       {
-        name: 'PDF.js预览',
+        name: '在线预览',
         url: `pdfjs/web/viewer.html?file=${encodeURIComponent(proxyPdfUrl)}`,
-        desc: '使用本地部署的PDF.js库预览（方案二）'
+        desc: '使用在线PDF.js库进行预览'
       }
     ];
     
     // 创建按钮标题
     const btnTitle = document.createElement('div');
     btnTitle.className = 'pdf-btn-title';
-    btnTitle.textContent = 'PDF查看选项：';
+    btnTitle.textContent = '文件查看方式：';
     pdfBtnContainer.appendChild(btnTitle);
     
     // 创建按钮组

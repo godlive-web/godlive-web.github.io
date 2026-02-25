@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
 Copyright 2012 Mozilla Foundation
 
@@ -26,6 +26,27 @@ See https://github.com/adobe-type-tools/cmap-resources
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <meta name="google" content="notranslate">
     <title>PDF.js viewer</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
+    <style>
+      /* 渐变色按钮样式 */
+      .custom-pdf-btn {
+        background: linear-gradient(135deg, #c7a9ff 0%, #8a63d2 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+        font-size: 14px !important;
+        text-decoration: none !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 8px rgba(138, 99, 210, 0.3) !important;
+      }
+      
+      .custom-pdf-btn:hover {
+        background: linear-gradient(135deg, #b591ff 0%, #7a53c2 100%) !important;
+        box-shadow: 0 4px 12px rgba(138, 99, 210, 0.5) !important;
+        transform: translateY(-1px) !important;
+      }
+    </style>
 
 <!-- This snippet is used in production (included from viewer.html) -->
 <link rel="resource" type="application/l10n" href="locale/locale.json">
