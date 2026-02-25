@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>神界阁－个人信息</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
+  <link rel="shortcut icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
   <style>
     * {
       margin: 0;
@@ -569,7 +571,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            展示您在神界阁/秋风Auting官网的认证信息，目前该数据库尚在搭建
+            展示您在神界阁/秋风Auting官网的认证信息。
           </div>
         </div>
 
@@ -579,7 +581,7 @@
             <span class="arrow">▼</span>
           </button>
           <div class="function-intro">
-            反馈您个人信息存在的问题
+            反馈您个人信息存在的问题。
           </div>
         </div>
       </nav>
@@ -889,7 +891,20 @@
           if (confirm('确认提交反馈？提交后将复制反馈内容并尝试打开QQ')) {
             navigator.clipboard.writeText(feedbackText).then(() => {
               const contactQQ = '458299675';
-              window.location.href = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
+              // 检测设备类型，使用不同的QQ协议
+              const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+              let qqUrl;
+              
+              if (isMobile) {
+                // 手机端使用mqqwpa协议
+                qqUrl = `mqqwpa://im/chat?chat_type=wpa&uin=${contactQQ}&version=1&src_type=web&web_src=oicqzone.com`;
+              } else {
+                // PC端使用tencent协议
+                qqUrl = `tencent://message/?Menu=yes&Uin=${contactQQ}`;
+              }
+              
+              // 尝试打开QQ
+              window.location.href = qqUrl;
               alert('反馈内容已复制到剪贴板，请在QQ个人对话框中粘贴反馈');
             }).catch(err => {
               console.error('复制失败:', err);
