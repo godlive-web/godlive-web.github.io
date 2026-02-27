@@ -1,7 +1,6 @@
 export default async function handler(req, res) {
-  // ========== 完全对齐 getBill.js 的 CORS 配置 ==========
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  // ========== 修改CORS配置允许所有域名访问 ==========
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
