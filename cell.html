@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>晶胞共用原子示意图</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f8f9fa;
+    }
+  </style>
+  <!-- 引入 TikZ-JS 库 -->
+  <script src="https://cdn.jsdelivr.net/npm/tikz-js@2.0.0/dist/tikz.js"></script>
+</head>
+<body>
+
+<!-- 这里就是你的晶胞图 -->
+<tikz>
+  [scale=2]
+  % 中心晶胞（实线）
+  \draw[thick,black] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
+  \draw[thick,black] (0,0,0) -- (0,0,1);
+  \draw[thick,black] (1,0,0) -- (1,0,1);
+  \draw[thick,black] (1,1,0) -- (1,1,1);
+  \draw[thick,black] (0,1,0) -- (0,1,1);
+  \draw[thick,black] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle;
+  \fill[red] (0,0,0) circle (2pt) node[below left] {顶角原子};
+
+  % 周围7个晶胞（虚线，体现8个共用）
+  \draw[dashed,gray!50] (1,0,0) -- (2,0,0) -- (2,1,0) -- (1,1,0) -- cycle; % 右侧
+  \draw[dashed,gray!50] (0,1,0) -- (1,1,0) -- (1,2,0) -- (0,2,0) -- cycle; % 后侧
+  \draw[dashed,gray!50] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle; % 上侧
+  
+  % 标注
+  \node at (1.5,-0.5,0) {共8个晶胞共用，贡献 1/8};
+</tikz>
+
+</body>
+</html>
