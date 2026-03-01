@@ -1,43 +1,232 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>晶胞共用原子示意图</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background: #f8f9fa;
-    }
-  </style>
-  <!-- 引入 TikZ-JS 库 -->
-  <script src="https://cdn.jsdelivr.net/npm/tikz-js@2.0.0/dist/tikz.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D晶胞结构可视化</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: #0a0a1a;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* 顶部标题栏 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 500;
+            color: #e0e0ff;
+        }
+
+        /* 操作提示框 */
+        .control-tip {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(20, 20, 40, 0.8);
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            z-index: 99;
+        }
+
+        .control-tip p {
+            font-size: 14px;
+            margin: 4px 0;
+            color: #c0c8ff;
+        }
+
+        /* 晶胞说明面板 */
+        .cell-info {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 25, 0.85);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(120, 120, 255, 0.2);
+            display: flex;
+            gap: 25px;
+            z-index: 99;
+        }
+
+        .cell-item {
+            text-align: center;
+        }
+
+        .cell-item h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #ff4444;
+        }
+
+        .cell-item:nth-child(2) h3 {
+            color: #44aaff;
+        }
+
+        .cell-item:nth-child(3) h3 {
+            color: #44dd44;
+        }
+
+        .cell-item p {
+            font-size: 12px;
+            color: #bbb;
+        }
+
+        /* 3D画布 */
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- 这里就是你的晶胞图 -->
-<tikz>
-  [scale=2]
-  % 中心晶胞（实线）
-  \draw[thick,black] (0,0,0) -- (1,0,0) -- (1,1,0) -- (0,1,0) -- cycle;
-  \draw[thick,black] (0,0,0) -- (0,0,1);
-  \draw[thick,black] (1,0,0) -- (1,0,1);
-  \draw[thick,black] (1,1,0) -- (1,1,1);
-  \draw[thick,black] (0,1,0) -- (0,1,1);
-  \draw[thick,black] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle;
-  \fill[red] (0,0,0) circle (2pt) node[below left] {顶角原子};
+    <!-- 顶部UI -->
+    <div class="header">
+        <h1>3D晶胞结构交互式可视化（简单/体心/面心立方）</h1>
+    </div>
 
-  % 周围7个晶胞（虚线，体现8个共用）
-  \draw[dashed,gray!50] (1,0,0) -- (2,0,0) -- (2,1,0) -- (1,1,0) -- cycle; % 右侧
-  \draw[dashed,gray!50] (0,1,0) -- (1,1,0) -- (1,2,0) -- (0,2,0) -- cycle; % 后侧
-  \draw[dashed,gray!50] (0,0,1) -- (1,0,1) -- (1,1,1) -- (0,1,1) -- cycle; % 上侧
-  
-  % 标注
-  \node at (1.5,-0.5,0) {共8个晶胞共用，贡献 1/8};
-</tikz>
+    <!-- 操作提示UI -->
+    <div class="control-tip">
+        <p>🖱️ 左键拖拽：旋转3D模型</p>
+        <p>🖱️ 滚轮滑动：放大/缩小</p>
+        <p>📌 三晶胞水平串联展示</p>
+    </div>
+
+    <!-- 晶胞说明UI -->
+    <div class="cell-info">
+        <div class="cell-item">
+            <h3>简单立方</h3>
+            <p>仅顶角原子<br>贡献：1/8</p>
+        </div>
+        <div class="cell-item">
+            <h3>体心立方</h3>
+            <p>顶角+体心<br>体心：完全占有</p>
+        </div>
+        <div class="cell-item">
+            <h3>面心立方</h3>
+            <p>顶角+6面心<br>面心：贡献1/2</p>
+        </div>
+    </div>
+
+    <!-- Three.js 3D核心 -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // 场景初始化
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x0a0a1a, 1);
+        document.body.appendChild(renderer.domElement);
+
+        // 鼠标控制
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        camera.position.set(10, 6, 12);
+
+        // 灯光
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+        dirLight.position.set(8, 8, 8);
+        scene.add(dirLight);
+        scene.add(new THREE.AmbientLight(0x404060));
+
+        // 生成晶胞
+        function createCell(type, xPos) {
+            const group = new THREE.Group();
+            group.position.x = xPos;
+            const size = 2;
+            const half = size / 2;
+
+            // 晶胞线框
+            const boxGeo = new THREE.BoxGeometry(size, size, size);
+            const boxEdges = new THREE.EdgesGeometry(boxGeo);
+            const boxMat = new THREE.LineBasicMaterial({ color: 0xa0a0ff });
+            const boxLine = new THREE.LineSegments(boxEdges, boxMat);
+            group.add(boxLine);
+
+            // 顶角原子（红）
+            const corners = [
+                [-half,-half,-half], [half,-half,-half], [half,half,-half], [-half,half,-half],
+                [-half,-half,half], [half,-half,half], [half,half,half], [-half,half,half]
+            ];
+            corners.forEach(p => {
+                const s = new THREE.SphereGeometry(0.12, 16, 16);
+                const m = new THREE.MeshLambertMaterial({ color: 0xff3333 });
+                const mesh = new THREE.Mesh(s, m);
+                mesh.position.set(...p);
+                group.add(mesh);
+            });
+
+            // 体心原子（蓝）
+            if (type === 'body') {
+                const s = new THREE.SphereGeometry(0.16, 16, 16);
+                const m = new THREE.MeshLambertMaterial({ color: 0x33aaff });
+                group.add(new THREE.Mesh(s, m));
+            }
+
+            // 面心原子（绿）
+            if (type === 'face') {
+                const faces = [[half,0,0], [-half,0,0], [0,half,0], [0,-half,0], [0,0,half], [0,0,-half]];
+                faces.forEach(p => {
+                    const s = new THREE.SphereGeometry(0.13, 16, 16);
+                    const m = new THREE.MeshLambertMaterial({ color: 0x33dd33 });
+                    const mesh = new THREE.Mesh(s, m);
+                    mesh.position.set(...p);
+                    group.add(mesh);
+                });
+            }
+
+            scene.add(group);
+        }
+
+        // 三晶胞串联并排
+        createCell('simple', -6);
+        createCell('body', 0);
+        createCell('face', 6);
+
+        // 渲染循环
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // 窗口自适应
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 
 </body>
 </html>
