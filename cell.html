@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D晶胞结构可视化</title>
+    <title>3D晶胞结构可视化（可拼接/拆分）</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +18,6 @@
             color: #fff;
         }
 
-        /* 顶部标题栏 */
         .header {
             position: fixed;
             top: 0;
@@ -38,7 +37,6 @@
             color: #e0e0ff;
         }
 
-        /* 操作提示框 */
         .control-tip {
             position: fixed;
             top: 80px;
@@ -56,7 +54,30 @@
             color: #c0c8ff;
         }
 
-        /* 晶胞说明面板 */
+        .button-group {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 99;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(100, 100, 255, 0.3);
+            border: 1px solid rgba(100, 100, 255, 0.5);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: rgba(100, 100, 255, 0.5);
+        }
+
         .cell-info {
             position: fixed;
             bottom: 20px;
@@ -94,7 +115,6 @@
             color: #bbb;
         }
 
-        /* 3D画布 */
         canvas {
             display: block;
             width: 100vw;
@@ -104,20 +124,21 @@
 </head>
 
 <body>
-
-    <!-- 顶部UI -->
     <div class="header">
-        <h1>3D晶胞结构交互式可视化（简单/体心/面心立方）</h1>
+        <h1>3D晶胞结构交互式可视化（可拼接/拆分）</h1>
     </div>
 
-    <!-- 操作提示UI -->
     <div class="control-tip">
         <p>🖱️ 左键拖拽：旋转3D模型</p>
         <p>🖱️ 滚轮滑动：放大/缩小</p>
-        <p>📌 三晶胞水平串联展示</p>
+        <p>📌 点击右侧按钮切换模式</p>
     </div>
 
-    <!-- 晶胞说明UI -->
+    <div class="button-group">
+        <button class="btn" id="combineBtn">拼接成整体</button>
+        <button class="btn" id="splitBtn">拆开展示</button>
+    </div>
+
     <div class="cell-info">
         <div class="cell-item">
             <h3>简单立方</h3>
@@ -133,12 +154,21 @@
         </div>
     </div>
 
-    <!-- Three.js 3D核心 -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+            "tween": "https://unpkg.com/@tweenjs/tween.js@18.6.4/dist/tween.esm.js"
+        }
+    }
+    </script>
 
-    <script>
-        // 场景初始化
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import * as TWEEN from 'tween';
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -146,33 +176,30 @@
         renderer.setClearColor(0x0a0a1a, 1);
         document.body.appendChild(renderer.domElement);
 
-        // 鼠标控制
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.08;
         camera.position.set(10, 6, 12);
 
-        // 灯光
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
         dirLight.position.set(8, 8, 8);
         scene.add(dirLight);
         scene.add(new THREE.AmbientLight(0x404060));
 
-        // 生成晶胞
-        function createCell(type, xPos) {
-            const group = new THREE.Group();
-            group.position.x = xPos;
-            const size = 2;
-            const half = size / 2;
+        const cellGroups = [];
+        const cellSize = 2;
 
-            // 晶胞线框
-            const boxGeo = new THREE.BoxGeometry(size, size, size);
+        function createCell(type, x, y, z) {
+            const group = new THREE.Group();
+            group.position.set(x, y, z);
+            const half = cellSize / 2;
+
+            const boxGeo = new THREE.BoxGeometry(cellSize, cellSize, cellSize);
             const boxEdges = new THREE.EdgesGeometry(boxGeo);
             const boxMat = new THREE.LineBasicMaterial({ color: 0xa0a0ff });
             const boxLine = new THREE.LineSegments(boxEdges, boxMat);
             group.add(boxLine);
 
-            // 顶角原子（红）
             const corners = [
                 [-half,-half,-half], [half,-half,-half], [half,half,-half], [-half,half,-half],
                 [-half,-half,half], [half,-half,half], [half,half,half], [-half,half,half]
@@ -185,14 +212,12 @@
                 group.add(mesh);
             });
 
-            // 体心原子（蓝）
             if (type === 'body') {
                 const s = new THREE.SphereGeometry(0.16, 16, 16);
                 const m = new THREE.MeshLambertMaterial({ color: 0x33aaff });
                 group.add(new THREE.Mesh(s, m));
             }
 
-            // 面心原子（绿）
             if (type === 'face') {
                 const faces = [[half,0,0], [-half,0,0], [0,half,0], [0,-half,0], [0,0,half], [0,0,-half]];
                 faces.forEach(p => {
@@ -205,28 +230,65 @@
             }
 
             scene.add(group);
+            cellGroups.push(group);
+            return group;
         }
 
-        // 三晶胞串联并排
-        createCell('simple', -6);
-        createCell('body', 0);
-        createCell('face', 6);
+        // 创建2x2x2的晶胞阵列
+        function createGrid() {
+            for (let x = -1; x <= 1; x += 2) {
+                for (let y = -1; y <= 1; y += 2) {
+                    for (let z = -1; z <= 1; z += 2) {
+                        createCell('face', x * cellSize, y * cellSize, z * cellSize);
+                    }
+                }
+            }
+        }
 
-        // 渲染循环
+        function combine() {
+            cellGroups.forEach((group, index) => {
+                const x = (index % 2 - 0.5) * 2;
+                const y = (Math.floor(index / 4) % 2 - 0.5) * 2;
+                const z = (Math.floor(index / 2) % 2 - 0.5) * 2;
+                
+                new TWEEN.Tween(group.position)
+                    .to({ x: x * cellSize, y: y * cellSize, z: z * cellSize }, 1000)
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .start();
+            });
+        }
+
+        function split() {
+            cellGroups.forEach((group, index) => {
+                const x = (index % 2 - 0.5) * 6;
+                const y = (Math.floor(index / 4) % 2 - 0.5) * 6;
+                const z = (Math.floor(index / 2) % 2 - 0.5) * 6;
+                
+                new TWEEN.Tween(group.position)
+                    .to({ x: x, y: y, z: z }, 1000)
+                    .easing(TWEEN.Easing.Quadratic.Out)
+                    .start();
+            });
+        }
+
+        createGrid();
+
+        document.getElementById('combineBtn').addEventListener('click', combine);
+        document.getElementById('splitBtn').addEventListener('click', split);
+
         function animate() {
             requestAnimationFrame(animate);
+            TWEEN.update();
             controls.update();
             renderer.render(scene, camera);
         }
         animate();
 
-        // 窗口自适应
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
     </script>
-
 </body>
 </html>
