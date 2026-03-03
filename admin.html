@@ -1011,8 +1011,11 @@
             userID: memberData.user,
             账号名称: memberData['账号名称'],
             自设名称: memberData['自设名称'],
+            入圈时间: memberData['入圈时间'],
             模糊住址: memberData['模糊住址'],
             出生日期: memberData['出生日期'],
+            账号状态: memberData['账号状态'],
+            账号密码: memberData['账号密码'],
             个人介绍: memberData['个人介绍'],
             认证成就: memberData['认证成就'],
             使用题库: memberData['使用题库']
@@ -1395,18 +1398,17 @@
       const kSection = document.createElement('div');
       kSection.innerHTML = '<h4>客观题</h4>';
       kQuestionsData.forEach((question, index) => {
-        if (question.status === '待使用') {
-          const item = document.createElement('div');
-          item.className = 'question-item';
-          item.innerHTML = `
-            <div class="question-header">
-              <span class="question-id">${question.id}</span>
-              <input type="checkbox" class="publish-question" data-type="K" data-index="${index}">
-            </div>
-            <div class="question-content">${question.content}</div>
-          `;
-          kSection.appendChild(item);
-        }
+        const item = document.createElement('div');
+        item.className = 'question-item';
+        item.innerHTML = `
+          <div class="question-header">
+            <span class="question-id">${question.id}</span>
+            <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
+            <input type="checkbox" class="publish-question" data-type="K" data-index="${index}">
+          </div>
+          <div class="question-content">${question.content}</div>
+        `;
+        kSection.appendChild(item);
       });
       publishList.appendChild(kSection);
 
@@ -1414,18 +1416,17 @@
       const zSection = document.createElement('div');
       zSection.innerHTML = '<h4>主观题</h4>';
       zQuestionsData.forEach((question, index) => {
-        if (question.status === '待使用') {
-          const item = document.createElement('div');
-          item.className = 'question-item';
-          item.innerHTML = `
-            <div class="question-header">
-              <span class="question-id">${question.id}</span>
-              <input type="checkbox" class="publish-question" data-type="Z" data-index="${index}">
-            </div>
-            <div class="question-content">${question.content}</div>
-          `;
-          zSection.appendChild(item);
-        }
+        const item = document.createElement('div');
+        item.className = 'question-item';
+        item.innerHTML = `
+          <div class="question-header">
+            <span class="question-id">${question.id}</span>
+            <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
+            <input type="checkbox" class="publish-question" data-type="Z" data-index="${index}">
+          </div>
+          <div class="question-content">${question.content}</div>
+        `;
+        zSection.appendChild(item);
       });
       publishList.appendChild(zSection);
     }
