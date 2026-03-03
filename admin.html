@@ -1341,6 +1341,53 @@
       loadPublishQuestions();
     }
 
+    // 解析答题内容
+    function parseExamContent(examStr) {
+      // 格式：K-H/01：不正确；Z-J/01：略（答题时间：2026.3.3，待审核）
+      const result = {
+        questions: [],
+        answerTime: '',
+        status: ''
+      };
+
+      if (!examStr) return result;
+
+      // 提取答题时间和状态
+      const timeMatch = examStr.match(/（答题时间：([^，]+)，([^）]+)）/);
+      if (timeMatch) {
+        result.answerTime = timeMatch[1];
+        result.status = timeMatch[2];
+      }
+
+      // 提取题目和答案
+      const contentPart = examStr.split('（')[0];
+      const questionParts = contentPart.split('；');
+
+      questionParts.forEach(part => {
+        if (!part.trim()) return;
+        const match = part.match(/^([^：]+)：(.+)$/);
+        if (match) {
+          const questionId = match[1].trim();
+          const answer = match[2].trim();
+
+          // 查找题目内容
+          let questionContent = '';
+          const kQ = kQuestionsData.find(q => q.id === questionId);
+          const zQ = zQuestionsData.find(q => q.id === questionId);
+          if (kQ) questionContent = kQ.content;
+          else if (zQ) questionContent = zQ.content;
+
+          result.questions.push({
+            id: questionId,
+            content: questionContent,
+            answer: answer
+          });
+        }
+      });
+
+      return result;
+    }
+
     // 加载待审核答题
     function loadPendingAnswers() {
       const pendingList = document.getElementById('pendingAnswersList');
@@ -1357,17 +1404,47 @@
       }
 
       pendingMembers.forEach(member => {
+        const examData = parseExamContent(member['使用题库']);
+
         const item = document.createElement('div');
         item.className = 'question-item';
+        item.style.marginBottom = '20px';
+
+        let questionsHtml = '';
+        examData.questions.forEach((q, idx) => {
+          questionsHtml += `
+            <div style="background: var(--bg-primary); padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+              <div style="font-weight: 600; color: var(--accent-color); margin-bottom: 5px;">
+                题目 ${idx + 1}：${q.id}
+              </div>
+              <div style="color: var(--text-secondary); margin-bottom: 8px; font-size: 13px;">
+                ${q.content || '（题库中未找到该题目）'}
+              </div>
+              <div style="background: var(--card-bg); padding: 8px 12px; border-radius: 4px; border-left: 3px solid var(--accent-color);">
+                <span style="color: var(--text-secondary); font-size: 12px;">用户答案：</span>
+                <span style="color: var(--text-primary); font-weight: 500;">${q.answer}</span>
+              </div>
+            </div>
+          `;
+        });
+
         item.innerHTML = `
-          <div class="question-header">
-            <span class="question-id">${member.user}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">用户ID：${member.user}</span>
+              <span style="margin-left: 10px; color: var(--text-secondary);">(${member['自设名称'] || '无昵称'})</span>
+            </div>
             <span class="status-badge status-pending">待审核</span>
           </div>
-          <div class="question-content">${member['使用题库'] || '无'}</div>
-          <div class="question-footer">
-            <button class="btn btn-primary btn-sm approve-answer" data-id="${member.user}">审核通过</button>
-            <button class="btn btn-secondary btn-sm reject-answer" data-id="${member.user}">审核不通过</button>
+          <div style="margin-bottom: 10px; color: var(--text-secondary); font-size: 13px;">
+            答题时间：${examData.answerTime}
+          </div>
+          <div style="margin-bottom: 15px;">
+            ${questionsHtml}
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button class="btn btn-primary btn-sm approve-answer" data-id="${member.user}">✓ 审核通过</button>
+            <button class="btn btn-secondary btn-sm reject-answer" data-id="${member.user}">✗ 审核不通过</button>
           </div>
         `;
         pendingList.appendChild(item);
