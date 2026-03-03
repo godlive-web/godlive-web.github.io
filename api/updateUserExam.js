@@ -1,15 +1,14 @@
 export default async function handler(req, res) {
-  // CORS配置
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
+  // CORS配置（允许所有域名访问，包括本地开发环境）
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  
+  // 处理OPTIONS预检请求
   if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     res.status(204).end();
     return;
   }
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   try {
     const { userId, examData } = req.body;
