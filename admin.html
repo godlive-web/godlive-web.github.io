@@ -1343,8 +1343,9 @@
 
     // 解析答题内容
     function parseExamContent(examStr) {
-      // 格式1：K-H/01：不正确；Z-J/01：略，待审核（无答题时间）
-      // 格式2：K-H/01：不正确；Z-J/01：略（答题时间：2026.3.3，待审核）
+      // 未被修改过："；（答题时间：）"
+      // 提交题目："题目1编号：；题目2编号：；题目3编号：；...（答题时间：，待审核）"
+      // 用户答完："题目1编号：答题内容；题目2编号：答题内容；...（答题时间：xxxx.xx.xx，待审核）"
       const result = {
         questions: [],
         answerTime: '',
@@ -1353,17 +1354,11 @@
 
       if (!examStr || examStr === '；（答题时间：）') return result;
 
-      // 提取答题时间和状态（如果有）
+      // 提取答题时间和状态
       const timeMatch = examStr.match(/（答题时间：([^，]*)，([^）]+)）/);
       if (timeMatch) {
         result.answerTime = timeMatch[1];
         result.status = timeMatch[2];
-      } else {
-        // 检查是否有状态（如"，待审核"）
-        const statusMatch = examStr.match(/，(待审核|已审核通过|审核不通过)$/);
-        if (statusMatch) {
-          result.status = statusMatch[1];
-        }
       }
 
       // 提取题目和答案
@@ -1371,14 +1366,12 @@
       if (examStr.includes('（')) {
         contentPart = examStr.split('（')[0];
       }
-      // 移除开头的；和结尾的状态
-      contentPart = contentPart.replace(/^；/, '').replace(/，(待审核|已审核通过|审核不通过)$/, '');
 
       const questionParts = contentPart.split('；');
 
       questionParts.forEach(part => {
         if (!part.trim()) return;
-        const match = part.match(/^([^：]+)：(.+)$/);
+        const match = part.match(/^([^：]+)：(.*)$/);
         if (match) {
           const questionId = match[1].trim();
           const answer = match[2].trim();
@@ -1393,7 +1386,7 @@
           result.questions.push({
             id: questionId,
             content: questionContent,
-            answer: answer
+            answer: answer || '（未答题）'
           });
         }
       });
@@ -1583,24 +1576,15 @@
         return;
       }
 
-      // 生成题库内容（格式：K-H/01：不正确；Z-J/01：略，待审核）
-      const kQuestions = selectedQuestions.filter(q => q.id.startsWith('K-'));
-      const zQuestions = selectedQuestions.filter(q => q.id.startsWith('Z-'));
-
-      let examContent = '；';
-      kQuestions.forEach((q, idx) => {
-        examContent += `${q.id}：不正确`;
-        if (idx < kQuestions.length - 1 || zQuestions.length > 0) {
+      // 生成题库内容（格式：题目1编号：；题目2编号：；...（答题时间：，待审核））
+      let examContent = '';
+      selectedQuestions.forEach((q, idx) => {
+        examContent += `${q.id}：`;
+        if (idx < selectedQuestions.length - 1) {
           examContent += '；';
         }
       });
-      zQuestions.forEach((q, idx) => {
-        examContent += `${q.id}：略`;
-        if (idx < zQuestions.length - 1) {
-          examContent += '；';
-        }
-      });
-      examContent += '，待审核';
+      examContent += '（答题时间：，待审核）';
 
       // 更新用户数据
       const member = membersData.find(m => m.user === userId);
