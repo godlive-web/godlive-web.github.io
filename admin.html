@@ -1343,24 +1343,37 @@
 
     // 解析答题内容
     function parseExamContent(examStr) {
-      // 格式：K-H/01：不正确；Z-J/01：略（答题时间：2026.3.3，待审核）
+      // 格式1：K-H/01：不正确；Z-J/01：略，待审核（无答题时间）
+      // 格式2：K-H/01：不正确；Z-J/01：略（答题时间：2026.3.3，待审核）
       const result = {
         questions: [],
         answerTime: '',
         status: ''
       };
 
-      if (!examStr) return result;
+      if (!examStr || examStr === '；（答题时间：）') return result;
 
-      // 提取答题时间和状态
-      const timeMatch = examStr.match(/（答题时间：([^，]+)，([^）]+)）/);
+      // 提取答题时间和状态（如果有）
+      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^）]+)）/);
       if (timeMatch) {
         result.answerTime = timeMatch[1];
         result.status = timeMatch[2];
+      } else {
+        // 检查是否有状态（如"，待审核"）
+        const statusMatch = examStr.match(/，(待审核|已审核通过|审核不通过)$/);
+        if (statusMatch) {
+          result.status = statusMatch[1];
+        }
       }
 
       // 提取题目和答案
-      const contentPart = examStr.split('（')[0];
+      let contentPart = examStr;
+      if (examStr.includes('（')) {
+        contentPart = examStr.split('（')[0];
+      }
+      // 移除开头的；和结尾的状态
+      contentPart = contentPart.replace(/^；/, '').replace(/，(待审核|已审核通过|审核不通过)$/, '');
+
       const questionParts = contentPart.split('；');
 
       questionParts.forEach(part => {
@@ -1570,22 +1583,24 @@
         return;
       }
 
-      // 生成题库内容
+      // 生成题库内容（格式：K-H/01：不正确；Z-J/01：略，待审核）
       const kQuestions = selectedQuestions.filter(q => q.id.startsWith('K-'));
       const zQuestions = selectedQuestions.filter(q => q.id.startsWith('Z-'));
 
-      let examContent = '';
-      kQuestions.forEach(q => {
-        examContent += `${q.id}：不正确；`;
+      let examContent = '；';
+      kQuestions.forEach((q, idx) => {
+        examContent += `${q.id}：不正确`;
+        if (idx < kQuestions.length - 1 || zQuestions.length > 0) {
+          examContent += '；';
+        }
       });
-      zQuestions.forEach(q => {
+      zQuestions.forEach((q, idx) => {
         examContent += `${q.id}：略`;
+        if (idx < zQuestions.length - 1) {
+          examContent += '；';
+        }
       });
-
-      // 添加答题时间和状态
-      const now = new Date();
-      const dateStr = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
-      examContent += `（答题时间：${dateStr}，待审核）`;
+      examContent += '，待审核';
 
       // 更新用户数据
       const member = membersData.find(m => m.user === userId);
