@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
   try {
     // 1. 从请求体获取用户ID（关键：用于定位对应的ID.json文件）和修改的信息
-    const { userID, 自设名称, 账号名称, 模糊住址, 出生日期, 个人介绍, 认证成就, 使用题库 } = req.body;
+    const { userID, 自设名称, 账号名称, 入圈时间, 模糊住址, 出生日期, 账号状态, 账号密码, 个人介绍, 认证成就, 使用题库 } = req.body;
     
     // 校验：必须传递userID，否则无法定位文件
     if (!userID) {
@@ -72,8 +72,11 @@ export default async function handler(req, res) {
       // 仅更新前端传递的字段（若前端未填则保留原值）
       自设名称: 自设名称 || currentData.自设名称,
       账号名称: 账号名称 || currentData.账号名称,
+      入圈时间: 入圈时间 || currentData.入圈时间,
       模糊住址: 模糊住址 || currentData.模糊住址,
       出生日期: 出生日期 || currentData.出生日期,
+      账号状态: 账号状态 || currentData.账号状态,
+      账号密码: 账号密码 || currentData.账号密码,
       个人介绍: 个人介绍 || currentData.个人介绍,
       认证成就: 认证成就 !== undefined ? 认证成就 : currentData.认证成就,
       使用题库: 使用题库 !== undefined ? 使用题库 : currentData.使用题库
