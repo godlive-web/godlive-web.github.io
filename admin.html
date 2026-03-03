@@ -803,10 +803,10 @@
           document.getElementById('loginPage').style.display = 'none';
           document.getElementById('adminPage').style.display = 'block';
 
-          // 加载成员数据
-          loadMembers();
-          loadQuestions();
-          loadPublishData();
+          // 加载成员数据（完成后自动加载发布数据）
+          await loadMembers();
+          await loadQuestions();
+          await loadPublishData();
         } catch (error) {
           console.error('登录失败:', error);
           loginError.textContent = '登录失败，请重试';
@@ -1000,8 +1000,40 @@
       document.getElementById('memberModal').classList.remove('show');
     }
 
+    // 保存成员到GitHub
+    async function saveMemberToGitHub(memberData) {
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        const response = await fetch(`${VERCEL_DOMAIN}/api/update`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userID: memberData.user,
+            账号名称: memberData['账号名称'],
+            自设名称: memberData['自设名称'],
+            模糊住址: memberData['模糊住址'],
+            出生日期: memberData['出生日期'],
+            个人介绍: memberData['个人介绍'],
+            认证成就: memberData['认证成就'],
+            使用题库: memberData['使用题库']
+          })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          alert('保存失败：' + result.msg);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('保存成员失败:', error);
+        alert('保存失败，请检查网络连接');
+        return false;
+      }
+    }
+
     // 保存成员
-    function saveMember() {
+    async function saveMember() {
       const id = document.getElementById('memberId').value;
       const memberData = {
         user: document.getElementById('memberUser').value,
@@ -1016,6 +1048,10 @@
         '认证成就': document.getElementById('memberAchievements').value,
         '使用题库': document.getElementById('memberExam').value
       };
+
+      // 推送到GitHub
+      const success = await saveMemberToGitHub(memberData);
+      if (!success) return;
 
       if (id) {
         // 编辑现有成员
@@ -1081,48 +1117,78 @@
       }
     }
 
+    // 按子分类分组题目
+    function groupQuestionsByCategory(questions) {
+      const groups = {};
+      questions.forEach(q => {
+        const match = q.id.match(/^([KZ]-[A-Z])\//);
+        const category = match ? match[1] : '其他';
+        if (!groups[category]) groups[category] = [];
+        groups[category].push(q);
+      });
+      return groups;
+    }
+
     // 渲染题库
     function renderQuestions() {
-      // 渲染客观题
+      // 渲染客观题（按子分类分组）
       const kList = document.getElementById('kQuestionsList');
       kList.innerHTML = '';
 
-      kQuestionsData.forEach((question, index) => {
-        const item = document.createElement('div');
-        item.className = 'question-item';
-        item.innerHTML = `
-          <div class="question-header">
-            <span class="question-id">${question.id}</span>
-            <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
-          </div>
-          <div class="question-content">${question.content}</div>
-          <div class="question-footer">
-            <button class="btn btn-primary btn-sm edit-question" data-type="K" data-index="${index}">编辑</button>
-            <button class="btn btn-secondary btn-sm delete-question" data-type="K" data-index="${index}">删除</button>
-          </div>
-        `;
-        kList.appendChild(item);
+      const kGroups = groupQuestionsByCategory(kQuestionsData);
+      Object.keys(kGroups).sort().forEach(category => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'question-category';
+        categoryDiv.innerHTML = `<h4 style="margin: 15px 0 10px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">${category} 类</h4>`;
+        kList.appendChild(categoryDiv);
+
+        kGroups[category].forEach((question, idx) => {
+          const globalIndex = kQuestionsData.findIndex(q => q.id === question.id);
+          const item = document.createElement('div');
+          item.className = 'question-item';
+          item.innerHTML = `
+            <div class="question-header">
+              <span class="question-id">${question.id}</span>
+              <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
+            </div>
+            <div class="question-content">${question.content}</div>
+            <div class="question-footer">
+              <button class="btn btn-primary btn-sm edit-question" data-type="K" data-index="${globalIndex}">编辑</button>
+              <button class="btn btn-secondary btn-sm delete-question" data-type="K" data-index="${globalIndex}">删除</button>
+            </div>
+          `;
+          kList.appendChild(item);
+        });
       });
 
-      // 渲染主观题
+      // 渲染主观题（按子分类分组）
       const zList = document.getElementById('zQuestionsList');
       zList.innerHTML = '';
 
-      zQuestionsData.forEach((question, index) => {
-        const item = document.createElement('div');
-        item.className = 'question-item';
-        item.innerHTML = `
-          <div class="question-header">
-            <span class="question-id">${question.id}</span>
-            <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
-          </div>
-          <div class="question-content">${question.content}</div>
-          <div class="question-footer">
-            <button class="btn btn-primary btn-sm edit-question" data-type="Z" data-index="${index}">编辑</button>
-            <button class="btn btn-secondary btn-sm delete-question" data-type="Z" data-index="${index}">删除</button>
-          </div>
-        `;
-        zList.appendChild(item);
+      const zGroups = groupQuestionsByCategory(zQuestionsData);
+      Object.keys(zGroups).sort().forEach(category => {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.className = 'question-category';
+        categoryDiv.innerHTML = `<h4 style="margin: 15px 0 10px; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;">${category} 类</h4>`;
+        zList.appendChild(categoryDiv);
+
+        zGroups[category].forEach((question, idx) => {
+          const globalIndex = zQuestionsData.findIndex(q => q.id === question.id);
+          const item = document.createElement('div');
+          item.className = 'question-item';
+          item.innerHTML = `
+            <div class="question-header">
+              <span class="question-id">${question.id}</span>
+              <span class="status-badge status-${question.status === '待使用' ? 'pending' : question.status === '使用中' ? 'using' : 'discarded'}">${question.status}</span>
+            </div>
+            <div class="question-content">${question.content}</div>
+            <div class="question-footer">
+              <button class="btn btn-primary btn-sm edit-question" data-type="Z" data-index="${globalIndex}">编辑</button>
+              <button class="btn btn-secondary btn-sm delete-question" data-type="Z" data-index="${globalIndex}">删除</button>
+            </div>
+          `;
+          zList.appendChild(item);
+        });
       });
 
       // 添加编辑和删除事件
@@ -1139,19 +1205,44 @@
       });
 
       document.querySelectorAll('.delete-question').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
           const type = this.dataset.type;
           const index = parseInt(this.dataset.index);
-          if (confirm('确定要删除这个题目吗？')) {
-            if (type === 'K') {
-              kQuestionsData.splice(index, 1);
-            } else {
-              zQuestionsData.splice(index, 1);
-            }
-            renderQuestions();
+          if (!confirm('确定要删除这个题目吗？')) return;
+
+          if (type === 'K') {
+            kQuestionsData.splice(index, 1);
+            await saveQuestionsToGitHub('K.json', kQuestionsData);
+          } else {
+            zQuestionsData.splice(index, 1);
+            await saveQuestionsToGitHub('Z.json', zQuestionsData);
           }
+          renderQuestions();
         });
       });
+    }
+
+    // 保存题库到GitHub
+    async function saveQuestionsToGitHub(fileName, questions) {
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        const response = await fetch(`${VERCEL_DOMAIN}/api/updateQuestionBank`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName, questions })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          alert('保存失败：' + result.msg);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('保存题库失败:', error);
+        alert('保存失败，请检查网络连接');
+        return false;
+      }
     }
 
     // 打开题目编辑模态框
@@ -1182,7 +1273,7 @@
     }
 
     // 保存题目
-    function saveQuestion() {
+    async function saveQuestion() {
       const type = document.getElementById('questionType').value;
       const index = parseInt(document.getElementById('questionIndex').value);
       const questionData = {
@@ -1207,8 +1298,15 @@
         }
       }
 
-      renderQuestions();
-      closeQuestionModal();
+      // 推送到GitHub
+      const fileName = type === 'K' ? 'K.json' : 'Z.json';
+      const questions = type === 'K' ? kQuestionsData : zQuestionsData;
+      const success = await saveQuestionsToGitHub(fileName, questions);
+
+      if (success) {
+        renderQuestions();
+        closeQuestionModal();
+      }
     }
 
     // 发布与管理功能
@@ -1333,18 +1431,46 @@
     }
 
     // 更新答题状态
-    function updateAnswerStatus(userId, status) {
+    async function updateAnswerStatus(userId, status) {
       const member = membersData.find(m => m.user === userId);
-      if (member) {
-        let exam = member['使用题库'] || '';
-        exam = exam.replace('待审核', status);
-        member['使用题库'] = exam;
+      if (!member) return;
+
+      let exam = member['使用题库'] || '';
+      exam = exam.replace('待审核', status);
+      member['使用题库'] = exam;
+
+      // 推送到GitHub
+      const success = await saveUserExamToGitHub(userId, exam);
+      if (success) {
         loadPendingAnswers();
       }
     }
 
+    // 保存用户题库到GitHub
+    async function saveUserExamToGitHub(userId, examData) {
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        const response = await fetch(`${VERCEL_DOMAIN}/api/updateUserExam`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, examData })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          alert('保存失败：' + result.msg);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('保存用户题库失败:', error);
+        alert('保存失败，请检查网络连接');
+        return false;
+      }
+    }
+
     // 发布题库
-    function publishExam() {
+    async function publishExam() {
       const userId = document.getElementById('publishUserId').value;
       if (!userId) {
         alert('请选择用户');
@@ -1387,9 +1513,14 @@
       const member = membersData.find(m => m.user === userId);
       if (member) {
         member['使用题库'] = examContent;
-        alert('题库发布成功');
-        cancelPublish();
-        loadPendingAnswers();
+
+        // 推送到GitHub
+        const success = await saveUserExamToGitHub(userId, examContent);
+        if (success) {
+          alert('题库发布成功');
+          cancelPublish();
+          loadPendingAnswers();
+        }
       }
     }
 
