@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>神界阁管理系统</title>
   <link rel="icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
+  <!-- 引入bcryptjs库用于密码验证 -->
+  <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -788,7 +790,9 @@
           }
 
           const userData = result.data;
-          if (userData['账号密码'] !== password) {
+          // 使用bcrypt验证密码（数据库中存储的是哈希值）
+          const isPasswordValid = dcodeIO.bcrypt.compareSync(password, userData['账号密码']);
+          if (!isPasswordValid) {
             loginError.textContent = '密码错误';
             return;
           }
