@@ -1,7 +1,6 @@
 export default async function handler(req, res) {
-  // 跨域配置（支持前端域名）
-  const FRONTEND_ORIGIN = "https://godlive-web.github.io";
-  res.setHeader("Access-Control-Allow-Origin", FRONTEND_ORIGIN);
+  // 跨域配置（允许所有域名访问）
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
