@@ -1310,10 +1310,10 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         // 编码成就名称（和你成功访问的URL里的编码一致）
         const achievementName = encodeURIComponent(achievement.name);
         
-        // --- 1. 调用正确的getAuthBadge API ---
+        // --- 1. 调用正确的getBadge API ---
         try {
           // 拼接和你地址栏里完全一致的URL
-          const badgeUrl = `/api/getAuthBadge?achievement=${achievementName}`;
+          const badgeUrl = `/api/getBadge?achievement=${achievementName}&type=url`;
           const badgeUrlRes = await fetch(badgeUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1333,9 +1333,9 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
           console.error(`❌ 获取「${achievement.name}」图片URL失败：`, urlErr);
         }
         
-        // --- 2. 调用getBadgeDesc API（同样用正确域名）---
+        // --- 2. 调用getBadge API获取描述（同样用正确域名）---
         try {
-          const badgeDescUrl = `/api/getBadgeDesc?achievement=${achievementName}`;
+          const badgeDescUrl = `/api/getBadge?achievement=${achievementName}&type=info`;
           const badgeDescRes = await fetch(badgeDescUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1786,10 +1786,10 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       // 提交到服务器
       try {
         const userId = currentExamData.user;
-        const response = await fetch(`/api/updateUserExam`, {
+        const response = await fetch(`/api/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, examData: examContent })
+          body: JSON.stringify({ userID: userId, 使用题库: examContent })
         });
 
         const result = await response.json();
