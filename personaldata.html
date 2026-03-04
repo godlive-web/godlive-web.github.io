@@ -1554,10 +1554,10 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         const zResult = await zRes.json();
         
         if (kResult.success) {
-          kQuestionsData = kResult.data;
+          kQuestionsData = kResult.data.questions || [];
         }
         if (zResult.success) {
-          zQuestionsData = zResult.data;
+          zQuestionsData = zResult.data.questions || [];
         }
       } catch (error) {
         console.error('加载题库失败:', error);
