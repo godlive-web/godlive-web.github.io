@@ -801,8 +801,7 @@
 
         try {
           // 使用Vercel API获取用户数据（私有仓库无法直接访问GitHub Raw）
-          const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-          const response = await fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userId=${encodeURIComponent(id)}`);
+          const response = await fetch(`/api/getUserInfo?userId=${encodeURIComponent(id)}`);
           if (!response.ok) {
             throw new Error('获取用户数据失败');
           }
@@ -905,8 +904,7 @@
 
       try {
         // 使用Vercel API获取所有用户ID（私有仓库无法直接访问GitHub Raw）
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const usersResponse = await fetch(`${VERCEL_DOMAIN}/api/getAllUserIDs`);
+        const usersResponse = await fetch(`/api/getAllUserIDs`);
         if (!usersResponse.ok) {
           throw new Error('获取用户列表失败');
         }
@@ -921,7 +919,7 @@
 
         for (const user of users) {
           try {
-            const response = await fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userId=${encodeURIComponent(user)}`);
+            const response = await fetch(`/api/getUserInfo?userId=${encodeURIComponent(user)}`);
             if (response.ok) {
               const result = await response.json();
               if (result.success && result.data) {
@@ -1026,8 +1024,7 @@
     // 保存成员到GitHub
     async function saveMemberToGitHub(memberData) {
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const response = await fetch(`${VERCEL_DOMAIN}/api/update`, {
+        const response = await fetch(`/api/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1251,8 +1248,7 @@
     // 保存题库到GitHub
     async function saveQuestionsToGitHub(fileName, questions) {
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const response = await fetch(`${VERCEL_DOMAIN}/api/updateQuestionBank`, {
+        const response = await fetch(`/api/updateQuestionBank`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileName, questions })
@@ -1459,8 +1455,7 @@
 
       // 2. 加载匿名用户的待审核答题
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const response = await fetch(`${VERCEL_DOMAIN}/api/getTemporaryAnswering`);
+        const response = await fetch(`/api/getTemporaryAnswering`);
         const result = await response.json();
         
         if (result.success && Array.isArray(result.data)) {
@@ -1635,10 +1630,8 @@
     // 更新匿名用户审核状态
     async function updateAnonymousStatus(virtualName, key, status) {
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        
         // 获取当前数据
-        const getRes = await fetch(`${VERCEL_DOMAIN}/api/getTemporaryAnswering`);
+        const getRes = await fetch(`/api/getTemporaryAnswering`);
         const getResult = await getRes.json();
         
         if (!getResult.success) {
@@ -1660,7 +1653,7 @@
         exam = exam.replace('待审核', status);
 
         // 保存更新
-        const saveRes = await fetch(`${VERCEL_DOMAIN}/api/updateTemporaryAnswering`, {
+        const saveRes = await fetch(`/api/updateTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1685,8 +1678,7 @@
     // 保存用户题库到GitHub
     async function saveUserExamToGitHub(userId, examData) {
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const response = await fetch(`${VERCEL_DOMAIN}/api/updateUserExam`, {
+        const response = await fetch(`/api/updateUserExam`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, examData })
@@ -1708,8 +1700,7 @@
     // 保存匿名用户到GitHub
     async function saveAnonymousUserToGitHub(userData) {
       try {
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        const response = await fetch(`${VERCEL_DOMAIN}/api/updateTemporaryAnswering`, {
+        const response = await fetch(`/api/updateTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(userData)

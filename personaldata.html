@@ -700,8 +700,7 @@
   <script>
     // 全局变量：保存最新的用户数据，绕过Cookie缓存问题
     let globalLatestUserData = null;
-    // Vercel域名配置
-    const VERCEL_DOMAIN = "https://godlive-web-github-io.vercel.app";
+
 
     // Cookie处理函数
     function setCookie(name, value, days, sameSite = 'Lax') {
@@ -788,7 +787,7 @@
       }
 
       try {
-        const response = await fetch(`${VERCEL_DOMAIN}/api/getUserInfo?userId=${userID}`, {
+        const response = await fetch(`/api/getUserInfo?userId=${userID}`, {
           method: 'GET',
           mode: 'cors'
         });
@@ -1279,8 +1278,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
   badgeEmptyEl.style.display = 'none';
   badgeListEl.style.display = 'flex';
 
-  // ✅ 写死你确认过的正确Vercel域名（一字不差）
-  const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+
 
   try {
     const userData = globalLatestUserData;
@@ -1315,7 +1313,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         // --- 1. 调用正确的getAuthBadge API ---
         try {
           // 拼接和你地址栏里完全一致的URL
-          const badgeUrl = `${VERCEL_DOMAIN}/api/getAuthBadge?achievement=${achievementName}`;
+          const badgeUrl = `/api/getAuthBadge?achievement=${achievementName}`;
           const badgeUrlRes = await fetch(badgeUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1337,7 +1335,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         
         // --- 2. 调用getBadgeDesc API（同样用正确域名）---
         try {
-          const badgeDescUrl = `${VERCEL_DOMAIN}/api/getBadgeDesc?achievement=${achievementName}`;
+          const badgeDescUrl = `/api/getBadgeDesc?achievement=${achievementName}`;
           const badgeDescRes = await fetch(badgeDescUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1788,9 +1786,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       // 提交到服务器
       try {
         const userId = currentExamData.user;
-        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
-        
-        const response = await fetch(`${VERCEL_DOMAIN}/api/updateUserExam`, {
+        const response = await fetch(`/api/updateUserExam`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId, examData: examContent })
