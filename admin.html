@@ -1121,17 +1121,21 @@
     async function loadQuestions() {
       try {
         // 加载客观题
-        const kResponse = await fetch('EntryCircleQuestion_Bank/K.json');
+        const kResponse = await fetch('/api/updateQuestionBank?type=K');
         if (kResponse.ok) {
-          const kData = await kResponse.json();
-          kQuestionsData = kData.questions || [];
+          const kResult = await kResponse.json();
+          if (kResult.success) {
+            kQuestionsData = kResult.data.questions || [];
+          }
         }
 
         // 加载主观题
-        const zResponse = await fetch('EntryCircleQuestion_Bank/Z.json');
+        const zResponse = await fetch('/api/updateQuestionBank?type=Z');
         if (zResponse.ok) {
-          const zData = await zResponse.json();
-          zQuestionsData = zData.questions || [];
+          const zResult = await zResponse.json();
+          if (zResult.success) {
+            zQuestionsData = zResult.data.questions || [];
+          }
         }
 
         renderQuestions();
