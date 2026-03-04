@@ -787,7 +787,7 @@
       }
 
       try {
-        const response = await fetch(`/api/getUserInfo?userId=${userID}`, {
+        const response = await fetch(`${API_BASE}/api/getUserInfo?userId=${userID}`, {
           method: 'GET',
           mode: 'cors'
         });
