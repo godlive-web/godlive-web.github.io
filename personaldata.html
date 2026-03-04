@@ -1313,7 +1313,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         // --- 1. 调用正确的getBadge API ---
         try {
           // 拼接和你地址栏里完全一致的URL
-          const badgeUrl = `/api/getBadge?achievement=${achievementName}&type=url`;
+          const badgeUrl = `${API_BASE}/api/getBadge?achievement=${achievementName}&type=url`;
           const badgeUrlRes = await fetch(badgeUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1335,7 +1335,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
         
         // --- 2. 调用getBadge API获取描述（同样用正确域名）---
         try {
-          const badgeDescUrl = `/api/getBadge?achievement=${achievementName}&type=info`;
+          const badgeDescUrl = `${API_BASE}/api/getBadge?achievement=${achievementName}&type=info`;
           const badgeDescRes = await fetch(badgeDescUrl, {
             method: 'GET',
             mode: 'cors',
@@ -1797,7 +1797,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       // 提交到服务器
       try {
         const userId = currentExamData.user;
-        const response = await fetch(`/api/update`, {
+        const response = await fetch(`${API_BASE}/api/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userID: userId, 使用题库: examContent })
