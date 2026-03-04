@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>神界阁 - 入圈答题</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :root {
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --accent-color: #6f42c1;
+      --accent-light: #e0d6ff;
+      --border-color: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --card-bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0c0c1e;
+        --bg-secondary: #1a1a3a;
+        --text-primary: #e0e0ff;
+        --text-secondary: #a0a0ff;
+        --accent-color: #8a63d2;
+        --accent-light: rgba(100, 80, 255, 0.2);
+        --border-color: rgba(100, 80, 255, 0.3);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        --card-bg: rgba(20, 20, 45, 0.8);
+      }
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+    }
+    .header h1 {
+      color: var(--accent-color);
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      width: 100%;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #8a63d2 0%, #6f42c1 100%);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7a53c2 0%, #5a32a1 100%);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+    .question-item {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+    .question-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .question-id {
+      font-weight: 600;
+      color: var(--accent-color);
+      font-size: 16px;
+    }
+    .question-content {
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+    .answer-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.2s ease;
+    }
+    .answer-textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .success-message {
+      color: #28a745;
+      font-size: 14px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent-color);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--accent-light);
+    }
+    .info-text {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 10px;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .card {
+        padding: 20px;
+      }
+      .header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <div class="header">
+      <h1>神界阁入圈答题</h1>
+      <p>请验证身份后开始答题</p>
+    </div>
+
+    <!-- 登录验证区域 -->
+    <div id="loginSection" class="card">
+      <div class="section-title">身份验证</div>
+      <div class="form-group">
+        <label class="form-label" for="anonymousName">虚拟用户名称</label>
+        <input type="text" id="anonymousName" class="form-input" placeholder="请输入虚拟用户名称">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="accessKey">答题密钥</label>
+        <input type="text" id="accessKey" class="form-input" placeholder="请输入答题密钥">
+      </div>
+      <button class="btn btn-primary" id="verifyBtn">验证并进入答题</button>
+      <div class="error-message" id="loginError"></div>
+    </div>
+
+    <!-- 答题区域 -->
+    <div id="examSection" class="hidden">
+      <div class="card">
+        <div class="section-title">答题区域</div>
+        <div id="questionsList"></div>
+        <button class="btn btn-primary" id="submitBtn" style="margin-top: 20px;">提交答案</button>
+        <div class="error-message" id="submitError"></div>
+        <div class="success-message hidden" id="submitSuccess"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API配置
+    const API_BASE = 'https://godlive-web-github-io.vercel.app';
+    
+    // 当前用户信息
+    let currentUser = null;
+    let questionsData = [];
+
+    // 验证身份
+    document.getElementById('verifyBtn').addEventListener('click', async function() {
+      const name = document.getElementById('anonymousName').value.trim();
+      const key = document.getElementById('accessKey').value.trim();
+      const errorEl = document.getElementById('loginError');
+
+      if (!name || !key) {
+        errorEl.textContent = '请输入虚拟用户名称和密钥';
+        return;
+      }
+
+      errorEl.textContent = '验证中...';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/getTemporaryAnswering`);
+        const result = await response.json();
+
+        if (!result.success) {
+          errorEl.textContent = '获取数据失败：' + result.msg;
+          return;
+        }
+
+        // 查找匹配的用户
+        const user = result.data.find(item => 
+          item.虚拟用户 === name && item.密钥 === key
+        );
+
+        if (!user) {
+          errorEl.textContent = '虚拟用户名称或密钥错误';
+          return;
+        }
+
+        // 检查是否已答题
+        if (user.使用题库 && user.使用题库.includes('答题时间：') && 
+            !user.使用题库.includes('答题时间：，')) {
+          errorEl.textContent = '您已完成答题，请勿重复提交';
+          return;
+        }
+
+        currentUser = user;
+        loadQuestions(user.使用题库);
+
+        // 切换到答题区域
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('examSection').classList.remove('hidden');
+
+      } catch (error) {
+        console.error('验证失败:', error);
+        errorEl.textContent = '验证失败，请检查网络连接';
+      }
+    });
+
+    // 解析题目
+    function parseQuestions(examStr) {
+      const questions = [];
+      if (!examStr) return questions;
+
+      // 提取题目部分（括号前的内容）
+      let contentPart = examStr;
+      if (examStr.includes('（')) {
+        contentPart = examStr.split('（')[0];
+      }
+
+      const parts = contentPart.split('；');
+      parts.forEach(part => {
+        if (!part.trim()) return;
+        const match = part.match(/^([^：]+)：(.*)$/);
+        if (match) {
+          questions.push({
+            id: match[1].trim(),
+            answer: match[2].trim()
+          });
+        }
+      });
+
+      return questions;
+    }
+
+    // 加载题目
+    async function loadQuestions(examStr) {
+      const questions = parseQuestions(examStr);
+      const listEl = document.getElementById('questionsList');
+      listEl.innerHTML = '';
+
+      if (questions.length === 0) {
+        listEl.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">暂无题目</p>';
+        return;
+      }
+
+      // 获取题库内容
+      try {
+        const [kRes, zRes] = await Promise.all([
+          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/K.json'),
+          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/Z.json')
+        ]);
+
+        const kQuestions = await kRes.json();
+        const zQuestions = await zRes.json();
+
+        questions.forEach((q, index) => {
+          // 查找题目内容
+          let questionContent = '';
+          const kQ = kQuestions.find(item => item.id === q.id);
+          const zQ = zQuestions.find(item => item.id === q.id);
+          if (kQ) questionContent = kQ.content;
+          else if (zQ) questionContent = zQ.content;
+
+          const item = document.createElement('div');
+          item.className = 'question-item';
+          item.innerHTML = `
+            <div class="question-header">
+              <span class="question-id">题目 ${index + 1}</span>
+              <span style="color: var(--text-secondary); font-size: 13px;">${q.id}</span>
+            </div>
+            <div class="question-content">${questionContent || '（题库中未找到该题目）'}</div>
+            <textarea class="answer-textarea" data-question-id="${q.id}" placeholder="请输入您的答案...">${q.answer || ''}</textarea>
+          `;
+          listEl.appendChild(item);
+        });
+
+        questionsData = questions;
+
+      } catch (error) {
+        console.error('加载题库失败:', error);
+        listEl.innerHTML = '<p style="text-align: center; color: #dc3545;">加载题库失败，请刷新页面重试</p>';
+      }
+    }
+
+    // 提交答案
+    document.getElementById('submitBtn').addEventListener('click', async function() {
+      const errorEl = document.getElementById('submitError');
+      const successEl = document.getElementById('submitSuccess');
+
+      // 收集答案
+      const answers = {};
+      let hasEmpty = false;
+
+      document.querySelectorAll('.answer-textarea').forEach(textarea => {
+        const id = textarea.dataset.questionId;
+        const value = textarea.value.trim();
+        answers[id] = value;
+        if (!value) hasEmpty = true;
+      });
+
+      if (hasEmpty) {
+        errorEl.textContent = '请回答所有题目后再提交';
+        return;
+      }
+
+      errorEl.textContent = '';
+      this.disabled = true;
+      this.textContent = '提交中...';
+
+      // 生成答题内容
+      let examContent = '';
+      questionsData.forEach((q, idx) => {
+        examContent += `${q.id}：${answers[q.id]}`;
+        if (idx < questionsData.length - 1) {
+          examContent += '；';
+        }
+      });
+
+      // 添加答题时间和状态
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+      examContent += `（答题时间：${dateStr}，待审核，${currentUser.密钥}）`;
+
+      // 提交到服务器
+      try {
+        const response = await fetch(`${API_BASE}/api/updateTemporaryAnswering`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            虚拟用户: currentUser.虚拟用户,
+            密钥: currentUser.密钥,
+            使用题库: examContent
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          successEl.textContent = '答案提交成功！请等待管理员审核。';
+          successEl.classList.remove('hidden');
+          document.getElementById('submitBtn').classList.add('hidden');
+        } else {
+          errorEl.textContent = '提交失败：' + result.msg;
+          this.disabled = false;
+          this.textContent = '提交答案';
+        }
+      } catch (error) {
+        console.error('提交失败:', error);
+        errorEl.textContent = '提交失败，请检查网络连接';
+        this.disabled = false;
+        this.textContent = '提交答案';
+      }
+    });
+  </script>
+</body>
+</html>

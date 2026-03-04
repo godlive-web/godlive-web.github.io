@@ -590,10 +590,29 @@
             <div class="question-col">
               <h3>发布题库</h3>
               <div class="form-group">
-                <label class="form-label" for="publishUserId">选择用户</label>
-                <select id="publishUserId" class="form-input">
-                  <option value="">请选择用户</option>
-                </select>
+                <label class="form-label">发布类型</label>
+                <div style="display: flex; gap: 15px;">
+                  <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="radio" name="publishType" value="member" checked id="publishTypeMember"> 成员用户
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                    <input type="radio" name="publishType" value="anonymous" id="publishTypeAnonymous"> 匿名用户
+                  </label>
+                </div>
+              </div>
+              <div id="memberSelectGroup">
+                <div class="form-group">
+                  <label class="form-label" for="publishUserId">选择用户</label>
+                  <select id="publishUserId" class="form-input">
+                    <option value="">请选择用户</option>
+                  </select>
+                </div>
+              </div>
+              <div id="anonymousInputGroup" style="display: none;">
+                <div class="form-group">
+                  <label class="form-label" for="anonymousName">虚拟用户名称</label>
+                  <input type="text" id="anonymousName" class="form-input" placeholder="请输入虚拟用户名称">
+                </div>
               </div>
               <div class="form-group">
                 <label class="form-label" for="publishKey">答题密钥</label>
@@ -1323,6 +1342,15 @@
 
       // 取消发布
       document.getElementById('cancelPublishBtn').addEventListener('click', cancelPublish);
+
+      // 发布类型切换
+      document.querySelectorAll('input[name="publishType"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          const isMember = this.value === 'member';
+          document.getElementById('memberSelectGroup').style.display = isMember ? 'block' : 'none';
+          document.getElementById('anonymousInputGroup').style.display = isMember ? 'none' : 'block';
+        });
+      });
     }
 
     // 加载发布数据
@@ -1409,26 +1437,61 @@
     }
 
     // 加载待审核答题
-    function loadPendingAnswers() {
+    async function loadPendingAnswers() {
       const pendingList = document.getElementById('pendingAnswersList');
       pendingList.innerHTML = '';
 
-      const pendingMembers = membersData.filter(member => {
+      // 收集所有待审核的答题
+      const pendingItems = [];
+
+      // 1. 加载成员用户的待审核答题
+      membersData.forEach(member => {
         const exam = member['使用题库'] || '';
-        return exam.includes('待审核');
+        if (exam.includes('待审核')) {
+          pendingItems.push({
+            type: 'member',
+            id: member.user,
+            name: member['自设名称'] || '无昵称',
+            exam: exam
+          });
+        }
       });
 
-      if (pendingMembers.length === 0) {
+      // 2. 加载匿名用户的待审核答题
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        const response = await fetch(`${VERCEL_DOMAIN}/api/getTemporaryAnswering`);
+        const result = await response.json();
+        
+        if (result.success && Array.isArray(result.data)) {
+          result.data.forEach(user => {
+            const exam = user.使用题库 || '';
+            if (exam.includes('待审核')) {
+              pendingItems.push({
+                type: 'anonymous',
+                id: user.虚拟用户,
+                key: user.密钥,
+                exam: exam
+              });
+            }
+          });
+        }
+      } catch (error) {
+        console.error('加载匿名用户数据失败:', error);
+      }
+
+      if (pendingItems.length === 0) {
         pendingList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">暂无待审核答题</p>';
         return;
       }
 
-      pendingMembers.forEach(member => {
-        const examData = parseExamContent(member['使用题库']);
+      // 渲染待审核列表
+      pendingItems.forEach(item => {
+        const examData = parseExamContent(item.exam);
 
-        const item = document.createElement('div');
-        item.className = 'question-item';
-        item.style.marginBottom = '20px';
+        const itemEl = document.createElement('div');
+        itemEl.className = 'question-item';
+        itemEl.style.marginBottom = '20px';
 
         let questionsHtml = '';
         examData.questions.forEach((q, idx) => {
@@ -1448,40 +1511,65 @@
           `;
         });
 
-        item.innerHTML = `
+        // 根据类型显示不同的头部信息
+        let headerHtml = '';
+        if (item.type === 'member') {
+          headerHtml = `
+            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">用户ID：${item.id}</span>
+            <span style="margin-left: 10px; color: var(--text-secondary);">(${item.name})</span>
+            <span style="margin-left: 10px; padding: 2px 6px; background: var(--accent-light); color: var(--accent-color); border-radius: 4px; font-size: 12px;">成员</span>
+          `;
+        } else {
+          headerHtml = `
+            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">虚拟用户：${item.id}</span>
+            <span style="margin-left: 10px; color: var(--text-secondary);">密钥：${item.key}</span>
+            <span style="margin-left: 10px; padding: 2px 6px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px;">匿名</span>
+          `;
+        }
+
+        itemEl.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
-            <div>
-              <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">用户ID：${member.user}</span>
-              <span style="margin-left: 10px; color: var(--text-secondary);">(${member['自设名称'] || '无昵称'})</span>
-            </div>
+            <div>${headerHtml}</div>
             <span class="status-badge status-pending">待审核</span>
           </div>
           <div style="margin-bottom: 10px; color: var(--text-secondary); font-size: 13px;">
-            答题时间：${examData.answerTime}
+            答题时间：${examData.answerTime || '未答题'}
           </div>
           <div style="margin-bottom: 15px;">
             ${questionsHtml}
           </div>
           <div style="display: flex; gap: 10px; justify-content: flex-end;">
-            <button class="btn btn-primary btn-sm approve-answer" data-id="${member.user}">✓ 审核通过</button>
-            <button class="btn btn-secondary btn-sm reject-answer" data-id="${member.user}">✗ 审核不通过</button>
+            <button class="btn btn-primary btn-sm approve-answer" data-type="${item.type}" data-id="${item.id}" data-key="${item.key || ''}">✓ 审核通过</button>
+            <button class="btn btn-secondary btn-sm reject-answer" data-type="${item.type}" data-id="${item.id}" data-key="${item.key || ''}">✗ 审核不通过</button>
           </div>
         `;
-        pendingList.appendChild(item);
+        pendingList.appendChild(itemEl);
       });
 
       // 添加审核事件
       document.querySelectorAll('.approve-answer').forEach(btn => {
         btn.addEventListener('click', function() {
+          const type = this.dataset.type;
           const id = this.dataset.id;
-          updateAnswerStatus(id, '已审核通过');
+          const key = this.dataset.key;
+          if (type === 'member') {
+            updateAnswerStatus(id, '已审核通过');
+          } else {
+            updateAnonymousStatus(id, key, '已审核通过');
+          }
         });
       });
 
       document.querySelectorAll('.reject-answer').forEach(btn => {
         btn.addEventListener('click', function() {
+          const type = this.dataset.type;
           const id = this.dataset.id;
-          updateAnswerStatus(id, '审核不通过');
+          const key = this.dataset.key;
+          if (type === 'member') {
+            updateAnswerStatus(id, '审核不通过');
+          } else {
+            updateAnonymousStatus(id, key, '审核不通过');
+          }
         });
       });
     }
@@ -1544,6 +1632,56 @@
       }
     }
 
+    // 更新匿名用户审核状态
+    async function updateAnonymousStatus(virtualName, key, status) {
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        
+        // 获取当前数据
+        const getRes = await fetch(`${VERCEL_DOMAIN}/api/getTemporaryAnswering`);
+        const getResult = await getRes.json();
+        
+        if (!getResult.success) {
+          alert('获取数据失败：' + getResult.msg);
+          return;
+        }
+
+        // 查找并更新用户
+        const user = getResult.data.find(item => 
+          item.虚拟用户 === virtualName && item.密钥 === key
+        );
+
+        if (!user) {
+          alert('未找到匿名用户数据');
+          return;
+        }
+
+        let exam = user.使用题库 || '';
+        exam = exam.replace('待审核', status);
+
+        // 保存更新
+        const saveRes = await fetch(`${VERCEL_DOMAIN}/api/updateTemporaryAnswering`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            虚拟用户: virtualName,
+            密钥: key,
+            使用题库: exam
+          })
+        });
+
+        const saveResult = await saveRes.json();
+        if (saveResult.success) {
+          loadPendingAnswers();
+        } else {
+          alert('保存失败：' + saveResult.msg);
+        }
+      } catch (error) {
+        console.error('更新匿名用户状态失败:', error);
+        alert('更新失败，请检查网络连接');
+      }
+    }
+
     // 保存用户题库到GitHub
     async function saveUserExamToGitHub(userId, examData) {
       try {
@@ -1567,13 +1705,32 @@
       }
     }
 
+    // 保存匿名用户到GitHub
+    async function saveAnonymousUserToGitHub(userData) {
+      try {
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        const response = await fetch(`${VERCEL_DOMAIN}/api/updateTemporaryAnswering`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(userData)
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          alert('保存失败：' + result.msg);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error('保存匿名用户失败:', error);
+        alert('保存失败，请检查网络连接');
+        return false;
+      }
+    }
+
     // 发布题库
     async function publishExam() {
-      const userId = document.getElementById('publishUserId').value;
-      if (!userId) {
-        alert('请选择用户');
-        return;
-      }
+      const publishType = document.querySelector('input[name="publishType"]:checked').value;
 
       const selectedQuestions = [];
       document.querySelectorAll('.publish-question:checked').forEach(checkbox => {
@@ -1607,15 +1764,41 @@
       });
       examContent += `（答题时间：，待审核，${key}）`;
 
-      // 更新用户数据
-      const member = membersData.find(m => m.user === userId);
-      if (member) {
-        member['使用题库'] = examContent;
+      if (publishType === 'member') {
+        // 发布给成员用户
+        const userId = document.getElementById('publishUserId').value;
+        if (!userId) {
+          alert('请选择用户');
+          return;
+        }
 
-        // 推送到GitHub
-        const success = await saveUserExamToGitHub(userId, examContent);
+        const member = membersData.find(m => m.user === userId);
+        if (member) {
+          member['使用题库'] = examContent;
+          const success = await saveUserExamToGitHub(userId, examContent);
+          if (success) {
+            alert('题库发布成功');
+            cancelPublish();
+            loadPendingAnswers();
+          }
+        }
+      } else {
+        // 发布给匿名用户
+        const anonymousName = document.getElementById('anonymousName').value.trim();
+        if (!anonymousName) {
+          alert('请输入虚拟用户名称');
+          return;
+        }
+
+        const anonymousUser = {
+          虚拟用户: anonymousName,
+          密钥: key,
+          使用题库: examContent
+        };
+
+        const success = await saveAnonymousUserToGitHub(anonymousUser);
         if (success) {
-          alert('题库发布成功');
+          alert('匿名用户题库发布成功');
           cancelPublish();
           loadPendingAnswers();
         }
@@ -1625,6 +1808,7 @@
     // 取消发布
     function cancelPublish() {
       document.getElementById('publishUserId').value = '';
+      document.getElementById('anonymousName').value = '';
       document.getElementById('publishKey').value = '';
       document.querySelectorAll('.publish-question:checked').forEach(checkbox => {
         checkbox.checked = false;
