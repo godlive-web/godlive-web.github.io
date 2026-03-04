@@ -249,6 +249,7 @@
     .content-section:nth-child(1) { transform: translateY(0); }
     .content-section:nth-child(2) { transform: translateY(100vh); }
     .content-section:nth-child(3) { transform: translateY(200vh); }
+    .content-section:nth-child(4) { transform: translateY(300vh); }
 
     .content-section h2 {
       font-size: 30px;
@@ -577,6 +578,16 @@
 
         <div class="sidebar-item" data-index="2">
           <button class="sidebar-link">
+            查看答题
+            <span class="arrow">▼</span>
+          </button>
+          <div class="function-intro">
+            查看您的入圈答题内容、审核状态，并可进行修改或答题。
+          </div>
+        </div>
+
+        <div class="sidebar-item" data-index="3">
+          <button class="sidebar-link">
             反馈问题
             <span class="arrow">▼</span>
           </button>
@@ -617,8 +628,20 @@
         </div>
       </section>
 
-      <!-- 反馈问题区 -->
+      <!-- 查看答题区 -->
       <section class="content-section" data-index="2">
+        <h2>查看答题</h2>
+        <p class="section-desc">查看您的入圈答题内容、审核状态，并可进行修改或答题</p>
+        
+        <div class="info-card" id="examCard" style="max-height: calc(100% - 120px); overflow-y: auto;">
+          <div id="examContent">
+            <div class="info-loading">正在加载答题信息...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 反馈问题区 -->
+      <section class="content-section" data-index="3">
         <h2>反馈问题</h2>
         <p class="section-desc">反馈您个人信息存在的问题</p>
         
@@ -1505,7 +1528,308 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       setupEditButton();
       // 确保用户数据加载完成后，再初始化铭牌功能
       initAuthBadgeFeature();
+      // 初始化答题功能
+      initExamFeature(latestData);
     });
+
+    // ==================== 答题功能 ====================
+    let currentExamData = null;
+    let kQuestionsData = [];
+    let zQuestionsData = [];
+
+    // 初始化答题功能
+    async function initExamFeature(userData) {
+      currentExamData = userData;
+      await loadQuestionBank();
+      renderExamContent(userData);
+    }
+
+    // 加载题库
+    async function loadQuestionBank() {
+      try {
+        const [kRes, zRes] = await Promise.all([
+          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/K.json'),
+          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/Z.json')
+        ]);
+        kQuestionsData = await kRes.json();
+        zQuestionsData = await zRes.json();
+      } catch (error) {
+        console.error('加载题库失败:', error);
+      }
+    }
+
+    // 解析答题内容
+    function parseExamContent(examStr) {
+      const result = {
+        questions: [],
+        answerTime: '',
+        status: '',
+        key: ''
+      };
+
+      if (!examStr || examStr === '；（答题时间：）') return result;
+
+      // 提取答题时间、状态和密钥
+      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^，]+)，([^）]+)）/);
+      if (timeMatch) {
+        result.answerTime = timeMatch[1];
+        result.status = timeMatch[2];
+        result.key = timeMatch[3];
+      }
+
+      // 提取题目和答案
+      let contentPart = examStr;
+      if (examStr.includes('（')) {
+        contentPart = examStr.split('（')[0];
+      }
+
+      const questionParts = contentPart.split('；');
+      questionParts.forEach(part => {
+        if (!part.trim()) return;
+        const match = part.match(/^([^：]+)：(.*)$/);
+        if (match) {
+          const questionId = match[1].trim();
+          const answer = match[2].trim();
+
+          // 查找题目内容
+          let questionContent = '';
+          const kQ = kQuestionsData.find(q => q.id === questionId);
+          const zQ = zQuestionsData.find(q => q.id === questionId);
+          if (kQ) questionContent = kQ.content;
+          else if (zQ) questionContent = zQ.content;
+
+          result.questions.push({
+            id: questionId,
+            content: questionContent,
+            answer: answer
+          });
+        }
+      });
+
+      return result;
+    }
+
+    // 渲染答题内容
+    function renderExamContent(userData) {
+      const examContentEl = document.getElementById('examContent');
+      const examStr = userData['使用题库'] || '';
+
+      // 未被修改过的状态
+      if (!examStr || examStr === '；（答题时间：）') {
+        examContentEl.innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
+            <div style="color: var(--text-secondary); font-size: 16px; line-height: 1.8;">
+              待发布题目<br>
+              您也可以联系秋风Auting完善您的题库
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const examData = parseExamContent(examStr);
+
+      // 已发布题目但未答题（答题时间为空）
+      if (!examData.answerTime && examData.questions.length > 0) {
+        const questionsHtml = examData.questions.map((q, idx) => `
+          <div style="background: var(--bg-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 600; color: var(--accent-color); margin-bottom: 8px;">
+              题目 ${idx + 1}：${q.id}
+            </div>
+            <div style="color: var(--text-secondary); margin-bottom: 10px; font-size: 14px;">
+              ${q.content || '（题库中未找到该题目）'}
+            </div>
+          </div>
+        `).join('');
+
+        examContentEl.innerHTML = `
+          <div style="margin-bottom: 20px;">
+            <div style="display: inline-block; padding: 6px 12px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 13px; font-weight: 600;">
+              状态：待答题
+            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            ${questionsHtml}
+          </div>
+          <button class="btn btn-primary" id="startAnswerBtn" style="width: 100%;">开始答题</button>
+        `;
+
+        document.getElementById('startAnswerBtn').addEventListener('click', () => {
+          showAnswerInterface(examData);
+        });
+        return;
+      }
+
+      // 已答题状态
+      if (examData.answerTime) {
+        const statusClass = examData.status === '已审核通过' ? 'status-approved' : 
+                           examData.status === '审核不通过' ? 'status-rejected' : 'status-pending';
+        const statusBg = examData.status === '已审核通过' ? '#d4edda' : 
+                        examData.status === '审核不通过' ? '#f8d7da' : '#fff3cd';
+        const statusColor = examData.status === '已审核通过' ? '#155724' : 
+                           examData.status === '审核不通过' ? '#721c24' : '#856404';
+
+        const questionsHtml = examData.questions.map((q, idx) => `
+          <div style="background: var(--bg-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 600; color: var(--accent-color); margin-bottom: 8px;">
+              题目 ${idx + 1}：${q.id}
+            </div>
+            <div style="color: var(--text-secondary); margin-bottom: 10px; font-size: 14px;">
+              ${q.content || '（题库中未找到该题目）'}
+            </div>
+            <div style="background: var(--card-bg); padding: 10px 12px; border-radius: 4px; border-left: 3px solid var(--accent-color);">
+              <span style="color: var(--text-secondary); font-size: 12px;">您的答案：</span>
+              <span style="color: var(--text-primary); font-weight: 500;">${q.answer}</span>
+            </div>
+          </div>
+        `).join('');
+
+        examContentEl.innerHTML = `
+          <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div style="display: inline-block; padding: 6px 12px; background: ${statusBg}; color: ${statusColor}; border-radius: 4px; font-size: 13px; font-weight: 600;">
+              状态：${examData.status}
+            </div>
+            <div style="color: var(--text-secondary); font-size: 13px;">
+              答题时间：${examData.answerTime}
+            </div>
+          </div>
+          <div style="margin-bottom: 20px;">
+            ${questionsHtml}
+          </div>
+          <button class="btn btn-secondary" id="editAnswerBtn" style="width: 100%;">修改答案</button>
+        `;
+
+        document.getElementById('editAnswerBtn').addEventListener('click', () => {
+          showAnswerInterface(examData, true);
+        });
+      }
+    }
+
+    // 显示答题界面
+    function showAnswerInterface(examData, isEdit = false) {
+      const examContentEl = document.getElementById('examContent');
+
+      const questionsHtml = examData.questions.map((q, idx) => `
+        <div style="background: var(--bg-primary); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <div style="font-weight: 600; color: var(--accent-color); margin-bottom: 8px;">
+            题目 ${idx + 1}：${q.id}
+          </div>
+          <div style="color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">
+            ${q.content || '（题库中未找到该题目）'}
+          </div>
+          <textarea class="form-control answer-textarea" data-question-id="${q.id}" placeholder="请输入您的答案..." style="min-height: 120px; resize: vertical;">${q.answer || ''}</textarea>
+        </div>
+      `).join('');
+
+      examContentEl.innerHTML = `
+        <div style="margin-bottom: 15px;">
+          <div style="color: var(--text-secondary); font-size: 13px;">
+            ${isEdit ? '修改答案后需要重新审核' : '请认真回答以下题目'}
+          </div>
+        </div>
+        <div style="margin-bottom: 20px;">
+          ${questionsHtml}
+        </div>
+        <div class="btn-group" style="flex-direction: column;">
+          <button class="btn btn-primary" id="submitAnswerBtn" style="width: 100%;">提交答案</button>
+          <button class="btn btn-secondary" id="cancelAnswerBtn" style="width: 100%;">取消</button>
+        </div>
+        <div class="error-message" id="answerError"></div>
+      `;
+
+      document.getElementById('submitAnswerBtn').addEventListener('click', () => submitAnswer(examData, isEdit));
+      document.getElementById('cancelAnswerBtn').addEventListener('click', () => {
+        renderExamContent(currentExamData);
+      });
+    }
+
+    // 提交答案
+    async function submitAnswer(examData, isEdit) {
+      const errorEl = document.getElementById('answerError');
+      const submitBtn = document.getElementById('submitAnswerBtn');
+
+      // 收集答案
+      const answers = {};
+      let hasEmpty = false;
+
+      document.querySelectorAll('.answer-textarea').forEach(textarea => {
+        const id = textarea.dataset.questionId;
+        const value = textarea.value.trim();
+        answers[id] = value;
+        if (!value) hasEmpty = true;
+      });
+
+      if (hasEmpty) {
+        errorEl.textContent = '请回答所有题目后再提交';
+        return;
+      }
+
+      errorEl.textContent = '';
+      submitBtn.disabled = true;
+      submitBtn.textContent = '提交中...';
+
+      // 生成答题内容
+      let examContent = '';
+      examData.questions.forEach((q, idx) => {
+        examContent += `${q.id}：${answers[q.id]}`;
+        if (idx < examData.questions.length - 1) {
+          examContent += '；';
+        }
+      });
+
+      // 添加答题时间和状态
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${now.getMonth() + 1}.${now.getDate()}`;
+      const status = isEdit ? '待审核' : (examData.status || '待审核');
+      const key = examData.key || '';
+      examContent += `（答题时间：${dateStr}，${status}，${key}）`;
+
+      // 提交到服务器
+      try {
+        const userId = currentExamData.user;
+        const VERCEL_DOMAIN = 'https://godlive-web-github-io.vercel.app';
+        
+        const response = await fetch(`${VERCEL_DOMAIN}/api/updateUserExam`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, examData: examContent })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // 更新本地数据
+          currentExamData['使用题库'] = examContent;
+          
+          // 显示成功信息
+          const examContentEl = document.getElementById('examContent');
+          examContentEl.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px;">
+              <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
+              <div style="color: #28a745; font-size: 16px; font-weight: 600; margin-bottom: 10px;">
+                答案提交成功！
+              </div>
+              <div style="color: var(--text-secondary); font-size: 14px;">
+                ${isEdit ? '您的修改已提交，请等待管理员重新审核。' : '请等待管理员审核。'}
+              </div>
+              <button class="btn btn-primary" onclick="renderExamContent(currentExamData)" style="margin-top: 20px; width: 200px;">
+                返回查看
+              </button>
+            </div>
+          `;
+        } else {
+          errorEl.textContent = '提交失败：' + result.msg;
+          submitBtn.disabled = false;
+          submitBtn.textContent = '提交答案';
+        }
+      } catch (error) {
+        console.error('提交失败:', error);
+        errorEl.textContent = '提交失败，请检查网络连接';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '提交答案';
+      }
+    }
   </script>
 </body>
 </html>
