@@ -801,7 +801,7 @@
 
         try {
           // 使用Vercel API获取用户数据（私有仓库无法直接访问GitHub Raw）
-          const response = await fetch(`/api/getUserInfo?userId=${encodeURIComponent(id)}`);
+          const response = await fetch(`${API_BASE}/api/getUserInfo?userId=${encodeURIComponent(id)}`);
           if (!response.ok) {
             throw new Error('获取用户数据失败');
           }
@@ -904,7 +904,7 @@
 
       try {
         // 使用Vercel API获取所有用户ID（私有仓库无法直接访问GitHub Raw）
-        const usersResponse = await fetch(`/api/getAllUserIDs`);
+        const usersResponse = await fetch(`${API_BASE}/api/getAllUserIDs`);
         if (!usersResponse.ok) {
           throw new Error('获取用户列表失败');
         }
@@ -919,7 +919,7 @@
 
         for (const user of users) {
           try {
-            const response = await fetch(`/api/getUserInfo?userId=${encodeURIComponent(user)}`);
+            const response = await fetch(`${API_BASE}/api/getUserInfo?userId=${encodeURIComponent(user)}`);
             if (response.ok) {
               const result = await response.json();
               if (result.success && result.data) {
@@ -1024,7 +1024,7 @@
     // 保存成员到GitHub
     async function saveMemberToGitHub(memberData) {
       try {
-        const response = await fetch(`/api/update`, {
+        const response = await fetch(`${API_BASE}/api/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1133,7 +1133,7 @@
         }
 
         // 加载主观题
-        const zResponse = await fetch('/api/updateQuestionBank?type=Z');
+        const zResponse = await fetch(`${API_BASE}/api/updateQuestionBank?type=Z`);
         if (zResponse.ok) {
           const zResult = await zResponse.json();
           if (zResult.success) {
@@ -1255,7 +1255,7 @@
     // 保存题库到GitHub
     async function saveQuestionsToGitHub(fileName, questions) {
       try {
-        const response = await fetch(`/api/updateQuestionBank`, {
+        const response = await fetch(`${API_BASE}/api/updateQuestionBank`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fileName, questions })
@@ -1685,7 +1685,7 @@
     // 保存用户题库到GitHub
     async function saveUserExamToGitHub(userId, examData) {
       try {
-        const response = await fetch(`/api/update`, {
+        const response = await fetch(`${API_BASE}/api/update`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userID: userId, 使用题库: examData })
