@@ -417,7 +417,7 @@
 
       // 提交到服务器
       try {
-        const response = await fetch(`${API_BASE}/api/updateTemporaryAnswering`, {
+        const response = await fetch(`${API_BASE}/api/getTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

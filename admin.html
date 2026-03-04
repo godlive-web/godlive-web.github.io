@@ -1653,7 +1653,7 @@
         exam = exam.replace('待审核', status);
 
         // 保存更新
-        const saveRes = await fetch(`/api/updateTemporaryAnswering`, {
+        const saveRes = await fetch(`/api/getTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1700,7 +1700,7 @@
     // 保存匿名用户到GitHub
     async function saveAnonymousUserToGitHub(userData) {
       try {
-        const response = await fetch(`/api/updateTemporaryAnswering`, {
+        const response = await fetch(`/api/getTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(userData)
