@@ -54,7 +54,7 @@ export default async function handler(req, res) {
 
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const OWNER = "godlive-web";
-      const REPO = "godlive-web.github.io";
+      const REPO = "godlive";
       const FILE_PATH = `EntryCircleQuestion_Bank/${fileName}`;
 
       if (!GITHUB_TOKEN) {
