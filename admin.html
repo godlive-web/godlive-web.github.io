@@ -596,6 +596,10 @@
                 </select>
               </div>
               <div class="form-group">
+                <label class="form-label" for="publishKey">答题密钥</label>
+                <input type="text" id="publishKey" class="form-input" placeholder="请输入本次答题的密钥">
+              </div>
+              <div class="form-group">
                 <label class="form-label">选择题目</label>
                 <div id="publishQuestionsList"></div>
               </div>
@@ -1344,21 +1348,31 @@
     // 解析答题内容
     function parseExamContent(examStr) {
       // 未被修改过："；（答题时间：）"
-      // 提交题目："题目1编号：；题目2编号：；题目3编号：；...（答题时间：，待审核）"
-      // 用户答完："题目1编号：答题内容；题目2编号：答题内容；...（答题时间：xxxx.xx.xx，待审核）"
+      // 提交题目："题目1编号：；题目2编号：...（答题时间：，待审核，密钥）"
+      // 用户答完："题目1编号：答题内容；题目2编号：答题内容...（答题时间：xxxx.xx.xx，待审核，密钥）"
+      // 审核完成："题目1编号：答题内容...（答题时间：xxxx.xx.xx，已审核通过/审核不通过，密钥）"
       const result = {
         questions: [],
         answerTime: '',
-        status: ''
+        status: '',
+        key: ''
       };
 
       if (!examStr || examStr === '；（答题时间：）') return result;
 
-      // 提取答题时间和状态
-      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^）]+)）/);
+      // 提取答题时间、状态和密钥（格式：答题时间：xxx，状态，密钥）
+      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^，]+)，([^）]+)）/);
       if (timeMatch) {
         result.answerTime = timeMatch[1];
         result.status = timeMatch[2];
+        result.key = timeMatch[3];
+      } else {
+        // 兼容旧格式（无密钥）：答题时间：xxx，状态
+        const oldMatch = examStr.match(/（答题时间：([^，]*)，([^）]+)）/);
+        if (oldMatch) {
+          result.answerTime = oldMatch[1];
+          result.status = oldMatch[2];
+        }
       }
 
       // 提取题目和答案
@@ -1576,7 +1590,14 @@
         return;
       }
 
-      // 生成题库内容（格式：题目1编号：；题目2编号：；...（答题时间：，待审核））
+      // 获取答题密钥
+      const key = document.getElementById('publishKey').value.trim();
+      if (!key) {
+        alert('请输入答题密钥');
+        return;
+      }
+
+      // 生成题库内容（格式：题目1编号：；题目2编号：；...（答题时间：，待审核，密钥））
       let examContent = '';
       selectedQuestions.forEach((q, idx) => {
         examContent += `${q.id}：`;
@@ -1584,7 +1605,7 @@
           examContent += '；';
         }
       });
-      examContent += '（答题时间：，待审核）';
+      examContent += `（答题时间：，待审核，${key}）`;
 
       // 更新用户数据
       const member = membersData.find(m => m.user === userId);
@@ -1604,6 +1625,7 @@
     // 取消发布
     function cancelPublish() {
       document.getElementById('publishUserId').value = '';
+      document.getElementById('publishKey').value = '';
       document.querySelectorAll('.publish-question:checked').forEach(checkbox => {
         checkbox.checked = false;
       });
