@@ -1579,7 +1579,7 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       if (!examStr || examStr === '；（答题时间：）') return result;
 
       // 提取答题时间、状态和密钥
-      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^，]+)，([^）]+)）/);
+      const timeMatch = examStr.match(/（答题时间：([^，]*)，([^，]+)，([^）]*)）/);
       if (timeMatch) {
         result.answerTime = timeMatch[1];
         result.status = timeMatch[2];
