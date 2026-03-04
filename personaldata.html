@@ -1546,8 +1546,8 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
     async function loadQuestionBank() {
       try {
         const [kRes, zRes] = await Promise.all([
-          fetch('/api/getQuestionBank?type=K'),
-          fetch('/api/getQuestionBank?type=Z')
+          fetch('/api/updateQuestionBank?type=K'),
+          fetch('/api/updateQuestionBank?type=Z')
         ]);
         
         const kResult = await kRes.json();
