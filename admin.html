@@ -1117,11 +1117,14 @@
       });
     }
 
+    // API配置
+    const API_BASE = 'https://godlive-web-github-io.vercel.app';
+
     // 加载题库数据
     async function loadQuestions() {
       try {
         // 加载客观题
-        const kResponse = await fetch('/api/updateQuestionBank?type=K');
+        const kResponse = await fetch(`${API_BASE}/api/updateQuestionBank?type=K`);
         if (kResponse.ok) {
           const kResult = await kResponse.json();
           if (kResult.success) {
@@ -1459,7 +1462,7 @@
 
       // 2. 加载匿名用户的待审核答题
       try {
-        const response = await fetch(`/api/getTemporaryAnswering`);
+        const response = await fetch(`${API_BASE}/api/getTemporaryAnswering`);
         const result = await response.json();
         
         if (result.success && Array.isArray(result.data)) {
@@ -1635,7 +1638,7 @@
     async function updateAnonymousStatus(virtualName, key, status) {
       try {
         // 获取当前数据
-        const getRes = await fetch(`/api/getTemporaryAnswering`);
+        const getRes = await fetch(`${API_BASE}/api/getTemporaryAnswering`);
         const getResult = await getRes.json();
         
         if (!getResult.success) {
@@ -1657,7 +1660,7 @@
         exam = exam.replace('待审核', status);
 
         // 保存更新
-        const saveRes = await fetch(`/api/getTemporaryAnswering`, {
+        const saveRes = await fetch(`${API_BASE}/api/getTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1704,7 +1707,7 @@
     // 保存匿名用户到GitHub
     async function saveAnonymousUserToGitHub(userData) {
       try {
-        const response = await fetch(`/api/getTemporaryAnswering`, {
+        const response = await fetch(`${API_BASE}/api/getTemporaryAnswering`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(userData)

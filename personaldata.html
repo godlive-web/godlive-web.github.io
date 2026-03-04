@@ -1542,12 +1542,15 @@ async function loadBadgesInCategory(categoryKey, badgeListEl, badgeEmptyEl) {
       renderExamContent(userData);
     }
 
+    // API配置
+    const API_BASE = 'https://godlive-web-github-io.vercel.app';
+
     // 加载题库
     async function loadQuestionBank() {
       try {
         const [kRes, zRes] = await Promise.all([
-          fetch('/api/updateQuestionBank?type=K'),
-          fetch('/api/updateQuestionBank?type=Z')
+          fetch(`${API_BASE}/api/updateQuestionBank?type=K`),
+          fetch(`${API_BASE}/api/updateQuestionBank?type=Z`)
         ]);
         
         const kResult = await kRes.json();
