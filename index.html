@@ -1090,6 +1090,7 @@ padding: 12px 15px;
   top: 85px;
   right: 30px;
   width: 320px;
+  max-width: calc(100% - 340px);
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
   z-index: 1002;
   display: none;
@@ -1586,12 +1587,12 @@ Auting网页工作组
 </div>
 </div>
 
-<!-- 网络连接提示悬浮卡片 -->
-<div id="networkBanner" class="network-banner">
+<!-- 网络连接提示悬浮卡片 v2 -->
+<div id="networkBanner" class="network-banner" style="display: none;">
   <div class="network-banner-content">
     <div class="network-banner-header">
       <span class="network-banner-icon">⚠️</span>
-      <span class="network-banner-text">检测到网络连接不稳定，推荐使用 ikuuu VPN 以获得更好的访问体验</span>
+      <span class="network-banner-text">检测到网络连接不稳定，推荐使用 ikuuu VPN</span>
     </div>
     <div class="network-banner-actions">
       <button class="network-banner-btn" id="showIkuuuInfo">了解详情</button>
