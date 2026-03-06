@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const REPO_OWNER = "godlive-web";
       const REPO_NAME = "godlive-web.github.io";
-      const FILE_PATH = `EntryCircleQuestion_Bank/${type || 'K'}.json`;
+      const FILE_PATH = `openfill/EntryCircleQuestion_Bank/${type || 'K'}.json`;
 
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ success: false, msg: "服务器未配置GITHUB_TOKEN" });
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
       const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
       const OWNER = "godlive-web";
       const REPO = "godlive-web.github.io";
-      const FILE_PATH = `EntryCircleQuestion_Bank/${fileName}`;
+      const FILE_PATH = `openfill/EntryCircleQuestion_Bank/${fileName}`;
 
       if (!GITHUB_TOKEN) {
         return res.status(500).json({ success: false, msg: "服务器未配置GITHUB_TOKEN" });
