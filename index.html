@@ -1084,47 +1084,58 @@ padding: 12px 15px;
 }
 }
 
-/* 网络连接提示顶部悬浮条样式 */
+/* 网络连接提示悬浮卡片样式 */
 .network-banner {
   position: fixed;
-  top: 70px;
-  left: 0;
-  width: 100%;
+  top: 85px;
+  right: 30px;
+  width: 320px;
   background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
   z-index: 1002;
   display: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  animation: slideDown 0.3s ease;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease;
 }
 
 .network-banner-content {
   display: flex;
+  flex-direction: column;
+  padding: 16px 18px;
+  gap: 12px;
+}
+
+.network-banner-header {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 20px;
-  gap: 15px;
-  max-width: 1200px;
-  margin: 0 auto;
+  gap: 10px;
 }
 
 .network-banner-icon {
-  font-size: 18px;
+  font-size: 20px;
 }
 
 .network-banner-text {
-  font-size: 14px;
+  font-size: 13px;
   color: white;
+  line-height: 1.5;
   flex: 1;
-  text-align: center;
+}
+
+.network-banner-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .network-banner-btn {
-  padding: 6px 16px;
+  padding: 6px 14px;
   background: white;
   color: #ee5a5a;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1139,25 +1150,26 @@ padding: 12px 15px;
 .network-banner-close {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 18px;
   color: white;
   cursor: pointer;
-  padding: 0 5px;
+  padding: 0;
   opacity: 0.8;
   transition: opacity 0.2s ease;
+  line-height: 1;
 }
 
 .network-banner-close:hover {
   opacity: 1;
 }
 
-@keyframes slideDown {
+@keyframes slideIn {
   from {
-    transform: translateY(-100%);
+    transform: translateX(100%);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translateX(0);
     opacity: 1;
   }
 }
@@ -1285,31 +1297,19 @@ padding: 12px 15px;
 
 /* 响应式适配 */
 @media (max-width: 768px) {
+  .network-banner {
+    width: calc(100% - 40px);
+    right: 20px;
+    left: 20px;
+    top: 80px;
+  }
+  
   .network-banner-content {
-    padding: 10px 15px;
-    flex-wrap: wrap;
-    gap: 8px;
+    padding: 14px 16px;
   }
   
   .network-banner-text {
     font-size: 12px;
-    flex: 1 1 100%;
-    order: 2;
-    text-align: left;
-  }
-  
-  .network-banner-icon {
-    order: 1;
-  }
-  
-  .network-banner-btn {
-    order: 3;
-    padding: 4px 12px;
-    font-size: 12px;
-  }
-  
-  .network-banner-close {
-    order: 4;
   }
   
   .ikuuu-info-content {
@@ -1586,13 +1586,17 @@ Auting网页工作组
 </div>
 </div>
 
-<!-- 网络连接提示顶部悬浮条 -->
+<!-- 网络连接提示悬浮卡片 -->
 <div id="networkBanner" class="network-banner">
   <div class="network-banner-content">
-    <span class="network-banner-icon">⚠️</span>
-    <span class="network-banner-text">检测到网络连接不稳定，推荐使用 ikuuu VPN 以获得更好的访问体验</span>
-    <button class="network-banner-btn" id="showIkuuuInfo">了解详情</button>
-    <button class="network-banner-close" id="closeNetworkBanner">&times;</button>
+    <div class="network-banner-header">
+      <span class="network-banner-icon">⚠️</span>
+      <span class="network-banner-text">检测到网络连接不稳定，推荐使用 ikuuu VPN 以获得更好的访问体验</span>
+    </div>
+    <div class="network-banner-actions">
+      <button class="network-banner-btn" id="showIkuuuInfo">了解详情</button>
+      <button class="network-banner-close" id="closeNetworkBanner">&times;</button>
+    </div>
   </div>
 </div>
 
