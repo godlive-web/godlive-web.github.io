@@ -142,6 +142,7 @@ width: var(--sidebar-width);
 background: var(--sidebar-bg);
 border-right: 1px solid var(--border-color);
 overflow-y: auto;
+overflow-x: hidden;
 -webkit-overflow-scrolling: touch;
 display: flex;
 flex-direction: column;
@@ -1301,8 +1302,9 @@ padding: 12px 15px;
   .network-banner {
     width: calc(100% - 40px);
     right: 20px;
-    left: 20px;
+    left: auto;
     top: 80px;
+    max-width: none;
   }
   
   .network-banner-content {
