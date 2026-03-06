@@ -1084,102 +1084,82 @@ padding: 12px 15px;
 }
 }
 
-/* 网络连接提示悬浮弹窗样式 */
-.network-popup {
+/* 网络连接提示顶部悬浮条样式 */
+.network-banner {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1002;
+  top: 70px;
+  left: 0;
   width: 100%;
-  height: 100%;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  z-index: 1002;
   display: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  animation: slideDown 0.3s ease;
+}
+
+.network-banner-content {
+  display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(5px);
+  padding: 12px 20px;
+  gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.network-popup-content {
-  background: var(--bg-secondary);
-  border-radius: 15px;
-  padding: 25px;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: var(--shadow);
-  position: relative;
-  animation: fadeIn 0.3s ease;
+.network-banner-icon {
+  font-size: 18px;
 }
 
-.network-popup-close {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
-}
-
-.network-popup-close:hover {
-  color: var(--accent-color);
-}
-
-.network-popup-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--text-primary);
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.network-popup-desc {
-  font-size: 16px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.network-popup-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.network-popup-btn {
-  padding: 10px 20px;
-  border-radius: 8px;
+.network-banner-text {
   font-size: 14px;
-  font-weight: 500;
+  color: white;
+  flex: 1;
+  text-align: center;
+}
+
+.network-banner-btn {
+  padding: 6px 16px;
+  background: white;
+  color: #ee5a5a;
   border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  white-space: nowrap;
 }
 
-.network-popup-btn.info {
-  background: var(--bg-primary);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-color);
+.network-banner-btn:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
 }
 
-.network-popup-btn.info:hover {
-  background: var(--border-color);
-}
-
-.network-popup-btn.primary {
-  background: var(--accent-color);
+.network-banner-close {
+  background: none;
+  border: none;
+  font-size: 20px;
   color: white;
+  cursor: pointer;
+  padding: 0 5px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
 }
 
-.network-popup-btn.primary:hover {
-  background: #5a36a8;
+.network-banner-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ikuuu VPN 详情弹窗样式 */
@@ -1305,25 +1285,31 @@ padding: 12px 15px;
 
 /* 响应式适配 */
 @media (max-width: 768px) {
-  .network-popup-content {
-    padding: 20px;
-    max-width: 90%;
+  .network-banner-content {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
   
-  .network-popup-title {
-    font-size: 18px;
+  .network-banner-text {
+    font-size: 12px;
+    flex: 1 1 100%;
+    order: 2;
+    text-align: left;
   }
   
-  .network-popup-desc {
-    font-size: 14px;
+  .network-banner-icon {
+    order: 1;
   }
   
-  .network-popup-actions {
-    flex-direction: column;
+  .network-banner-btn {
+    order: 3;
+    padding: 4px 12px;
+    font-size: 12px;
   }
   
-  .network-popup-btn {
-    width: 100%;
+  .network-banner-close {
+    order: 4;
   }
   
   .ikuuu-info-content {
@@ -1600,20 +1586,13 @@ Auting网页工作组
 </div>
 </div>
 
-<!-- 网络连接提示悬浮弹窗 -->
-<div id="networkPopup" class="network-popup">
-  <div class="network-popup-content">
-    <button class="network-popup-close" id="closeNetworkPopup">&times;</button>
-    <div class="network-popup-title">网络连接提示</div>
-    <div class="network-popup-desc">
-      检测到网络连接不稳定，可能影响部分功能的使用。
-      <br><br>
-      推荐使用 <strong>ikuuu VPN</strong> 以获得更好的访问体验。
-    </div>
-    <div class="network-popup-actions">
-      <button class="network-popup-btn info" id="showIkuuuInfo">了解详情</button>
-      <a href="https://ikuuu.org" target="_blank" class="network-popup-btn primary">访问 ikuuu.org</a>
-    </div>
+<!-- 网络连接提示顶部悬浮条 -->
+<div id="networkBanner" class="network-banner">
+  <div class="network-banner-content">
+    <span class="network-banner-icon">⚠️</span>
+    <span class="network-banner-text">检测到网络连接不稳定，推荐使用 ikuuu VPN 以获得更好的访问体验</span>
+    <button class="network-banner-btn" id="showIkuuuInfo">了解详情</button>
+    <button class="network-banner-close" id="closeNetworkBanner">&times;</button>
   </div>
 </div>
 
@@ -2309,17 +2288,17 @@ async function checkNetworkConnection() {
     console.log('错误名称：', error.name);
     console.log('错误消息：', error.message);
     
-    // 网络连接失败或超时，显示弹窗
-    console.log('显示网络连接提示弹窗');
-    document.getElementById('networkPopup').style.display = 'flex';
+    // 网络连接失败或超时，显示顶部横幅
+    console.log('显示网络连接提示横幅');
+    document.getElementById('networkBanner').style.display = 'block';
   }
 }
 
 // 绑定弹窗事件
 function bindPopupEvents() {
-  // 关闭网络弹窗
-  document.getElementById('closeNetworkPopup').addEventListener('click', () => {
-    document.getElementById('networkPopup').style.display = 'none';
+  // 关闭网络横幅
+  document.getElementById('closeNetworkBanner').addEventListener('click', () => {
+    document.getElementById('networkBanner').style.display = 'none';
   });
   
   // 显示ikuuu详情
@@ -2337,13 +2316,7 @@ function bindPopupEvents() {
     document.getElementById('ikuuuInfoModal').style.display = 'none';
   });
   
-  // 点击弹窗外部关闭
-  document.getElementById('networkPopup').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('networkPopup')) {
-      document.getElementById('networkPopup').style.display = 'none';
-    }
-  });
-  
+  // 点击ikuuu弹窗外部关闭
   document.getElementById('ikuuuInfoModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('ikuuuInfoModal')) {
       document.getElementById('ikuuuInfoModal').style.display = 'none';
