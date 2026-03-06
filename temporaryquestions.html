@@ -340,12 +340,15 @@
       // 获取题库内容
       try {
         const [kRes, zRes] = await Promise.all([
-          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/K.json'),
-          fetch('https://raw.githubusercontent.com/godlive-web/godlive/main/EntryCircleQuestion_Bank/Z.json')
+          fetch(`${API_BASE}/api/updateQuestionBank?type=K`),
+          fetch(`${API_BASE}/api/updateQuestionBank?type=Z`)
         ]);
 
-        const kQuestions = await kRes.json();
-        const zQuestions = await zRes.json();
+        const kResult = await kRes.json();
+        const zResult = await zRes.json();
+        
+        const kQuestions = kResult.success ? (kResult.data.questions || []) : [];
+        const zQuestions = zResult.success ? (zResult.data.questions || []) : [];
 
         questions.forEach((q, index) => {
           // 查找题目内容
