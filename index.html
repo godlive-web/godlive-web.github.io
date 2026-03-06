@@ -1064,8 +1064,8 @@ margin-left: 5px;
 margin-top: -30px;
 }
 .bill-results-container {
-gap: 15px;
-padding: 8px;
+ gap: 15px;
+ padding: 8px;
 }
 
 /* 成员搜索适配 */
@@ -1073,8 +1073,8 @@ padding: 8px;
 margin-top: -15px;
 }
 .user-results-container {
-gap: 15px;
-padding: 10px 8px;
+ gap: 15px;
+ padding: 10px 8px;
 }
 .user-card-content {
 padding: 12px 15px;
@@ -1082,6 +1082,270 @@ padding: 12px 15px;
 .user-intro {
 -webkit-line-clamp: 2;
 }
+}
+
+/* 网络连接提示悬浮弹窗样式 */
+.network-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1002;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(5px);
+}
+
+.network-popup-content {
+  background: var(--bg-secondary);
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: var(--shadow);
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.network-popup-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.network-popup-close:hover {
+  color: var(--accent-color);
+}
+
+.network-popup-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.network-popup-desc {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.network-popup-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.network-popup-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.network-popup-btn.info {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.network-popup-btn.info:hover {
+  background: var(--border-color);
+}
+
+.network-popup-btn.primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.network-popup-btn.primary:hover {
+  background: #5a36a8;
+}
+
+/* ikuuu VPN 详情弹窗样式 */
+.ikuuu-info-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1003;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.ikuuu-info-content {
+  background: var(--bg-secondary);
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.ikuuu-info-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.ikuuu-info-close:hover {
+  color: var(--accent-color);
+}
+
+.ikuuu-info-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.ikuuu-info-desc {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.ikuuu-info-desc ul {
+  margin: 15px 0;
+  padding-left: 20px;
+}
+
+.ikuuu-info-desc li {
+  margin-bottom: 8px;
+}
+
+.ikuuu-info-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ikuuu-info-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ikuuu-info-btn.primary {
+  background: var(--accent-color);
+  color: white;
+}
+
+.ikuuu-info-btn.primary:hover {
+  background: #5a36a8;
+}
+
+.ikuuu-info-btn.cancel {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.ikuuu-info-btn.cancel:hover {
+  background: var(--border-color);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .network-popup-content {
+    padding: 20px;
+    max-width: 90%;
+  }
+  
+  .network-popup-title {
+    font-size: 18px;
+  }
+  
+  .network-popup-desc {
+    font-size: 14px;
+  }
+  
+  .network-popup-actions {
+    flex-direction: column;
+  }
+  
+  .network-popup-btn {
+    width: 100%;
+  }
+  
+  .ikuuu-info-content {
+    padding: 20px;
+    max-width: 90%;
+  }
+  
+  .ikuuu-info-title {
+    font-size: 18px;
+  }
+  
+  .ikuuu-info-desc {
+    font-size: 14px;
+  }
+  
+  .ikuuu-info-actions {
+    flex-direction: column;
+  }
+  
+  .ikuuu-info-btn {
+    width: 100%;
+  }
 }
 </style>
 </head>
@@ -1334,6 +1598,45 @@ Auting网页工作组
 <button class="jump-modal-btn confirm" id="confirmJump">确认跳转</button>
 </div>
 </div>
+</div>
+
+<!-- 网络连接提示悬浮弹窗 -->
+<div id="networkPopup" class="network-popup">
+  <div class="network-popup-content">
+    <button class="network-popup-close" id="closeNetworkPopup">&times;</button>
+    <div class="network-popup-title">网络连接提示</div>
+    <div class="network-popup-desc">
+      检测到网络连接不稳定，可能影响部分功能的使用。
+      <br><br>
+      推荐使用 <strong>ikuuu VPN</strong> 以获得更好的访问体验。
+    </div>
+    <div class="network-popup-actions">
+      <button class="network-popup-btn info" id="showIkuuuInfo">了解详情</button>
+      <a href="https://ikuuu.org" target="_blank" class="network-popup-btn primary">访问 ikuuu.org</a>
+    </div>
+  </div>
+</div>
+
+<!-- ikuuu VPN 详情弹窗 -->
+<div id="ikuuuInfoModal" class="ikuuu-info-modal">
+  <div class="ikuuu-info-content">
+    <button class="ikuuu-info-close" id="closeIkuuuInfo">&times;</button>
+    <div class="ikuuu-info-title">关于 ikuuu VPN</div>
+    <div class="ikuuu-info-desc">
+      <p><strong>ikuuu VPN</strong> 是一款稳定、高速的网络工具，能够帮助您：</p>
+      <ul>
+        <li>稳定访问 GitHub 等国际网站</li>
+        <li>提升网络连接速度</li>
+        <li>保护您的网络隐私</li>
+        <li>解锁更多网络资源</li>
+      </ul>
+      <p><strong>注意：</strong>这不是广告，而是为了解决部分用户无法访问 GitHub 资源的问题。使用 VPN 时请遵守相关法律法规。</p>
+    </div>
+    <div class="ikuuu-info-actions">
+      <a href="https://ikuuu.org" target="_blank" class="ikuuu-info-btn primary">访问 ikuuu.org</a>
+      <button class="ikuuu-info-btn cancel" id="cancelIkuuuInfo">关闭</button>
+    </div>
+  </div>
 </div>
 <script>
 // 1. Cookie处理函数（修复：统一跨域和安全配置）
@@ -1971,6 +2274,73 @@ jumpModal.style.display = 'none';
 targetHref = '';
 }
 });
+// 检测网络连接函数
+async function checkNetworkConnection() {
+  try {
+    // 尝试拉取godlive仓库的数据
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+    
+    const response = await fetch('https://api.github.com/repos/godlive-web/godlive-web.github.io', {
+      method: 'GET',
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    // 检查响应状态
+    if (!response.ok) {
+      throw new Error('网络请求失败');
+    }
+    
+    // 解析响应数据
+    await response.json();
+    
+    // 连接成功，不显示弹窗
+  } catch (error) {
+    // 网络连接失败或超时，显示弹窗
+    if (error.name === 'AbortError' || error.message.includes('NetworkError') || error.message.includes('Failed to fetch')) {
+      document.getElementById('networkPopup').style.display = 'flex';
+    }
+  }
+}
+
+// 绑定弹窗事件
+function bindPopupEvents() {
+  // 关闭网络弹窗
+  document.getElementById('closeNetworkPopup').addEventListener('click', () => {
+    document.getElementById('networkPopup').style.display = 'none';
+  });
+  
+  // 显示ikuuu详情
+  document.getElementById('showIkuuuInfo').addEventListener('click', () => {
+    document.getElementById('ikuuuInfoModal').style.display = 'flex';
+  });
+  
+  // 关闭ikuuu详情
+  document.getElementById('closeIkuuuInfo').addEventListener('click', () => {
+    document.getElementById('ikuuuInfoModal').style.display = 'none';
+  });
+  
+  // 取消ikuuu详情
+  document.getElementById('cancelIkuuuInfo').addEventListener('click', () => {
+    document.getElementById('ikuuuInfoModal').style.display = 'none';
+  });
+  
+  // 点击弹窗外部关闭
+  document.getElementById('networkPopup').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('networkPopup')) {
+      document.getElementById('networkPopup').style.display = 'none';
+    }
+  });
+  
+  document.getElementById('ikuuuInfoModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('ikuuuInfoModal')) {
+      document.getElementById('ikuuuInfoModal').style.display = 'none';
+    }
+  });
+}
+
 // 7. 页面加载初始化（确保所有功能启动）
 document.addEventListener('DOMContentLoaded', function() {
 initLayout(); // 初始化页面布局（现在默认选中查看地图）
@@ -1982,6 +2352,11 @@ billDescText.classList.remove('desc-hidden');
 document.getElementById('userResults').classList.remove('active');
 document.getElementById('userSearchContainer').classList.remove('active');
 userDescText.classList.remove('desc-hidden');
+
+// 检测网络连接
+checkNetworkConnection();
+// 绑定弹窗事件
+bindPopupEvents();
 
 // 补充：监听窗口大小变化，调整侧边栏状态
 window.addEventListener('resize', function() {
