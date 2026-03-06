@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const REPO_OWNER = "godlive-web";
     const REPO_NAME = "godlive";
-    const FILE_PATH = "data/openfill/EntryCircleQuestion_Bank/TemporaryAnswering.json";
+    const FILE_PATH = "data/EntryCircleQuestion_Bank/TemporaryAnswering.json";
 
     // 校验GitHub Token是否配置
     if (!GITHUB_TOKEN) {
