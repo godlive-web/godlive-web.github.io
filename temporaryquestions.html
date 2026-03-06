@@ -436,6 +436,13 @@
           successEl.textContent = '答案提交成功！请等待管理员审核。';
           successEl.classList.remove('hidden');
           document.getElementById('submitBtn').classList.add('hidden');
+          
+          // 禁用所有输入框
+          document.querySelectorAll('.answer-textarea').forEach(textarea => {
+            textarea.disabled = true;
+            textarea.style.backgroundColor = '#f8f9fa';
+            textarea.style.cursor = 'not-allowed';
+          });
         } else {
           errorEl.textContent = '提交失败：' + result.msg;
           this.disabled = false;
