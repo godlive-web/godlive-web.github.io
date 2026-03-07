@@ -577,6 +577,23 @@
       flex-wrap: wrap;
     }
 
+    .breadcrumb-item {
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .breadcrumb-item:hover {
+      background: var(--accent-light);
+      color: var(--accent-color);
+    }
+
+    .breadcrumb-separator {
+      color: var(--text-secondary);
+      margin: 0 2px;
+    }
+
     .political-admin-content {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -2189,7 +2206,7 @@
               </div>
               <div>
                 <label class="form-label">回答内容</label>
-                <textarea id="qaAnswerContent" placeholder="请输入回答内容...">${escapeHtml(qa.answer || '')}</textarea>
+                <textarea id="qaAnswerContent" placeholder="请输入回答内容..." style="min-height: 150px; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); font-family: inherit; resize: vertical;">${escapeHtml(qa.answer || '')}</textarea>
               </div>
               <div>
                 <label class="form-label">选择相关内容（可选）</label>
@@ -2221,6 +2238,16 @@
       const resultsDiv = document.getElementById('qaRelatedResults');
       if (!keyword.trim()) {
         resultsDiv.classList.remove('show');
+        return;
+      }
+
+      // 确保政治体系数据已加载
+      if (!politicalSystemData || !politicalSystemData.files) {
+        resultsDiv.innerHTML = '<div class="qa-related-item">正在加载数据...</div>';
+        // 尝试加载数据
+        loadPoliticalSystemData().then(() => {
+          searchRelatedContent(keyword);
+        });
         return;
       }
 
