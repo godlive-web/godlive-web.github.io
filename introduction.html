@@ -159,6 +159,45 @@
     .breadcrumb-separator {
       color: var(--text-secondary);
     }
+
+    /* 政治体系区域样式 */
+    .political-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      align-content: start;
+    }
+
+    .political-folder, .political-file {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+    }
+
+    .political-folder:hover, .political-file:hover {
+      box-shadow: var(--shadow);
+      border-color: var(--accent-color);
+      background: var(--accent-light);
+    }
+
+    .political-folder-icon, .political-file-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .political-folder-name, .political-file-name {
+      font-size: 13px;
+      text-align: center;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
     @media (max-width: 768px) {
       body {
         padding: 15px;
@@ -172,13 +211,16 @@
       .info-card {
         padding: 20px;
       }
+      .political-content {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <a href="index.html" class="back-btn">← 返回</a>
+      <a href="index.html#神界圈介绍" class="back-btn">← 返回</a>
       <h1 class="header-title">机构详情</h1>
     </div>
 
@@ -324,37 +366,31 @@
       let contentHtml = `
         <div class="info-card">
           <h2 style="margin-bottom: 20px; color: var(--accent-color);">${escapeHtml(politicalData.folders.find(f => f.id === folderId)?.name || '根目录')}</h2>
+          <div class="political-content">
       `;
       
       // 显示子文件夹
-      if (folders.length > 0) {
+      folders.forEach(folder => {
         contentHtml += `
-          <div class="info-section">
-            <div class="info-label">子文件夹</div>
-            <div class="org-list">
-              ${folders.map(folder => `
-                <a href="javascript:void(0)" onclick="showFolderContent('${folder.id}')" class="org-tag">${escapeHtml(folder.name)}</a>
-              `).join('')}
-            </div>
+          <div class="political-folder" onclick="showFolderContent('${folder.id}')">
+            <div class="political-folder-icon">📁</div>
+            <div class="political-folder-name">${escapeHtml(folder.name)}</div>
           </div>
         `;
-      }
+      });
       
       // 显示文件
-      if (files.length > 0) {
+      files.forEach(file => {
         contentHtml += `
-          <div class="info-section">
-            <div class="info-label">文件</div>
-            <div class="org-list">
-              ${files.map(file => `
-                <a href="?id=${file.id}" class="org-tag">${escapeHtml(file.name)}</a>
-              `).join('')}
-            </div>
+          <div class="political-file" onclick="window.location.href='?id=${file.id}'">
+            <div class="political-file-icon">📄</div>
+            <div class="political-file-name">${escapeHtml(file.name)}</div>
           </div>
         `;
-      }
+      });
       
       contentHtml += `
+          </div>
         </div>
       `;
       

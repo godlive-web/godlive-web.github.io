@@ -2116,11 +2116,16 @@ sidebarItems[index].classList.add('expanded');
 }
 // 初始化页面布局（设置初始显示的section）
 function initLayout() {
-syncSidebar();
-sections.forEach((sec, index) => {
-// 按currentIndex计算每个section的位置，确保默认显示索引0的section
-sec.style.transform = `translateY(${(index - currentIndex) * 100}vh)`;
-});
+  console.log('initLayout called with currentIndex:', currentIndex);
+  console.log('Number of sections in initLayout:', sections.length);
+  
+  syncSidebar();
+  
+  sections.forEach((sec, index) => {
+    const transformValue = `translateY(${(index - currentIndex) * 100}vh)`;
+    console.log('Setting section', index, 'transform to:', transformValue);
+    sec.style.transform = transformValue;
+  });
 // 初始化搜索区域状态
 document.getElementById('billResults').classList.remove('active');
 document.getElementById('billSearchContainer').classList.remove('active');
@@ -2280,6 +2285,16 @@ billSearchInput.addEventListener('keypress', (e) => {
 if (e.key === 'Enter') searchBills();
 });
 async function searchBills() {
+// 检查登录状态
+const userCookie = getCookie('user');
+const userDataStr = getCookie('userData');
+if (!userCookie || !userDataStr) {
+  billResults.innerHTML = '<div class="bill-error">请先登录后再使用此功能</div>';
+  billSearchContainer.classList.add('active');
+  billResults.classList.add('active');
+  return;
+}
+
 const input = billSearchInput.value.trim();
 billDescText.classList.add('desc-hidden');
 if (!input) {
@@ -2517,6 +2532,16 @@ userSearchInput.addEventListener('keypress', (e) => {
 if (e.key === 'Enter') searchUsers();
 });
 async function searchUsers() {
+// 检查登录状态
+const userCookie = getCookie('user');
+const userDataStr = getCookie('userData');
+if (!userCookie || !userDataStr) {
+  userResults.innerHTML = '<div class="user-error">请先登录后再使用此功能</div>';
+  userSearchContainer.classList.add('active');
+  userResults.classList.add('active');
+  return;
+}
+
 const input = userSearchInput.value.trim();
 userDescText.classList.add('desc-hidden');
 if (!input) {
@@ -2749,15 +2774,17 @@ function bindPopupEvents() {
 // 7. 页面加载初始化（确保所有功能启动）
 document.addEventListener('DOMContentLoaded', function() {
   // 检查URL哈希值，跳转到对应的section
-  if (window.location.hash === '#神界圈介绍') {
-    // 查找神界圈介绍section的索引
-    const sections = document.querySelectorAll('.content-section');
-    sections.forEach((section, index) => {
-      if (section.querySelector('h2') && section.querySelector('h2').textContent === '神界圈介绍') {
-        currentIndex = index;
-      }
-    });
+  console.log('Current hash:', window.location.hash);
+  console.log('Current currentIndex before hash check:', currentIndex);
+  
+  // 直接设置为神界圈介绍的索引（根据HTML结构，它是第6个section，索引为5）
+  if (window.location.hash && window.location.hash.includes('神界圈介绍')) {
+    console.log('Hash contains 神界圈介绍, setting currentIndex to 5');
+    currentIndex = 5;
+    console.log('Current currentIndex after hash check:', currentIndex);
   }
+  
+  console.log('Final currentIndex before initLayout:', currentIndex);
   
 initLayout(); // 初始化页面布局
 updateLoginButton(); // 更新登录按钮状态（显示用户信息或"点击登录"）
