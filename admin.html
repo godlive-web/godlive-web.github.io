@@ -633,13 +633,17 @@
 
     .political-admin-actions {
       display: flex;
-      gap: 5px;
+      gap: 3px;
       margin-top: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .political-admin-actions .btn-sm {
-      padding: 4px 8px;
-      font-size: 11px;
+      padding: 4px 6px;
+      font-size: 10px;
+      white-space: nowrap;
+      min-width: 50px;
     }
 
     .political-file-form .form-group {
@@ -708,6 +712,71 @@
       flex-wrap: wrap;
       gap: 5px;
       margin-top: 5px;
+    }
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .main-container {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        display: flex;
+        flex-wrap: nowrap;
+        padding: 10px;
+      }
+      
+      .sidebar-item {
+        flex: 0 0 auto;
+        margin-right: 10px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      
+      .sidebar-item span {
+        margin-right: 5px;
+      }
+      
+      .content {
+        flex: 1;
+        margin-left: 0 !important;
+        padding: 15px;
+      }
+      
+      .political-admin-content {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+      }
+      
+      .political-admin-actions {
+        gap: 2px;
+      }
+      
+      .political-admin-actions .btn-sm {
+        padding: 3px 5px;
+        font-size: 9px;
+        min-width: 40px;
+      }
+      
+      .header-right {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+      }
+      
+      .user-info {
+        font-size: 12px;
+      }
+      
+      .btn-sm {
+        padding: 4px 8px;
+        font-size: 11px;
+      }
     }
   </style>
 </head>
