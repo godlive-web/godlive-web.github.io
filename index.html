@@ -2748,7 +2748,18 @@ function bindPopupEvents() {
 
 // 7. 页面加载初始化（确保所有功能启动）
 document.addEventListener('DOMContentLoaded', function() {
-initLayout(); // 初始化页面布局（现在默认选中查看地图）
+  // 检查URL哈希值，跳转到对应的section
+  if (window.location.hash === '#神界圈介绍') {
+    // 查找神界圈介绍section的索引
+    const sections = document.querySelectorAll('.content-section');
+    sections.forEach((section, index) => {
+      if (section.querySelector('h2') && section.querySelector('h2').textContent === '神界圈介绍') {
+        currentIndex = index;
+      }
+    });
+  }
+  
+initLayout(); // 初始化页面布局
 updateLoginButton(); // 更新登录按钮状态（显示用户信息或"点击登录"）
 // 确保初始状态下搜索结果隐藏、说明文字显示
 document.getElementById('billResults').classList.remove('active');

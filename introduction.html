@@ -144,12 +144,17 @@
       flex-wrap: wrap;
     }
     .breadcrumb-item {
+      padding: 4px 8px;
+      border-radius: 4px;
       color: var(--accent-color);
       cursor: pointer;
       text-decoration: none;
+      transition: all 0.2s ease;
     }
     .breadcrumb-item:hover {
-      text-decoration: underline;
+      background: var(--accent-light);
+      color: var(--accent-color);
+      text-decoration: none;
     }
     .breadcrumb-separator {
       color: var(--text-secondary);
@@ -194,11 +199,8 @@
     // 加载数据
     async function loadData() {
       const fileId = getUrlParam('id');
-      if (!fileId) {
-        document.getElementById('content').innerHTML = '<div class="error">缺少文件ID参数</div>';
-        return;
-      }
-
+      const folderId = getUrlParam('folderId');
+      
       document.getElementById('content').innerHTML = '<div class="loading">加载中...</div>';
 
       try {
@@ -206,7 +208,15 @@
         const result = await response.json();
         if (result.success) {
           politicalData = result.data;
-          renderFileDetail(fileId);
+          
+          if (fileId) {
+            renderFileDetail(fileId);
+          } else if (folderId) {
+            showFolderContent(folderId);
+          } else {
+            // 显示根目录
+            showFolderContent('root');
+          }
         } else {
           document.getElementById('content').innerHTML = '<div class="error">加载失败</div>';
         }
@@ -275,24 +285,82 @@
     }
 
     // 渲染面包屑
-    function renderBreadcrumb(file) {
+    function renderBreadcrumb(file, folderId) {
       let html = '<a href="index.html" class="breadcrumb-item">首页</a>';
       html += '<span class="breadcrumb-separator">/</span>';
       html += '<a href="index.html#神界圈介绍" class="breadcrumb-item">神界圈介绍</a>';
       
       // 添加文件夹路径
-      if (file.folderId) {
+      if (file && file.folderId) {
         const folder = politicalData.folders.find(f => f.id === file.folderId);
         if (folder) {
           html += '<span class="breadcrumb-separator">/</span>';
-          html += `<span class="breadcrumb-item">${escapeHtml(folder.name)}</span>`;
+          html += `<a href="javascript:void(0)" onclick="showFolderContent('${file.folderId}')" class="breadcrumb-item">${escapeHtml(folder.name)}</a>`;
+        }
+      } else if (folderId) {
+        const folder = politicalData.folders.find(f => f.id === folderId);
+        if (folder) {
+          html += '<span class="breadcrumb-separator">/</span>';
+          html += `<span class="breadcrumb-item" style="color: var(--text-secondary); cursor: default;">${escapeHtml(folder.name)}</span>`;
         }
       }
       
-      html += '<span class="breadcrumb-separator">/</span>';
-      html += `<span class="breadcrumb-item" style="color: var(--text-secondary); cursor: default;">${escapeHtml(file.name)}</span>`;
+      if (file) {
+        html += '<span class="breadcrumb-separator">/</span>';
+        html += `<span class="breadcrumb-item" style="color: var(--text-secondary); cursor: default;">${escapeHtml(file.name)}</span>`;
+      }
       
       document.getElementById('breadcrumb').innerHTML = html;
+    }
+
+    // 显示文件夹内容
+    function showFolderContent(folderId) {
+      document.getElementById('content').innerHTML = '<div class="loading">加载中...</div>';
+      
+      // 渲染文件夹内容
+      const folders = politicalData.folders.filter(f => f.parentId === folderId || (folderId === 'root' && !f.parentId));
+      const files = politicalData.files.filter(f => f.folderId === folderId || (folderId === 'root' && !f.folderId));
+      
+      let contentHtml = `
+        <div class="info-card">
+          <h2 style="margin-bottom: 20px; color: var(--accent-color);">${escapeHtml(politicalData.folders.find(f => f.id === folderId)?.name || '根目录')}</h2>
+      `;
+      
+      // 显示子文件夹
+      if (folders.length > 0) {
+        contentHtml += `
+          <div class="info-section">
+            <div class="info-label">子文件夹</div>
+            <div class="org-list">
+              ${folders.map(folder => `
+                <a href="javascript:void(0)" onclick="showFolderContent('${folder.id}')" class="org-tag">${escapeHtml(folder.name)}</a>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      // 显示文件
+      if (files.length > 0) {
+        contentHtml += `
+          <div class="info-section">
+            <div class="info-label">文件</div>
+            <div class="org-list">
+              ${files.map(file => `
+                <a href="?id=${file.id}" class="org-tag">${escapeHtml(file.name)}</a>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      
+      contentHtml += `
+        </div>
+      `;
+      
+      document.getElementById('content').innerHTML = contentHtml;
+      document.querySelector('.header-title').textContent = politicalData.folders.find(f => f.id === folderId)?.name || '根目录';
+      renderBreadcrumb(null, folderId);
     }
 
     // 渲染机构标签
