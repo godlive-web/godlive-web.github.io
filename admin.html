@@ -466,6 +466,232 @@
         min-width: 100%;
       }
     }
+
+    /* Q&A管理样式 */
+    .qa-answer-modal .modal-content {
+      max-width: 700px;
+    }
+
+    .qa-answer-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .qa-answer-form textarea {
+      min-height: 150px;
+      padding: 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .qa-answer-form textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .qa-related-search {
+      position: relative;
+    }
+
+    .qa-related-search input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .qa-related-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .qa-related-results.show {
+      display: block;
+    }
+
+    .qa-related-item {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .qa-related-item:hover {
+      background: var(--accent-light);
+    }
+
+    .qa-selected-related {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .qa-selected-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      background: var(--accent-light);
+      color: var(--accent-color);
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .qa-selected-tag .remove-btn {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .qa-status-select {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 14px;
+    }
+
+    /* 政治体系管理样式 */
+    .political-admin-breadcrumb {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+
+    .political-admin-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+    }
+
+    .political-admin-folder, .political-admin-file {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .political-admin-folder:hover, .political-admin-file:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+      border-color: var(--accent-color);
+    }
+
+    .political-admin-folder-icon, .political-admin-file-icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .political-admin-folder-name, .political-admin-file-name {
+      font-size: 14px;
+      text-align: center;
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    .political-admin-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .political-admin-actions .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    .political-file-form .form-group {
+      margin-bottom: 15px;
+    }
+
+    .political-file-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .political-file-form input,
+    .political-file-form textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .political-file-form textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .org-search-container {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .org-search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      max-height: 150px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .org-search-results.show {
+      display: block;
+    }
+
+    .org-search-item {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 13px;
+    }
+
+    .org-search-item:hover {
+      background: var(--accent-light);
+    }
+
+    .org-selected-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
@@ -518,6 +744,14 @@
         <div class="sidebar-item" data-section="publish">
           <span>🚀</span>
           发布与管理题库答题
+        </div>
+        <div class="sidebar-item" data-section="qa">
+          <span>❓</span>
+          Q&A管理
+        </div>
+        <div class="sidebar-item" data-section="political">
+          <span>🏛️</span>
+          政治体系管理
         </div>
       </aside>
 
@@ -633,6 +867,55 @@
               <h3>管理待审核答题</h3>
               <div id="pendingAnswersList"></div>
             </div>
+          </div>
+        </section>
+
+        <!-- Q&A管理 -->
+        <section id="qaSection" class="content-section" style="display: none;">
+          <h2>Q&A管理</h2>
+          <p>回答用户提出的疑问，管理所有Q&A内容。</p>
+
+          <div class="btn-group">
+            <button class="btn btn-secondary" id="refreshQABtn">刷新数据</button>
+          </div>
+
+          <div class="table-container">
+            <table id="qaTable">
+              <thead>
+                <tr>
+                  <th>标题</th>
+                  <th>疑问内容</th>
+                  <th>状态</th>
+                  <th>提问时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="qaTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px;">加载中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 政治体系管理 -->
+        <section id="politicalSection" class="content-section" style="display: none;">
+          <h2>政治体系管理</h2>
+          <p>管理神界政治体系的文件夹和文件结构。</p>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="addFolderBtn">创建文件夹</button>
+            <button class="btn btn-primary" id="addPoliticalFileBtn">创建文件</button>
+            <button class="btn btn-secondary" id="refreshPoliticalBtn">刷新数据</button>
+          </div>
+
+          <div class="political-admin-breadcrumb" id="politicalAdminBreadcrumb">
+            <span class="breadcrumb-item" data-folder="root">根目录</span>
+          </div>
+
+          <div class="political-admin-content" id="politicalAdminContent">
+            <!-- 文件夹和文件内容将显示在这里 -->
           </div>
         </section>
       </main>
@@ -1812,6 +2095,691 @@
         checkbox.checked = false;
       });
     }
+
+    // ========== Q&A管理功能 ==========
+    let qaList = [];
+    let politicalSystemData = { folders: [], files: [] };
+    let currentPoliticalFolder = 'root';
+    let selectedRelatedContent = [];
+    let selectedParentOrgs = [];
+    let selectedChildOrgs = [];
+
+    // 加载Q&A列表
+    async function loadQAList() {
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=qa`);
+        const result = await response.json();
+        if (result.success) {
+          qaList = result.data.questions || [];
+          renderQATable();
+        }
+      } catch (error) {
+        console.error('加载Q&A失败:', error);
+        document.getElementById('qaTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: #dc3545;">加载失败</td></tr>';
+      }
+    }
+
+    // 渲染Q&A表格
+    function renderQATable() {
+      const tbody = document.getElementById('qaTableBody');
+      if (qaList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">暂无数据</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = qaList.map(qa => {
+        let statusClass = '';
+        if (qa.status === '已回答') statusClass = 'status-approved';
+        else if (qa.status === '暂未回答') statusClass = 'status-pending';
+        else if (qa.status === '不予回答') statusClass = 'status-rejected';
+
+        return `
+          <tr>
+            <td>${escapeHtml(qa.title)}</td>
+            <td>${escapeHtml(qa.question.substring(0, 50))}${qa.question.length > 50 ? '...' : ''}</td>
+            <td><span class="status-badge ${statusClass}">${qa.status}</span></td>
+            <td>${new Date(qa.createTime).toLocaleDateString('zh-CN')}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="openAnswerModal('${qa.id}')">回答</button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteQA('${qa.id}')">删除</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 打开回答弹窗
+    function openAnswerModal(qaId) {
+      const qa = qaList.find(q => q.id === qaId);
+      if (!qa) return;
+
+      selectedRelatedContent = qa.relatedContent || [];
+
+      const modalHtml = `
+        <div class="modal show qa-answer-modal" id="qaAnswerModal">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>回答问题</h3>
+              <button class="close-btn" onclick="closeQAAnswerModal()">&times;</button>
+            </div>
+            <div class="qa-answer-form">
+              <div>
+                <label class="form-label">问题标题</label>
+                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px;">${escapeHtml(qa.title)}</div>
+              </div>
+              <div>
+                <label class="form-label">疑问内容</label>
+                <div style="padding: 10px; background: var(--bg-primary); border-radius: 6px;">${escapeHtml(qa.question)}</div>
+              </div>
+              <div>
+                <label class="form-label">回答状态</label>
+                <select class="qa-status-select" id="qaAnswerStatus">
+                  <option value="已回答" ${qa.status === '已回答' ? 'selected' : ''}>已回答</option>
+                  <option value="不予回答" ${qa.status === '不予回答' ? 'selected' : ''}>不予回答</option>
+                  <option value="暂未回答" ${qa.status === '暂未回答' ? 'selected' : ''}>暂未回答</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">回答内容</label>
+                <textarea id="qaAnswerContent" placeholder="请输入回答内容...">${escapeHtml(qa.answer || '')}</textarea>
+              </div>
+              <div>
+                <label class="form-label">选择相关内容（可选）</label>
+                <div class="qa-related-search">
+                  <input type="text" id="qaRelatedSearch" placeholder="搜索政治体系内容..." oninput="searchRelatedContent(this.value)">
+                  <div class="qa-related-results" id="qaRelatedResults"></div>
+                </div>
+                <div class="qa-selected-related" id="qaSelectedRelated">
+                  ${renderSelectedRelated()}
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeQAAnswerModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitAnswer('${qaId}')">提交</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      document.getElementById('qaAnswerModal').addEventListener('click', function(e) {
+        if (e.target === this) closeQAAnswerModal();
+      });
+    }
+
+    // 搜索相关内容
+    function searchRelatedContent(keyword) {
+      const resultsDiv = document.getElementById('qaRelatedResults');
+      if (!keyword.trim()) {
+        resultsDiv.classList.remove('show');
+        return;
+      }
+
+      const filtered = politicalSystemData.files.filter(f =>
+        f.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        (f.data.机构名称 && f.data.机构名称.toLowerCase().includes(keyword.toLowerCase()))
+      );
+
+      if (filtered.length === 0) {
+        resultsDiv.innerHTML = '<div class="qa-related-item">无搜索结果</div>';
+      } else {
+        resultsDiv.innerHTML = filtered.map(f => `
+          <div class="qa-related-item" onclick="addRelatedContent('${f.id}', '${escapeHtml(f.name)}')">
+            ${escapeHtml(f.name)}
+          </div>
+        `).join('');
+      }
+      resultsDiv.classList.add('show');
+    }
+
+    // 添加相关内容
+    function addRelatedContent(id, name) {
+      if (!selectedRelatedContent.includes(id)) {
+        selectedRelatedContent.push(id);
+        document.getElementById('qaSelectedRelated').innerHTML = renderSelectedRelated();
+      }
+      document.getElementById('qaRelatedSearch').value = '';
+      document.getElementById('qaRelatedResults').classList.remove('show');
+    }
+
+    // 移除相关内容
+    function removeRelatedContent(id) {
+      selectedRelatedContent = selectedRelatedContent.filter(rid => rid !== id);
+      document.getElementById('qaSelectedRelated').innerHTML = renderSelectedRelated();
+    }
+
+    // 渲染已选择的相关内容
+    function renderSelectedRelated() {
+      if (selectedRelatedContent.length === 0) return '';
+      return selectedRelatedContent.map(id => {
+        const file = politicalSystemData.files.find(f => f.id === id);
+        if (!file) return '';
+        return `
+          <span class="qa-selected-tag">
+            ${escapeHtml(file.name)}
+            <span class="remove-btn" onclick="removeRelatedContent('${id}')">&times;</span>
+          </span>
+        `;
+      }).join('');
+    }
+
+    // 关闭回答弹窗
+    function closeQAAnswerModal() {
+      const modal = document.getElementById('qaAnswerModal');
+      if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+      }
+    }
+
+    // 提交回答
+    async function submitAnswer(qaId) {
+      const status = document.getElementById('qaAnswerStatus').value;
+      const answer = document.getElementById('qaAnswerContent').value.trim();
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=qa`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: qaId,
+            answer,
+            status,
+            relatedContent: selectedRelatedContent
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('回答提交成功！');
+          closeQAAnswerModal();
+          loadQAList();
+        } else {
+          alert('提交失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('提交回答失败:', error);
+        alert('提交失败，请检查网络连接');
+      }
+    }
+
+    // 删除Q&A
+    async function deleteQA(qaId) {
+      if (!confirm('确定要删除这个问题吗？')) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=qa&id=${qaId}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('删除成功！');
+          loadQAList();
+        } else {
+          alert('删除失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('删除失败:', error);
+        alert('删除失败，请检查网络连接');
+      }
+    }
+
+    // ========== 政治体系管理功能 ==========
+
+    // 加载政治体系数据
+    async function loadPoliticalSystemData() {
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political`);
+        const result = await response.json();
+        if (result.success) {
+          politicalSystemData = result.data;
+          renderPoliticalAdminContent();
+        }
+      } catch (error) {
+        console.error('加载政治体系数据失败:', error);
+        document.getElementById('politicalAdminContent').innerHTML = '<div style="text-align: center; color: #dc3545; padding: 40px;">加载失败</div>';
+      }
+    }
+
+    // 渲染政治体系管理内容
+    function renderPoliticalAdminContent() {
+      const container = document.getElementById('politicalAdminContent');
+      const breadcrumb = document.getElementById('politicalAdminBreadcrumb');
+      if (!container || !breadcrumb) return;
+
+      // 渲染面包屑
+      let breadcrumbHtml = '<span class="breadcrumb-item" onclick="navigatePoliticalAdmin(\'root\')">根目录</span>';
+      if (currentPoliticalFolder !== 'root') {
+        const folder = politicalSystemData.folders.find(f => f.id === currentPoliticalFolder);
+        if (folder) {
+          breadcrumbHtml += `<span class="breadcrumb-separator">/</span><span class="breadcrumb-item">${escapeHtml(folder.name)}</span>`;
+        }
+      }
+      breadcrumb.innerHTML = breadcrumbHtml;
+
+      // 渲染内容
+      container.innerHTML = '';
+
+      // 显示文件夹
+      const folders = politicalSystemData.folders.filter(f => {
+        if (currentPoliticalFolder === 'root') return f.parentId === null;
+        return f.parentId === currentPoliticalFolder;
+      });
+
+      folders.forEach(folder => {
+        const folderEl = document.createElement('div');
+        folderEl.className = 'political-admin-folder';
+        folderEl.innerHTML = `
+          <div class="political-admin-folder-icon">📁</div>
+          <div class="political-admin-folder-name">${escapeHtml(folder.name)}</div>
+          <div class="political-admin-actions">
+            <button class="btn btn-primary btn-sm" onclick="openFolder('${folder.id}')">打开</button>
+            <button class="btn btn-secondary btn-sm" onclick="editFolder('${folder.id}')">编辑</button>
+            <button class="btn btn-secondary btn-sm" onclick="deleteFolder('${folder.id}')">删除</button>
+          </div>
+        `;
+        container.appendChild(folderEl);
+      });
+
+      // 显示文件
+      const files = politicalSystemData.files.filter(f => {
+        if (currentPoliticalFolder === 'root') return !f.folderId;
+        return f.folderId === currentPoliticalFolder;
+      });
+
+      files.forEach(file => {
+        const fileEl = document.createElement('div');
+        fileEl.className = 'political-admin-file';
+        fileEl.innerHTML = `
+          <div class="political-admin-file-icon">📄</div>
+          <div class="political-admin-file-name">${escapeHtml(file.name)}</div>
+          <div class="political-admin-actions">
+            <button class="btn btn-primary btn-sm" onclick="editPoliticalFile('${file.id}')">编辑</button>
+            <button class="btn btn-secondary btn-sm" onclick="deletePoliticalFile('${file.id}')">删除</button>
+          </div>
+        `;
+        container.appendChild(fileEl);
+      });
+
+      if (folders.length === 0 && files.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); grid-column: 1/-1; padding: 40px;">暂无内容</div>';
+      }
+    }
+
+    // 导航到文件夹
+    function navigatePoliticalAdmin(folderId) {
+      currentPoliticalFolder = folderId;
+      renderPoliticalAdminContent();
+    }
+
+    // 打开文件夹
+    function openFolder(folderId) {
+      currentPoliticalFolder = folderId;
+      renderPoliticalAdminContent();
+    }
+
+    // 创建文件夹
+    function createFolder() {
+      const name = prompt('请输入文件夹名称：');
+      if (!name) return;
+
+      const newFolder = {
+        itemType: 'folder',
+        data: {
+          name,
+          parentId: currentPoliticalFolder === 'root' ? null : currentPoliticalFolder
+        }
+      };
+
+      savePoliticalItem(newFolder);
+    }
+
+    // 编辑文件夹
+    function editFolder(folderId) {
+      const folder = politicalSystemData.folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      const name = prompt('请输入新的文件夹名称：', folder.name);
+      if (!name) return;
+
+      const updateData = {
+        itemType: 'folder',
+        id: folderId,
+        data: {
+          name,
+          parentId: folder.parentId
+        }
+      };
+
+      updatePoliticalItem(updateData);
+    }
+
+    // 删除文件夹
+    async function deleteFolder(folderId) {
+      if (!confirm('确定要删除这个文件夹吗？文件夹内的所有内容也会被删除！')) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political&id=${folderId}&itemType=folder`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('删除成功！');
+          loadPoliticalSystemData();
+        } else {
+          alert('删除失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('删除失败:', error);
+        alert('删除失败，请检查网络连接');
+      }
+    }
+
+    // 创建政治体系文件
+    function createPoliticalFile() {
+      selectedParentOrgs = [];
+      selectedChildOrgs = [];
+      openPoliticalFileModal();
+    }
+
+    // 编辑政治体系文件
+    function editPoliticalFile(fileId) {
+      const file = politicalSystemData.files.find(f => f.id === fileId);
+      if (!file) return;
+
+      selectedParentOrgs = file.data.上级机构 || [];
+      selectedChildOrgs = file.data.下辖机构 || [];
+      openPoliticalFileModal(file);
+    }
+
+    // 打开政治体系文件弹窗
+    function openPoliticalFileModal(file = null) {
+      const isEdit = !!file;
+      const modalHtml = `
+        <div class="modal show" id="politicalFileModal">
+          <div class="modal-content" style="max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+              <h3>${isEdit ? '编辑文件' : '创建文件'}</h3>
+              <button class="close-btn" onclick="closePoliticalFileModal()">&times;</button>
+            </div>
+            <div class="political-file-form">
+              <div class="form-group">
+                <label>文件名称</label>
+                <input type="text" id="polFileName" value="${isEdit ? escapeHtml(file.name) : ''}" placeholder="请输入文件名称">
+              </div>
+              <div class="form-group">
+                <label>机构名称</label>
+                <input type="text" id="polOrgName" value="${isEdit && file.data.机构名称 ? escapeHtml(file.data.机构名称) : ''}" placeholder="请输入机构名称">
+              </div>
+              <div class="form-group">
+                <label>介绍</label>
+                <textarea id="polOrgDesc" placeholder="请输入机构介绍">${isEdit && file.data.介绍 ? escapeHtml(file.data.介绍) : ''}</textarea>
+              </div>
+              <div class="form-group">
+                <label>管辖区域</label>
+                <input type="text" id="polOrgArea" value="${isEdit && file.data.管辖区域 ? escapeHtml(file.data.管辖区域) : ''}" placeholder="请输入管辖区域">
+              </div>
+              <div class="form-group">
+                <label>设立地点</label>
+                <input type="text" id="polOrgLocation" value="${isEdit && file.data.设立地点 ? escapeHtml(file.data.设立地点) : ''}" placeholder="请输入设立地点">
+              </div>
+              <div class="form-group">
+                <label>管理层</label>
+                <input type="text" id="polOrgManager" value="${isEdit && file.data.管理层 ? escapeHtml(file.data.管理层) : ''}" placeholder="请输入管理层">
+              </div>
+              <div class="form-group">
+                <label>上级机构</label>
+                <div class="org-search-container">
+                  <input type="text" placeholder="搜索机构..." oninput="searchOrg(this.value, 'parent')">
+                  <div class="org-search-results" id="parentOrgResults"></div>
+                </div>
+                <div class="org-selected-list" id="parentOrgSelected">
+                  ${renderSelectedOrgs(selectedParentOrgs)}
+                </div>
+              </div>
+              <div class="form-group">
+                <label>下辖机构</label>
+                <div class="org-search-container">
+                  <input type="text" placeholder="搜索机构..." oninput="searchOrg(this.value, 'child')">
+                  <div class="org-search-results" id="childOrgResults"></div>
+                </div>
+                <div class="org-selected-list" id="childOrgSelected">
+                  ${renderSelectedOrgs(selectedChildOrgs)}
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePoliticalFileModal()">取消</button>
+                <button class="btn btn-primary" onclick="savePoliticalFile('${isEdit ? file.id : ''}')">保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', modalHtml);
+      document.getElementById('politicalFileModal').addEventListener('click', function(e) {
+        if (e.target === this) closePoliticalFileModal();
+      });
+    }
+
+    // 搜索机构
+    function searchOrg(keyword, type) {
+      const resultsDiv = document.getElementById(type === 'parent' ? 'parentOrgResults' : 'childOrgResults');
+      if (!keyword.trim()) {
+        resultsDiv.classList.remove('show');
+        return;
+      }
+
+      const filtered = politicalSystemData.files.filter(f =>
+        f.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        (f.data.机构名称 && f.data.机构名称.toLowerCase().includes(keyword.toLowerCase()))
+      );
+
+      if (filtered.length === 0) {
+        resultsDiv.innerHTML = '<div class="org-search-item">无搜索结果</div>';
+      } else {
+        resultsDiv.innerHTML = filtered.map(f => `
+          <div class="org-search-item" onclick="addOrg('${f.id}', '${escapeHtml(f.name)}', '${type}')">
+            ${escapeHtml(f.name)}
+          </div>
+        `).join('');
+      }
+      resultsDiv.classList.add('show');
+    }
+
+    // 添加机构
+    function addOrg(id, name, type) {
+      const list = type === 'parent' ? selectedParentOrgs : selectedChildOrgs;
+      if (!list.includes(id)) {
+        list.push(id);
+        document.getElementById(type === 'parent' ? 'parentOrgSelected' : 'childOrgSelected').innerHTML = renderSelectedOrgs(list);
+      }
+      document.getElementById(type === 'parent' ? 'parentOrgResults' : 'childOrgResults').classList.remove('show');
+      event.target.closest('.org-search-container').querySelector('input').value = '';
+    }
+
+    // 移除机构
+    function removeOrg(id, type) {
+      if (type === 'parent') {
+        selectedParentOrgs = selectedParentOrgs.filter(oid => oid !== id);
+        document.getElementById('parentOrgSelected').innerHTML = renderSelectedOrgs(selectedParentOrgs);
+      } else {
+        selectedChildOrgs = selectedChildOrgs.filter(oid => oid !== id);
+        document.getElementById('childOrgSelected').innerHTML = renderSelectedOrgs(selectedChildOrgs);
+      }
+    }
+
+    // 渲染已选择的机构
+    function renderSelectedOrgs(orgIds) {
+      if (!orgIds || orgIds.length === 0) return '';
+      return orgIds.map(id => {
+        const file = politicalSystemData.files.find(f => f.id === id);
+        if (!file) return '';
+        return `
+          <span class="qa-selected-tag">
+            ${escapeHtml(file.name)}
+            <span class="remove-btn" onclick="removeOrg('${id}', '${orgIds === selectedParentOrgs ? 'parent' : 'child'}')">&times;</span>
+          </span>
+        `;
+      }).join('');
+    }
+
+    // 关闭政治体系文件弹窗
+    function closePoliticalFileModal() {
+      const modal = document.getElementById('politicalFileModal');
+      if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+      }
+    }
+
+    // 保存政治体系文件
+    async function savePoliticalFile(fileId) {
+      const name = document.getElementById('polFileName').value.trim();
+      const 机构名称 = document.getElementById('polOrgName').value.trim();
+      const 介绍 = document.getElementById('polOrgDesc').value.trim();
+      const 管辖区域 = document.getElementById('polOrgArea').value.trim();
+      const 设立地点 = document.getElementById('polOrgLocation').value.trim();
+      const 管理层 = document.getElementById('polOrgManager').value.trim();
+
+      if (!name) {
+        alert('请输入文件名称');
+        return;
+      }
+
+      const data = {
+        name,
+        机构名称,
+        介绍,
+        管辖区域,
+        设立地点,
+        管理层,
+        上级机构: selectedParentOrgs,
+        下辖机构: selectedChildOrgs
+      };
+
+      if (fileId) {
+        // 更新
+        await updatePoliticalItem({
+          itemType: 'file',
+          id: fileId,
+          data: { ...data, folderId: currentPoliticalFolder === 'root' ? null : currentPoliticalFolder }
+        });
+      } else {
+        // 创建
+        await savePoliticalItem({
+          itemType: 'file',
+          data: { ...data, folderId: currentPoliticalFolder === 'root' ? null : currentPoliticalFolder }
+        });
+      }
+    }
+
+    // 保存政治体系项目
+    async function savePoliticalItem(itemData) {
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(itemData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('保存成功！');
+          closePoliticalFileModal();
+          loadPoliticalSystemData();
+        } else {
+          alert('保存失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('保存失败:', error);
+        alert('保存失败，请检查网络连接');
+      }
+    }
+
+    // 更新政治体系项目
+    async function updatePoliticalItem(itemData) {
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(itemData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('更新成功！');
+          closePoliticalFileModal();
+          loadPoliticalSystemData();
+        } else {
+          alert('更新失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('更新失败:', error);
+        alert('更新失败，请检查网络连接');
+      }
+    }
+
+    // 删除政治体系文件
+    async function deletePoliticalFile(fileId) {
+      if (!confirm('确定要删除这个文件吗？')) return;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political&id=${fileId}&itemType=file`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          alert('删除成功！');
+          loadPoliticalSystemData();
+        } else {
+          alert('删除失败：' + result.msg);
+        }
+      } catch (error) {
+        console.error('删除失败:', error);
+        alert('删除失败，请检查网络连接');
+      }
+    }
+
+    // 初始化事件监听
+    document.addEventListener('DOMContentLoaded', function() {
+      // Q&A管理按钮
+      const refreshQABtn = document.getElementById('refreshQABtn');
+      if (refreshQABtn) {
+        refreshQABtn.addEventListener('click', loadQAList);
+      }
+
+      // 政治体系管理按钮
+      const addFolderBtn = document.getElementById('addFolderBtn');
+      const addPoliticalFileBtn = document.getElementById('addPoliticalFileBtn');
+      const refreshPoliticalBtn = document.getElementById('refreshPoliticalBtn');
+
+      if (addFolderBtn) {
+        addFolderBtn.addEventListener('click', createFolder);
+      }
+      if (addPoliticalFileBtn) {
+        addPoliticalFileBtn.addEventListener('click', createPoliticalFile);
+      }
+      if (refreshPoliticalBtn) {
+        refreshPoliticalBtn.addEventListener('click', loadPoliticalSystemData);
+      }
+
+      // 侧边栏切换时加载数据
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const section = this.dataset.section;
+          if (section === 'qa') {
+            loadQAList();
+          } else if (section === 'political') {
+            loadPoliticalSystemData();
+          }
+        });
+      });
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>神界圈介绍 - 详细信息</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/godlive-web/godlive-web.github.io/main/godliveicon.png" type="image/png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    :root {
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --text-primary: #212529;
+      --text-secondary: #495057;
+      --accent-color: #6f42c1;
+      --accent-light: #e0d6ff;
+      --border-color: #dee2e6;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --card-bg: #ffffff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #0c0c1e;
+        --bg-secondary: #1a1a3a;
+        --text-primary: #e0e0ff;
+        --text-secondary: #a0a0ff;
+        --accent-color: #8a63d2;
+        --accent-light: rgba(100, 80, 255, 0.2);
+        --border-color: rgba(100, 80, 255, 0.3);
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        --card-bg: rgba(20, 20, 45, 0.8);
+      }
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--border-color);
+    }
+    .back-btn {
+      padding: 10px 20px;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(111, 66, 193, 0.4);
+    }
+    .header-title {
+      font-size: 24px;
+      color: var(--accent-color);
+      font-weight: bold;
+    }
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .error {
+      text-align: center;
+      padding: 60px 20px;
+      color: #dc3545;
+    }
+    .info-card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow);
+    }
+    .info-section {
+      margin-bottom: 25px;
+    }
+    .info-section:last-child {
+      margin-bottom: 0;
+    }
+    .info-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .info-value {
+      font-size: 16px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+    .info-value.empty {
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .org-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .org-tag {
+      padding: 8px 16px;
+      background: var(--accent-light);
+      color: var(--accent-color);
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .org-tag:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+    .breadcrumb {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+    .breadcrumb-item {
+      color: var(--accent-color);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .breadcrumb-item:hover {
+      text-decoration: underline;
+    }
+    .breadcrumb-separator {
+      color: var(--text-secondary);
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      .header {
+        flex-wrap: wrap;
+      }
+      .header-title {
+        font-size: 20px;
+      }
+      .info-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="index.html" class="back-btn">← 返回</a>
+      <h1 class="header-title">机构详情</h1>
+    </div>
+
+    <div id="breadcrumb" class="breadcrumb"></div>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://godlive-web-github-io.vercel.app';
+    let politicalData = { folders: [], files: [] };
+
+    // 获取URL参数
+    function getUrlParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // 加载数据
+    async function loadData() {
+      const fileId = getUrlParam('id');
+      if (!fileId) {
+        document.getElementById('content').innerHTML = '<div class="error">缺少文件ID参数</div>';
+        return;
+      }
+
+      document.getElementById('content').innerHTML = '<div class="loading">加载中...</div>';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=political`);
+        const result = await response.json();
+        if (result.success) {
+          politicalData = result.data;
+          renderFileDetail(fileId);
+        } else {
+          document.getElementById('content').innerHTML = '<div class="error">加载失败</div>';
+        }
+      } catch (error) {
+        console.error('加载数据失败:', error);
+        document.getElementById('content').innerHTML = '<div class="error">加载失败，请检查网络连接</div>';
+      }
+    }
+
+    // 渲染文件详情
+    function renderFileDetail(fileId) {
+      const file = politicalData.files.find(f => f.id === fileId);
+      if (!file) {
+        document.getElementById('content').innerHTML = '<div class="error">文件不存在</div>';
+        return;
+      }
+
+      // 渲染面包屑
+      renderBreadcrumb(file);
+
+      // 渲染内容
+      const data = file.data || {};
+      const contentHtml = `
+        <div class="info-card">
+          <div class="info-section">
+            <div class="info-label">机构名称</div>
+            <div class="info-value">${escapeHtml(data.机构名称) || '<span class="empty">未填写</span>'}</div>
+          </div>
+          <div class="info-section">
+            <div class="info-label">介绍</div>
+            <div class="info-value">${escapeHtml(data.介绍) || '<span class="empty">未填写</span>'}</div>
+          </div>
+          <div class="info-section">
+            <div class="info-label">管辖区域</div>
+            <div class="info-value">${escapeHtml(data.管辖区域) || '<span class="empty">未填写</span>'}</div>
+          </div>
+          <div class="info-section">
+            <div class="info-label">设立地点</div>
+            <div class="info-value">${escapeHtml(data.设立地点) || '<span class="empty">未填写</span>'}</div>
+          </div>
+          <div class="info-section">
+            <div class="info-label">管理层</div>
+            <div class="info-value">${escapeHtml(data.管理层) || '<span class="empty">未填写</span>'}</div>
+          </div>
+          ${data.上级机构 && data.上级机构.length > 0 ? `
+          <div class="info-section">
+            <div class="info-label">上级机构</div>
+            <div class="org-list">
+              ${data.上级机构.map(id => renderOrgTag(id)).join('')}
+            </div>
+          </div>
+          ` : ''}
+          ${data.下辖机构 && data.下辖机构.length > 0 ? `
+          <div class="info-section">
+            <div class="info-label">下辖机构</div>
+            <div class="org-list">
+              ${data.下辖机构.map(id => renderOrgTag(id)).join('')}
+            </div>
+          </div>
+          ` : ''}
+        </div>
+      `;
+
+      document.getElementById('content').innerHTML = contentHtml;
+      document.querySelector('.header-title').textContent = file.name || '机构详情';
+    }
+
+    // 渲染面包屑
+    function renderBreadcrumb(file) {
+      let html = '<a href="index.html" class="breadcrumb-item">首页</a>';
+      html += '<span class="breadcrumb-separator">/</span>';
+      html += '<a href="index.html#神界圈介绍" class="breadcrumb-item">神界圈介绍</a>';
+      
+      // 添加文件夹路径
+      if (file.folderId) {
+        const folder = politicalData.folders.find(f => f.id === file.folderId);
+        if (folder) {
+          html += '<span class="breadcrumb-separator">/</span>';
+          html += `<span class="breadcrumb-item">${escapeHtml(folder.name)}</span>`;
+        }
+      }
+      
+      html += '<span class="breadcrumb-separator">/</span>';
+      html += `<span class="breadcrumb-item" style="color: var(--text-secondary); cursor: default;">${escapeHtml(file.name)}</span>`;
+      
+      document.getElementById('breadcrumb').innerHTML = html;
+    }
+
+    // 渲染机构标签
+    function renderOrgTag(orgId) {
+      const org = politicalData.files.find(f => f.id === orgId);
+      if (!org) return '';
+      return `<a href="?id=${orgId}" class="org-tag">${escapeHtml(org.name)}</a>`;
+    }
+
+    // HTML转义
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 页面加载时执行
+    document.addEventListener('DOMContentLoaded', loadData);
+  </script>
+</body>
+</html>

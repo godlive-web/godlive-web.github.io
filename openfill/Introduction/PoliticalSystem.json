@@ -1,0 +1,37 @@
+{
+  "folders": [
+    {
+      "id": "folder_001",
+      "name": "神界大陆",
+      "type": "folder",
+      "parentId": null,
+      "createTime": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "folder_002",
+      "name": "宙界大陆",
+      "type": "folder",
+      "parentId": null,
+      "createTime": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "files": [
+    {
+      "id": "pol_001",
+      "name": "神界内阁",
+      "type": "file",
+      "folderId": "folder_001",
+      "data": {
+        "机构名称": "神界内阁",
+        "介绍": "神界大陆的最高行政机构",
+        "管辖区域": "神界大陆全境",
+        "设立地点": "神都",
+        "管理层": "内阁首相",
+        "上级机构": [],
+        "下辖机构": ["pol_002"]
+      },
+      "createTime": "2025-01-01T00:00:00Z",
+      "updateTime": "2025-01-01T00:00:00Z"
+    }
+  ]
+}

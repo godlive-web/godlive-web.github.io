@@ -1336,6 +1336,394 @@ padding: 12px 15px;
     width: 100%;
   }
 }
+
+/* ========== 神界圈介绍页面样式 ========== */
+.intro-container {
+  display: flex;
+  gap: 25px;
+  height: calc(100vh - 200px);
+  margin-top: 20px;
+}
+
+.intro-left, .intro-right {
+  flex: 1;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.intro-section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--accent-color);
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.ask-question-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ask-question-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 117, 252, 0.4);
+}
+
+/* Q&A搜索区域 */
+.qa-search-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+#qaSearchInput {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+#qaSearchInput:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+#qaSearchBtn {
+  padding: 10px 15px;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.qa-results {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.qa-item {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.qa-item:hover {
+  transform: translateX(5px);
+  border-color: var(--accent-color);
+  box-shadow: 0 2px 8px rgba(111, 66, 193, 0.2);
+}
+
+.qa-item-title {
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.qa-item-preview {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.qa-item-status {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.qa-status-answered {
+  background: #d4edda;
+  color: #155724;
+}
+
+.qa-status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.qa-status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* 政治体系区域 */
+.political-breadcrumb {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+  color: var(--accent-color);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.breadcrumb-item:hover {
+  background: var(--accent-light);
+}
+
+.breadcrumb-separator {
+  color: var(--text-secondary);
+  padding: 4px 0;
+}
+
+.political-content {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  align-content: start;
+}
+
+.political-folder, .political-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.political-folder:hover, .political-file:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent-color);
+}
+
+.political-folder-icon, .political-file-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.political-folder-name, .political-file-name {
+  font-size: 13px;
+  text-align: center;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+/* Q&A详情弹窗 */
+.qa-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.qa-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.qa-modal-content {
+  background: var(--card-bg);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 25px;
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.qa-modal.show .qa-modal-content {
+  transform: translateY(0);
+}
+
+.qa-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.qa-modal-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+.qa-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.qa-modal-section {
+  margin-bottom: 20px;
+}
+
+.qa-modal-label {
+  font-weight: bold;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.qa-modal-text {
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.qa-modal-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.qa-modal-related-item {
+  padding: 6px 12px;
+  background: var(--accent-light);
+  color: var(--accent-color);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.qa-modal-related-item:hover {
+  background: var(--accent-color);
+  color: white;
+}
+
+.qa-modal-time {
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: right;
+}
+
+/* 发起问题弹窗 */
+.ask-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.ask-modal-form input,
+.ask-modal-form textarea {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.ask-modal-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.ask-modal-form input:focus,
+.ask-modal-form textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.ask-modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.ask-modal-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.ask-modal-btn-primary {
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+}
+
+.ask-modal-btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .intro-container {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .intro-left, .intro-right {
+    min-height: 400px;
+  }
+  
+  .political-content {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
 </style>
 </head>
 <body>
@@ -1525,7 +1913,34 @@ padding: 12px 15px;
 <!-- 6. 神界圈介绍 -->
 <section class="content-section" data-index="5">
 <h2>神界圈介绍</h2>
-<p>了解神界圈及神界世界观的过往、来源、组织结构和未来发展。你也可以在此查看和提出Q&A。</p>
+<div class="intro-container">
+<!-- 左侧：Q&A区域 -->
+<div class="intro-left">
+<div class="intro-section-title">
+<span>❓</span> 神界世界观答疑解惑
+<button class="ask-question-btn" id="askQuestionBtn">发起疑问</button>
+</div>
+<div class="qa-search-box">
+<input type="text" id="qaSearchInput" placeholder="搜索问题标题、内容或回答..." />
+<button id="qaSearchBtn">🔍</button>
+</div>
+<div class="qa-results" id="qaResults">
+<!-- 搜索结果将显示在这里 -->
+</div>
+</div>
+<!-- 右侧：政治体系区域 -->
+<div class="intro-right">
+<div class="intro-section-title">
+<span>🏛️</span> 神界政治体系
+</div>
+<div class="political-breadcrumb" id="politicalBreadcrumb">
+<span class="breadcrumb-item" data-folder="root">根目录</span>
+</div>
+<div class="political-content" id="politicalContent">
+<!-- 文件夹和文件内容将显示在这里 -->
+</div>
+</div>
+</div>
 </section>
 <!-- 7. 关于我们 -->
 <section class="content-section" data-index="6">
@@ -2390,6 +2805,372 @@ observer.observe(document.getElementById('loginText'), {
   childList: true
 });
 });
+
+// ========== 神界圈介绍功能 ==========
+const API_BASE = 'https://godlive-web-github-io.vercel.app';
+let qaData = [];
+let politicalData = { folders: [], files: [] };
+let currentFolderId = 'root';
+
+// 初始化神界圈介绍功能
+document.addEventListener('DOMContentLoaded', function() {
+  initIntroductionFeature();
+});
+
+function initIntroductionFeature() {
+  // Q&A功能
+  const qaSearchBtn = document.getElementById('qaSearchBtn');
+  const qaSearchInput = document.getElementById('qaSearchInput');
+  const askQuestionBtn = document.getElementById('askQuestionBtn');
+
+  if (qaSearchBtn) {
+    qaSearchBtn.addEventListener('click', searchQA);
+  }
+  if (qaSearchInput) {
+    qaSearchInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') searchQA();
+    });
+  }
+  if (askQuestionBtn) {
+    askQuestionBtn.addEventListener('click', showAskQuestionModal);
+  }
+
+  // 政治体系功能
+  loadPoliticalData();
+
+  // 加载Q&A数据
+  loadQAData();
+}
+
+// 加载Q&A数据
+async function loadQAData() {
+  try {
+    const response = await fetch(`${API_BASE}/api/introduction?type=qa`);
+    const result = await response.json();
+    if (result.success) {
+      qaData = result.data.questions || [];
+      // 默认显示最新4个问题
+      displayQAResults(qaData.slice(0, 4));
+    }
+  } catch (error) {
+    console.error('加载Q&A数据失败:', error);
+  }
+}
+
+// 搜索Q&A
+function searchQA() {
+  const keyword = document.getElementById('qaSearchInput').value.trim().toLowerCase();
+  if (!keyword) {
+    displayQAResults(qaData.slice(0, 4));
+    return;
+  }
+
+  const filtered = qaData.filter(q => {
+    return q.title.toLowerCase().includes(keyword) ||
+           q.question.toLowerCase().includes(keyword) ||
+           (q.answer && q.answer.toLowerCase().includes(keyword));
+  });
+
+  // 根据屏幕宽度决定显示数量
+  const isMobile = window.innerWidth <= 768;
+  displayQAResults(filtered.slice(0, isMobile ? 2 : 4));
+}
+
+// 显示Q&A结果
+function displayQAResults(questions) {
+  const container = document.getElementById('qaResults');
+  if (!container) return;
+
+  if (questions.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">没有找到相关问题</div>';
+    return;
+  }
+
+  container.innerHTML = questions.map(q => {
+    let statusClass = 'qa-status-pending';
+    let statusText = '暂未回答';
+    if (q.status === '已回答') {
+      statusClass = 'qa-status-answered';
+      statusText = '已回答';
+    } else if (q.status === '不予回答') {
+      statusClass = 'qa-status-rejected';
+      statusText = '不予回答';
+    }
+
+    const preview = q.answer || q.question;
+    const displayText = preview.length > 50 ? preview.substring(0, 50) + '...' : preview;
+
+    return `
+      <div class="qa-item" onclick="showQADetail('${q.id}')">
+        <div class="qa-item-title">${escapeHtml(q.title)}</div>
+        <div class="qa-item-preview">${escapeHtml(displayText)}</div>
+        <span class="qa-item-status ${statusClass}">${statusText}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+// 显示Q&A详情
+function showQADetail(id) {
+  const q = qaData.find(item => item.id === id);
+  if (!q) return;
+
+  let answerText = q.answer;
+  if (q.status === '暂未回答') {
+    answerText = '暂未回答';
+  } else if (q.status === '不予回答') {
+    answerText = '该疑问尚不披露';
+  }
+
+  const timeText = q.answerTime || q.createTime;
+  const displayTime = new Date(timeText).toLocaleString('zh-CN');
+
+  // 构建相关内容HTML
+  let relatedHtml = '';
+  if (q.relatedContent && q.relatedContent.length > 0) {
+    relatedHtml = q.relatedContent.map(relId => {
+      const file = politicalData.files.find(f => f.id === relId);
+      if (file) {
+        return `<a href="introduction.html?id=${relId}" target="_blank" class="qa-modal-related-item">${escapeHtml(file.name)}</a>`;
+      }
+      return '';
+    }).join('');
+  }
+
+  const modalHtml = `
+    <div class="qa-modal show" id="qaDetailModal">
+      <div class="qa-modal-content">
+        <div class="qa-modal-header">
+          <div class="qa-modal-title">${escapeHtml(q.title)}</div>
+          <button class="qa-modal-close" onclick="closeQAModal()">&times;</button>
+        </div>
+        <div class="qa-modal-section">
+          <div class="qa-modal-label">疑问内容</div>
+          <div class="qa-modal-text">${escapeHtml(q.question)}</div>
+        </div>
+        <div class="qa-modal-section">
+          <div class="qa-modal-label">回答</div>
+          <div class="qa-modal-text">${escapeHtml(answerText)}</div>
+        </div>
+        ${relatedHtml ? `
+        <div class="qa-modal-section">
+          <div class="qa-modal-label">相关内容</div>
+          <div class="qa-modal-related">${relatedHtml}</div>
+        </div>
+        ` : ''}
+        <div class="qa-modal-time">${q.answerTime ? '回答时间' : '提问时间'}：${displayTime}</div>
+      </div>
+    </div>
+  `;
+
+  // 移除已存在的弹窗
+  const existingModal = document.getElementById('qaDetailModal');
+  if (existingModal) existingModal.remove();
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  // 点击背景关闭
+  document.getElementById('qaDetailModal').addEventListener('click', function(e) {
+    if (e.target === this) closeQAModal();
+  });
+}
+
+// 关闭Q&A弹窗
+function closeQAModal() {
+  const modal = document.getElementById('qaDetailModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+// 显示发起问题弹窗
+function showAskQuestionModal() {
+  const modalHtml = `
+    <div class="qa-modal show" id="askQuestionModal">
+      <div class="qa-modal-content">
+        <div class="qa-modal-header">
+          <div class="qa-modal-title">发起疑问</div>
+          <button class="qa-modal-close" onclick="closeAskModal()">&times;</button>
+        </div>
+        <div class="ask-modal-form">
+          <input type="text" id="askTitle" placeholder="请输入问题标题..." />
+          <textarea id="askContent" placeholder="请详细描述您的疑问..."></textarea>
+          <div class="ask-modal-buttons">
+            <button class="ask-modal-btn ask-modal-btn-secondary" onclick="closeAskModal()">取消</button>
+            <button class="ask-modal-btn ask-modal-btn-primary" onclick="submitQuestion()">提交</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const existingModal = document.getElementById('askQuestionModal');
+  if (existingModal) existingModal.remove();
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  document.getElementById('askQuestionModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAskModal();
+  });
+}
+
+// 关闭发起问题弹窗
+function closeAskModal() {
+  const modal = document.getElementById('askQuestionModal');
+  if (modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
+  }
+}
+
+// 提交问题
+async function submitQuestion() {
+  const title = document.getElementById('askTitle').value.trim();
+  const content = document.getElementById('askContent').value.trim();
+
+  if (!title || !content) {
+    alert('请填写标题和问题内容');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/api/introduction?type=qa`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, question: content })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert('问题提交成功！');
+      closeAskModal();
+      loadQAData(); // 刷新列表
+    } else {
+      alert('提交失败：' + result.msg);
+    }
+  } catch (error) {
+    console.error('提交问题失败:', error);
+    alert('提交失败，请检查网络连接');
+  }
+}
+
+// 加载政治体系数据
+async function loadPoliticalData() {
+  try {
+    const response = await fetch(`${API_BASE}/api/introduction?type=political`);
+    const result = await response.json();
+    if (result.success) {
+      politicalData = result.data;
+      renderPoliticalContent();
+    }
+  } catch (error) {
+    console.error('加载政治体系数据失败:', error);
+  }
+}
+
+// 渲染政治体系内容
+function renderPoliticalContent() {
+  const container = document.getElementById('politicalContent');
+  const breadcrumb = document.getElementById('politicalBreadcrumb');
+  if (!container || !breadcrumb) return;
+
+  // 渲染面包屑
+  renderBreadcrumb();
+
+  // 渲染当前文件夹内容
+  container.innerHTML = '';
+
+  // 显示文件夹
+  const folders = politicalData.folders.filter(f => {
+    if (currentFolderId === 'root') {
+      return f.parentId === null;
+    }
+    return f.parentId === currentFolderId;
+  });
+
+  folders.forEach(folder => {
+    const folderEl = document.createElement('div');
+    folderEl.className = 'political-folder';
+    folderEl.innerHTML = `
+      <div class="political-folder-icon">📁</div>
+      <div class="political-folder-name">${escapeHtml(folder.name)}</div>
+    `;
+    folderEl.onclick = () => {
+      currentFolderId = folder.id;
+      renderPoliticalContent();
+    };
+    container.appendChild(folderEl);
+  });
+
+  // 显示文件
+  const files = politicalData.files.filter(f => {
+    if (currentFolderId === 'root') {
+      return !f.folderId;
+    }
+    return f.folderId === currentFolderId;
+  });
+
+  files.forEach(file => {
+    const fileEl = document.createElement('div');
+    fileEl.className = 'political-file';
+    fileEl.innerHTML = `
+      <div class="political-file-icon">📄</div>
+      <div class="political-file-name">${escapeHtml(file.name)}</div>
+    `;
+    fileEl.onclick = () => {
+      window.open(`introduction.html?id=${file.id}`, '_blank');
+    };
+    container.appendChild(fileEl);
+  });
+
+  if (folders.length === 0 && files.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); grid-column: 1/-1; padding: 40px;">暂无内容</div>';
+  }
+}
+
+// 渲染面包屑
+function renderBreadcrumb() {
+  const breadcrumb = document.getElementById('politicalBreadcrumb');
+  if (!breadcrumb) return;
+
+  let html = '<span class="breadcrumb-item" data-folder="root" onclick="navigateToFolder(\'root\')">根目录</span>';
+
+  if (currentFolderId !== 'root') {
+    const path = [];
+    let currentId = currentFolderId;
+    while (currentId) {
+      const folder = politicalData.folders.find(f => f.id === currentId);
+      if (folder) {
+        path.unshift(folder);
+        currentId = folder.parentId;
+      } else {
+        break;
+      }
+    }
+
+    path.forEach(folder => {
+      html += `<span class="breadcrumb-separator">/</span>`;
+      html += `<span class="breadcrumb-item" data-folder="${folder.id}" onclick="navigateToFolder('${folder.id}')">${escapeHtml(folder.name)}</span>`;
+    });
+  }
+
+  breadcrumb.innerHTML = html;
+}
+
+// 导航到指定文件夹
+function navigateToFolder(folderId) {
+  currentFolderId = folderId;
+  renderPoliticalContent();
+}
+
+// HTML转义
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 </script>
 </body>
 </html>
