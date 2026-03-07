@@ -2319,7 +2319,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             id: qaId,
-            answer,
+            answer: answer.replace(/\n/g, '\\n'),
             status,
             relatedContent: selectedRelatedContent
           })
@@ -2412,6 +2412,7 @@
           <div class="political-admin-actions">
             <button class="btn btn-primary btn-sm" onclick="openFolder('${folder.id}')">打开</button>
             <button class="btn btn-secondary btn-sm" onclick="editFolder('${folder.id}')">编辑</button>
+            <button class="btn btn-secondary btn-sm" onclick="moveFolder('${folder.id}')">移动</button>
             <button class="btn btn-secondary btn-sm" onclick="deleteFolder('${folder.id}')">删除</button>
           </div>
         `;
@@ -2432,6 +2433,7 @@
           <div class="political-admin-file-name">${escapeHtml(file.name)}</div>
           <div class="political-admin-actions">
             <button class="btn btn-primary btn-sm" onclick="editPoliticalFile('${file.id}')">编辑</button>
+            <button class="btn btn-secondary btn-sm" onclick="moveFile('${file.id}')">移动</button>
             <button class="btn btn-secondary btn-sm" onclick="deletePoliticalFile('${file.id}')">删除</button>
           </div>
         `;
@@ -2491,6 +2493,91 @@
       updatePoliticalItem(updateData);
     }
 
+    // 移动文件夹
+    function moveFolder(folderId) {
+      const folder = politicalSystemData.folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      // 排除当前文件夹及其子文件夹
+      const availableFolders = politicalSystemData.folders.filter(f => {
+        if (f.id === folderId) return false;
+        // 检查是否是当前文件夹的子文件夹
+        let isChild = false;
+        let current = f.parentId;
+        while (current) {
+          if (current === folderId) {
+            isChild = true;
+            break;
+          }
+          current = politicalSystemData.folders.find(f => f.id === current)?.parentId;
+        }
+        return !isChild;
+      });
+
+      if (availableFolders.length === 0) {
+        alert('没有可移动到的文件夹');
+        return;
+      }
+
+      // 创建文件夹选择对话框
+      let options = availableFolders.map(f => `
+        <option value="${f.id}">${f.name}</option>
+      `).join('');
+      options = `<option value="root">根目录</option>${options}`;
+
+      const html = `
+        <div style="padding: 20px;">
+          <h3>选择目标文件夹</h3>
+          <select id="moveTargetFolder" style="width: 100%; padding: 10px; margin: 10px 0;">
+            ${options}
+          </select>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button onclick="closeMoveDialog()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">取消</button>
+            <button onclick="confirmMoveFolder('${folderId}')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">确定</button>
+          </div>
+        </div>
+      `;
+
+      const modal = document.createElement('div');
+      modal.className = 'modal show';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h3>移动文件夹</h3>
+            <button class="close-btn" onclick="closeMoveDialog()">&times;</button>
+          </div>
+          ${html}
+        </div>
+      `;
+      modal.id = 'moveFolderModal';
+      document.body.appendChild(modal);
+    }
+
+    // 关闭移动对话框
+    function closeMoveDialog() {
+      const modal = document.getElementById('moveFolderModal');
+      if (modal) modal.remove();
+    }
+
+    // 确认移动文件夹
+    function confirmMoveFolder(folderId) {
+      const targetFolderId = document.getElementById('moveTargetFolder').value;
+      const folder = politicalSystemData.folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      const updateData = {
+        itemType: 'folder',
+        id: folderId,
+        data: {
+          name: folder.name,
+          parentId: targetFolderId === 'root' ? null : targetFolderId
+        }
+      };
+
+      updatePoliticalItem(updateData);
+      closeMoveDialog();
+    }
+
     // 删除文件夹
     async function deleteFolder(folderId) {
       if (!confirm('确定要删除这个文件夹吗？文件夹内的所有内容也会被删除！')) return;
@@ -2528,6 +2615,67 @@
       selectedParentOrgs = file.data.上级机构 || [];
       selectedChildOrgs = file.data.下辖机构 || [];
       openPoliticalFileModal(file);
+    }
+
+    // 移动文件
+    function moveFile(fileId) {
+      const file = politicalSystemData.files.find(f => f.id === fileId);
+      if (!file) return;
+
+      // 获取所有可用文件夹
+      const availableFolders = politicalSystemData.folders;
+
+      // 创建文件夹选择对话框
+      let options = availableFolders.map(f => `
+        <option value="${f.id}">${f.name}</option>
+      `).join('');
+      options = `<option value="root">根目录</option>${options}`;
+
+      const html = `
+        <div style="padding: 20px;">
+          <h3>选择目标文件夹</h3>
+          <select id="moveTargetFolder" style="width: 100%; padding: 10px; margin: 10px 0;">
+            ${options}
+          </select>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button onclick="closeMoveDialog()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">取消</button>
+            <button onclick="confirmMoveFile('${fileId}')" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">确定</button>
+          </div>
+        </div>
+      `;
+
+      const modal = document.createElement('div');
+      modal.className = 'modal show';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width: 400px;">
+          <div class="modal-header">
+            <h3>移动文件</h3>
+            <button class="close-btn" onclick="closeMoveDialog()">&times;</button>
+          </div>
+          ${html}
+        </div>
+      `;
+      modal.id = 'moveFolderModal';
+      document.body.appendChild(modal);
+    }
+
+    // 确认移动文件
+    function confirmMoveFile(fileId) {
+      const targetFolderId = document.getElementById('moveTargetFolder').value;
+      const file = politicalSystemData.files.find(f => f.id === fileId);
+      if (!file) return;
+
+      const updateData = {
+        itemType: 'file',
+        id: fileId,
+        data: {
+          ...file.data,
+          folderId: targetFolderId === 'root' ? null : targetFolderId
+        }
+      };
+
+      updatePoliticalItem(updateData);
+      closeMoveDialog();
     }
 
     // 打开政治体系文件弹窗
