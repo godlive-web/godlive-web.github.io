@@ -52,14 +52,6 @@ background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 10
 color: var(--text-primary);
 transition: background 0.3s ease, color 0.3s ease;
 }
-
-/* 移动端适配：允许body滚动 */
-@media (max-width: 768px) {
-  body {
-    overflow: auto;
-    overflow-x: hidden;
-  }
-}
 /* 顶部导航 */
 .header {
 position: fixed;
@@ -906,17 +898,6 @@ margin: 8px 0;
 }
 /* ============= 全局移动端适配 ============= */
 @media (max-width: 768px) {
-.main-container {
-height: auto;
-min-height: calc(100vh - 70px);
-flex-direction: column;
-}
-
-.content {
-overflow: visible;
-height: auto;
-}
-
 .header {
 padding: 0 15px;
 }
@@ -970,11 +951,6 @@ margin-left: 0 !important;
 }
 .content-section {
 padding: 20px 15px;
-height: auto;
-min-height: 100vh;
-position: relative;
-transform: none;
-margin-bottom: 20px;
 }
 .content-section h2 {
 font-size: 22px;
