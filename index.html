@@ -52,6 +52,14 @@ background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 10
 color: var(--text-primary);
 transition: background 0.3s ease, color 0.3s ease;
 }
+
+/* 移动端适配：允许body滚动 */
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+    overflow-x: hidden;
+  }
+}
 /* 顶部导航 */
 .header {
 position: fixed;
@@ -898,6 +906,17 @@ margin: 8px 0;
 }
 /* ============= 全局移动端适配 ============= */
 @media (max-width: 768px) {
+.main-container {
+height: auto;
+min-height: calc(100vh - 70px);
+flex-direction: column;
+}
+
+.content {
+overflow: visible;
+height: auto;
+}
+
 .header {
 padding: 0 15px;
 }
@@ -950,13 +969,19 @@ font-size: 15px;
 margin-left: 0 !important;
 }
 .content-section {
-padding: 30px 20px;
+padding: 20px 15px;
+height: auto;
+min-height: 100vh;
+position: relative;
+transform: none;
+margin-bottom: 20px;
 }
 .content-section h2 {
-font-size: 26px;
+font-size: 22px;
+margin-bottom: 15px;
 }
 .content-section p {
-font-size: 15px;
+font-size: 14px;
 }
 /* 议案搜索适配 */
 .bill-search-center {
@@ -1714,14 +1739,80 @@ padding: 12px 15px;
   .intro-container {
     flex-direction: column;
     height: auto;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 0 10px;
   }
   
   .intro-left, .intro-right {
-    min-height: 400px;
+    min-height: auto;
+    max-height: none;
+    padding: 15px;
+    overflow: visible;
+  }
+  
+  .intro-section-title {
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 16px;
+  }
+  
+  .ask-question-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .qa-search-box {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .qa-search-box input {
+    width: 100%;
+  }
+  
+  .qa-search-box button {
+    width: 100%;
+    padding: 10px;
+  }
+  
+  .qa-item {
+    padding: 12px;
+  }
+  
+  .qa-item-title {
+    font-size: 14px;
+  }
+  
+  .qa-item-content {
+    font-size: 12px;
   }
   
   .political-content {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+  }
+  
+  .political-folder, .political-file {
+    padding: 10px;
+  }
+  
+  .political-folder-icon, .political-file-icon {
+    font-size: 24px;
+  }
+  
+  .political-folder-name, .political-file-name {
+    font-size: 11px;
+  }
+  
+  .political-breadcrumb {
+    flex-wrap: wrap;
+    gap: 3px;
+    font-size: 12px;
+  }
+  
+  .breadcrumb-item {
+    padding: 2px 6px;
   }
 }
 </style>
