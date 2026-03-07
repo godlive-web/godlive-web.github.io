@@ -1739,17 +1739,17 @@ padding: 12px 15px;
   }
   
   .qa-search-box {
-    flex-direction: column;
+    flex-direction: row;
     gap: 8px;
   }
   
   .qa-search-box input {
-    width: 100%;
+    flex: 1;
   }
   
   .qa-search-box button {
-    width: 100%;
-    padding: 10px;
+    width: auto;
+    padding: 10px 15px;
   }
   
   .qa-item {
@@ -1765,20 +1765,20 @@ padding: 12px 15px;
   }
   
   .political-content {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 8px;
   }
   
   .political-folder, .political-file {
-    padding: 10px;
+    padding: 8px;
   }
   
   .political-folder-icon, .political-file-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
   
   .political-folder-name, .political-file-name {
-    font-size: 11px;
+    font-size: 10px;
   }
   
   .political-breadcrumb {
@@ -2954,8 +2954,9 @@ async function loadQAData() {
     const result = await response.json();
     if (result.success) {
       qaData = result.data.questions || [];
-      // 默认显示最新4个问题
-      displayQAResults(qaData.slice(0, 4));
+      // 根据屏幕宽度决定显示数量
+      const isMobile = window.innerWidth <= 768;
+      displayQAResults(qaData.slice(0, isMobile ? 2 : 4));
     }
   } catch (error) {
     console.error('加载Q&A数据失败:', error);
