@@ -6,9 +6,22 @@
       "question": "神界大陆是什么样的地方？",
       "answer": "神界大陆是神界圈的核心区域，包含多个国家和势力。",
       "status": "已回答",
-      "relatedContent": ["pol_001", "pol_002"],
+      "relatedContent": [
+        "pol_001",
+        "pol_002"
+      ],
       "createTime": "2025-01-15T10:30:00Z",
       "answerTime": "2025-01-16T14:20:00Z"
+    },
+    {
+      "id": "qa_1772863102922",
+      "title": "秋风",
+      "question": "是谁",
+      "answer": "",
+      "status": "暂未回答",
+      "relatedContent": [],
+      "createTime": "2026-03-07T05:58:22.922Z",
+      "answerTime": null
     }
   ]
 }
