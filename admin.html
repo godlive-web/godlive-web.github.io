@@ -777,6 +777,99 @@
         padding: 4px 8px;
         font-size: 11px;
       }
+      
+      /* 二级导航栏 */
+      .section-nav {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .section-nav-item {
+        padding: 6px 12px;
+        background: var(--accent-light);
+        color: var(--accent-color);
+        border-radius: 4px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      
+      .section-nav-item:hover {
+        background: var(--accent-color);
+        color: white;
+      }
+      
+      /* 按钮布局优化 */
+      .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+      
+      .btn-group .btn-primary {
+        flex: 1;
+        min-width: 120px;
+      }
+      
+      .btn-group .btn-secondary {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      
+      /* 表格优化 */
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      table {
+        min-width: 600px;
+        font-size: 12px;
+      }
+      
+      th, td {
+        padding: 8px 6px;
+        white-space: nowrap;
+      }
+      
+      /* Q&A表格特殊处理 */
+      #qaTable {
+        min-width: 500px;
+      }
+      
+      #qaTable th:nth-child(2),
+      #qaTable td:nth-child(2) {
+        max-width: 150px;
+        white-space: normal;
+        word-break: break-word;
+      }
+      
+      /* 成员表格特殊处理 */
+      #membersTable {
+        min-width: 550px;
+      }
+      
+      #membersTable th:nth-child(2),
+      #membersTable td:nth-child(2),
+      #membersTable th:nth-child(3),
+      #membersTable td:nth-child(3) {
+        max-width: 80px;
+        white-space: normal;
+        word-break: break-word;
+      }
     }
   </style>
 </head>
@@ -847,10 +940,17 @@
         <section id="membersSection" class="content-section">
           <h2>成员管理</h2>
           <p>管理神界阁成员信息，包括添加、修改、删除成员。</p>
+
+          <!-- 二级导航栏 -->
+          <div class="section-nav">
+            <div class="section-nav-item" onclick="filterMembersByStatus('')">全部</div>
+            <div class="section-nav-item" onclick="filterMembersByStatus('正常')">正常</div>
+            <div class="section-nav-item" onclick="filterMembersByStatus('封禁')">封禁</div>
+          </div>
           
           <div class="btn-group">
             <button class="btn btn-primary" id="addMemberBtn">添加成员</button>
-            <button class="btn btn-secondary" id="refreshMembersBtn">刷新数据</button>
+            <button class="btn btn-secondary" id="refreshMembersBtn">🔄</button>
           </div>
 
           <div class="table-container">
@@ -879,21 +979,27 @@
           <h2>题库管理</h2>
           <p>管理神界阁入圈题库，包括添加、删除、标记题目状态。</p>
 
+          <!-- 二级导航栏 -->
+          <div class="section-nav">
+            <div class="section-nav-item" onclick="scrollToSection('kQuestionsArea')">客观题</div>
+            <div class="section-nav-item" onclick="scrollToSection('zQuestionsArea')">主观题</div>
+          </div>
+
           <div class="btn-group">
             <button class="btn btn-primary" id="addKQuestionBtn">添加客观题</button>
             <button class="btn btn-primary" id="addZQuestionBtn">添加主观题</button>
-            <button class="btn btn-secondary" id="refreshQuestionsBtn">刷新数据</button>
+            <button class="btn btn-secondary" id="refreshQuestionsBtn">🔄</button>
           </div>
 
           <div class="question-section">
             <!-- 客观题 -->
-            <div class="question-col">
+            <div class="question-col" id="kQuestionsArea">
               <h3>客观题 (K.json)</h3>
               <div id="kQuestionsList"></div>
             </div>
             
             <!-- 主观题 -->
-            <div class="question-col">
+            <div class="question-col" id="zQuestionsArea">
               <h3>主观题 (Z.json)</h3>
               <div id="zQuestionsList"></div>
             </div>
@@ -905,9 +1011,15 @@
           <h2>发布与管理题库答题</h2>
           <p>发布题库给成员并管理待审核的答题。</p>
 
+          <!-- 二级导航栏 -->
+          <div class="section-nav">
+            <div class="section-nav-item" onclick="scrollToSection('publishArea')">发布题库</div>
+            <div class="section-nav-item" onclick="scrollToSection('pendingArea')">待审核答题</div>
+          </div>
+
           <div class="question-section">
             <!-- 发布题库 -->
-            <div class="question-col">
+            <div class="question-col" id="publishArea">
               <h3>发布题库</h3>
               <div class="form-group">
                 <label class="form-label">发布类型</label>
@@ -949,7 +1061,7 @@
             </div>
 
             <!-- 管理待审核答题 -->
-            <div class="question-col">
+            <div class="question-col" id="pendingArea">
               <h3>管理待审核答题</h3>
               <div id="pendingAnswersList"></div>
             </div>
@@ -961,8 +1073,16 @@
           <h2>Q&A管理</h2>
           <p>回答用户提出的疑问，管理所有Q&A内容。</p>
 
+          <!-- 二级导航栏 -->
+          <div class="section-nav">
+            <div class="section-nav-item" onclick="filterQAByStatus('')">全部</div>
+            <div class="section-nav-item" onclick="filterQAByStatus('暂未回答')">待回答</div>
+            <div class="section-nav-item" onclick="filterQAByStatus('已回答')">已回答</div>
+            <div class="section-nav-item" onclick="filterQAByStatus('不予回答')">不予回答</div>
+          </div>
+
           <div class="btn-group">
-            <button class="btn btn-secondary" id="refreshQABtn">刷新数据</button>
+            <button class="btn btn-secondary" id="refreshQABtn">🔄</button>
           </div>
 
           <div class="table-container">
@@ -990,10 +1110,16 @@
           <h2>政治体系管理</h2>
           <p>管理神界政治体系的文件夹和文件结构。</p>
 
+          <!-- 二级导航栏 -->
+          <div class="section-nav">
+            <div class="section-nav-item" onclick="navigatePoliticalAdmin('root')">根目录</div>
+            <div class="section-nav-item" onclick="navigatePoliticalAdminQuick()">上级目录</div>
+          </div>
+
           <div class="btn-group">
             <button class="btn btn-primary" id="addFolderBtn">创建文件夹</button>
             <button class="btn btn-primary" id="addPoliticalFileBtn">创建文件</button>
-            <button class="btn btn-secondary" id="refreshPoliticalBtn">刷新数据</button>
+            <button class="btn btn-secondary" id="refreshPoliticalBtn">🔄</button>
           </div>
 
           <div class="political-admin-breadcrumb" id="politicalAdminBreadcrumb">
@@ -1306,6 +1432,60 @@
         console.error('加载成员数据失败:', error);
         tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #dc3545;">加载失败，请重试</td></tr>';
       }
+    }
+
+    // 按状态过滤成员
+    function filterMembersByStatus(status) {
+      const tableBody = document.getElementById('membersTableBody');
+      tableBody.innerHTML = '';
+
+      if (membersData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">暂无成员数据</td></tr>';
+        return;
+      }
+
+      const filteredData = status ? membersData.filter(m => m['账号状态'] === status) : membersData;
+
+      if (filteredData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">该状态下暂无成员</td></tr>';
+        return;
+      }
+
+      filteredData.forEach(member => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${member.user || '无'}</td>
+          <td>${member['账号名称'] || '无'}</td>
+          <td>${member['自设名称'] || '无'}</td>
+          <td>${member['入圈时间'] || '无'}</td>
+          <td>${member['账号状态'] || '无'}</td>
+          <td>
+            <button class="btn btn-primary btn-sm edit-member" data-id="${member.user}">编辑</button>
+            <button class="btn btn-secondary btn-sm delete-member" data-id="${member.user}">删除</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      // 添加编辑和删除事件
+      document.querySelectorAll('.edit-member').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.dataset.id;
+          const member = membersData.find(m => m.user === id);
+          if (member) {
+            openMemberModal(member);
+          }
+        });
+      });
+
+      document.querySelectorAll('.delete-member').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const id = this.dataset.id;
+          if (confirm('确定要删除该成员吗？')) {
+            await deleteMember(id);
+          }
+        });
+      });
     }
 
     // 渲染成员表格
@@ -2213,6 +2393,42 @@
       }
     }
 
+    // 按状态过滤Q&A
+    function filterQAByStatus(status) {
+      const tbody = document.getElementById('qaTableBody');
+      if (qaList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">暂无数据</td></tr>';
+        return;
+      }
+
+      const filteredList = status ? qaList.filter(qa => qa.status === status) : qaList;
+      
+      if (filteredList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">该状态下暂无数据</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filteredList.map(qa => {
+        let statusClass = '';
+        if (qa.status === '已回答') statusClass = 'status-approved';
+        else if (qa.status === '暂未回答') statusClass = 'status-pending';
+        else if (qa.status === '不予回答') statusClass = 'status-rejected';
+
+        return `
+          <tr>
+            <td>${escapeHtml(qa.title)}</td>
+            <td>${escapeHtml(qa.question.substring(0, 50))}${qa.question.length > 50 ? '...' : ''}</td>
+            <td><span class="status-badge ${statusClass}">${qa.status}</span></td>
+            <td>${new Date(qa.createTime).toLocaleDateString('zh-CN')}</td>
+            <td>
+              <button class="btn btn-primary btn-sm" onclick="openAnswerModal('${qa.id}')">回答</button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteQA('${qa.id}')">删除</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
     // 渲染Q&A表格
     function renderQATable() {
       const tbody = document.getElementById('qaTableBody');
@@ -2453,13 +2669,22 @@
       const breadcrumb = document.getElementById('politicalAdminBreadcrumb');
       if (!container || !breadcrumb) return;
 
-      // 渲染面包屑
+      // 渲染面包屑 - 递归构建完整路径
+      function buildBreadcrumbPath(folderId) {
+        if (folderId === 'root' || !folderId) return [];
+        const folder = politicalSystemData.folders.find(f => f.id === folderId);
+        if (!folder) return [];
+        
+        const parentPath = buildBreadcrumbPath(folder.parentId);
+        return [...parentPath, folder];
+      }
+      
       let breadcrumbHtml = '<span class="breadcrumb-item" onclick="navigatePoliticalAdmin(\'root\')">根目录</span>';
       if (currentPoliticalFolder !== 'root') {
-        const folder = politicalSystemData.folders.find(f => f.id === currentPoliticalFolder);
-        if (folder) {
-          breadcrumbHtml += `<span class="breadcrumb-separator">/</span><span class="breadcrumb-item">${escapeHtml(folder.name)}</span>`;
-        }
+        const pathFolders = buildBreadcrumbPath(currentPoliticalFolder);
+        pathFolders.forEach(folder => {
+          breadcrumbHtml += `<span class="breadcrumb-separator">/</span><span class="breadcrumb-item" onclick="navigatePoliticalAdmin('${folder.id}')">${escapeHtml(folder.name)}</span>`;
+        });
       }
       breadcrumb.innerHTML = breadcrumbHtml;
 
@@ -2518,6 +2743,26 @@
     function navigatePoliticalAdmin(folderId) {
       currentPoliticalFolder = folderId;
       renderPoliticalAdminContent();
+    }
+
+    // 快速导航到上级目录
+    function navigatePoliticalAdminQuick() {
+      if (currentPoliticalFolder === 'root') return;
+      const folder = politicalSystemData.folders.find(f => f.id === currentPoliticalFolder);
+      if (folder && folder.parentId) {
+        currentPoliticalFolder = folder.parentId;
+      } else {
+        currentPoliticalFolder = 'root';
+      }
+      renderPoliticalAdminContent();
+    }
+
+    // 滚动到指定区域
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // 打开文件夹

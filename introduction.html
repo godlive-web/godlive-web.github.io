@@ -326,25 +326,29 @@
       document.querySelector('.header-title').textContent = file.name || '机构详情';
     }
 
-    // 渲染面包屑
+    // 渲染面包屑 - 递归构建完整路径
     function renderBreadcrumb(file, folderId) {
       let html = '<a href="index.html" class="breadcrumb-item">首页</a>';
       html += '<span class="breadcrumb-separator">/</span>';
       html += '<a href="index.html#神界圈介绍" class="breadcrumb-item">神界圈介绍</a>';
       
-      // 添加文件夹路径
-      if (file && file.folderId) {
-        const folder = politicalData.folders.find(f => f.id === file.folderId);
-        if (folder) {
+      // 递归获取文件夹完整路径
+      function buildFolderPath(fid) {
+        if (!fid || fid === 'root') return [];
+        const folder = politicalData.folders.find(f => f.id === fid);
+        if (!folder) return [];
+        const parentPath = buildFolderPath(folder.parentId);
+        return [...parentPath, folder];
+      }
+      
+      // 添加文件夹完整路径
+      const targetFolderId = file ? file.folderId : folderId;
+      if (targetFolderId && targetFolderId !== 'root') {
+        const pathFolders = buildFolderPath(targetFolderId);
+        pathFolders.forEach(folder => {
           html += '<span class="breadcrumb-separator">/</span>';
-          html += `<a href="javascript:void(0)" onclick="showFolderContent('${file.folderId}')" class="breadcrumb-item">${escapeHtml(folder.name)}</a>`;
-        }
-      } else if (folderId) {
-        const folder = politicalData.folders.find(f => f.id === folderId);
-        if (folder) {
-          html += '<span class="breadcrumb-separator">/</span>';
-          html += `<span class="breadcrumb-item" style="color: var(--text-secondary); cursor: default;">${escapeHtml(folder.name)}</span>`;
-        }
+          html += `<a href="javascript:void(0)" onclick="showFolderContent('${folder.id}')" class="breadcrumb-item">${escapeHtml(folder.name)}</a>`;
+        });
       }
       
       if (file) {
