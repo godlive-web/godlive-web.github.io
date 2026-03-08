@@ -782,12 +782,14 @@
       .section-nav {
         display: flex;
         gap: 8px;
+        margin-top: 10px;
         margin-bottom: 15px;
         padding: 10px;
         background: var(--bg-secondary);
         border-radius: 8px;
         overflow-x: auto;
         white-space: nowrap;
+        align-items: center;
       }
       
       .section-nav-item {
@@ -799,6 +801,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         flex-shrink: 0;
+        line-height: 1.4;
       }
       
       .section-nav-item:hover {
@@ -837,11 +840,11 @@
       
       table {
         min-width: 600px;
-        font-size: 12px;
+        font-size: 11px;
       }
       
       th, td {
-        padding: 8px 6px;
+        padding: 6px 4px;
         white-space: nowrap;
       }
       
@@ -852,21 +855,40 @@
       
       #qaTable th:nth-child(2),
       #qaTable td:nth-child(2) {
-        max-width: 150px;
+        max-width: 120px;
         white-space: normal;
         word-break: break-word;
       }
       
       /* 成员表格特殊处理 */
       #membersTable {
-        min-width: 550px;
+        min-width: 500px;
       }
       
       #membersTable th:nth-child(2),
-      #membersTable td:nth-child(2),
+      #membersTable td:nth-child(2) {
+        max-width: 70px;
+        white-space: normal;
+        word-break: break-word;
+      }
+      
       #membersTable th:nth-child(3),
       #membersTable td:nth-child(3) {
         max-width: 80px;
+        white-space: normal;
+        word-break: break-word;
+      }
+      
+      #membersTable th:nth-child(4),
+      #membersTable td:nth-child(4) {
+        max-width: 80px;
+        white-space: normal;
+        word-break: break-word;
+      }
+      
+      #membersTable th:nth-child(5),
+      #membersTable td:nth-child(5) {
+        max-width: 90px;
         white-space: normal;
         word-break: break-word;
       }
@@ -985,10 +1007,10 @@
             <div class="section-nav-item" onclick="scrollToSection('zQuestionsArea')">主观题</div>
           </div>
 
-          <div class="btn-group">
-            <button class="btn btn-primary" id="addKQuestionBtn">添加客观题</button>
-            <button class="btn btn-primary" id="addZQuestionBtn">添加主观题</button>
-            <button class="btn btn-secondary" id="refreshQuestionsBtn">🔄</button>
+          <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: center;">
+            <button class="btn btn-primary" id="addKQuestionBtn" style="flex: 1; min-width: 120px; max-width: calc(50% - 12px);">添加客观题</button>
+            <button class="btn btn-primary" id="addZQuestionBtn" style="flex: 1; min-width: 120px; max-width: calc(50% - 12px);">添加主观题</button>
+            <button class="btn btn-secondary" id="refreshQuestionsBtn" style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔄</button>
           </div>
 
           <div class="question-section">
@@ -1444,7 +1466,14 @@
         return;
       }
 
-      const filteredData = status ? membersData.filter(m => m['账号状态'] === status) : membersData;
+      let filteredData;
+      if (status === '正常') {
+        filteredData = membersData.filter(m => m['账号状态'] === '0');
+      } else if (status === '封禁') {
+        filteredData = membersData.filter(m => m['账号状态'] !== '0' && m['账号状态'] !== '尚未获取神界圈成员身份');
+      } else {
+        filteredData = membersData;
+      }
 
       if (filteredData.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">该状态下暂无成员</td></tr>';
@@ -2761,7 +2790,12 @@
     function scrollToSection(sectionId) {
       const element = document.getElementById(sectionId);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const headerHeight = 60; // 顶部导航栏高度
+        const elementTop = element.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+        window.scrollTo({
+          top: elementTop,
+          behavior: 'smooth'
+        });
       }
     }
 
