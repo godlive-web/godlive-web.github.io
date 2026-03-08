@@ -354,6 +354,8 @@
       border-radius: 4px;
       font-size: 12px;
       font-weight: 600;
+      white-space: nowrap;
+      display: inline-block;
     }
     .status-pending {
       background: #fff3cd;
@@ -793,20 +795,75 @@
       }
       
       .section-nav-item {
-        padding: 6px 12px;
-        background: var(--accent-light);
+        padding: 8px 16px;
+        background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg-secondary) 100%);
         color: var(--accent-color);
-        border-radius: 4px;
-        font-size: 12px;
+        border-radius: 6px;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s ease;
         flex-shrink: 0;
         line-height: 1.4;
+        border: 2px solid var(--accent-color);
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+        min-width: 60px;
       }
       
       .section-nav-item:hover {
         background: var(--accent-color);
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      }
+      
+      /* 电脑端样式 */
+      @media (min-width: 769px) {
+        /* 隐藏题库管理和发布与管理题库答题的二级导航 */
+        #questionsSection .section-nav,
+        #publishSection .section-nav {
+          display: none;
+        }
+        
+        /* 电脑端二级导航按钮样式 */
+        .section-nav {
+          padding: 15px;
+          gap: 15px;
+        }
+        
+        .section-nav-item {
+          padding: 12px 24px;
+          font-size: 15px;
+          border-radius: 8px;
+          min-width: 80px;
+        }
+      }
+      
+      /* 窄屏幕优化 */
+      @media (max-width: 768px) {
+        /* 待审核答题头部布局优化 */
+        .question-item > div:first-child {
+          flex-direction: column !important;
+          align-items: flex-start !important;
+        }
+        
+        .question-item > div:first-child .status-badge {
+          margin-top: 8px;
+          align-self: flex-start;
+        }
+        
+        /* 匿名标签和用户信息不换行 */
+        .question-item > div:first-child > div:first-child {
+          display: flex !important;
+          flex-wrap: wrap !important;
+          gap: 4px !important;
+          width: 100%;
+        }
+        
+        .question-item > div:first-child > div:first-child span {
+          white-space: nowrap;
+        }
       }
       
       /* 按钮布局优化 */
@@ -2096,22 +2153,26 @@
         let headerHtml = '';
         if (item.type === 'member') {
           headerHtml = `
-            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">用户ID：${item.id}</span>
-            <span style="margin-left: 10px; color: var(--text-secondary);">(${item.name})</span>
-            <span style="margin-left: 10px; padding: 2px 6px; background: var(--accent-light); color: var(--accent-color); border-radius: 4px; font-size: 12px;">成员</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">${item.id}</span>
+              <span style="color: var(--text-secondary); font-size: 13px;">${item.name}</span>
+              <span style="padding: 2px 6px; background: var(--accent-light); color: var(--accent-color); border-radius: 4px; font-size: 12px; white-space: nowrap;">成员</span>
+            </div>
           `;
         } else {
           headerHtml = `
-            <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">虚拟用户：${item.id}</span>
-            <span style="margin-left: 10px; color: var(--text-secondary);">密钥：${item.key}</span>
-            <span style="margin-left: 10px; padding: 2px 6px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px;">匿名</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-weight: 600; font-size: 16px; color: var(--text-primary);">${item.id}</span>
+              <span style="color: var(--text-secondary); font-size: 13px;">${item.key}</span>
+              <span style="padding: 2px 6px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px; white-space: nowrap;">匿名</span>
+            </div>
           `;
         }
 
         itemEl.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); flex-wrap: nowrap;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); gap: 10px;">
             <div style="flex: 1; min-width: 0;">${headerHtml}</div>
-            <span class="status-badge status-pending" style="white-space: nowrap; flex-shrink: 0;">待审核</span>
+            <span class="status-badge status-pending" style="white-space: nowrap; flex-shrink: 0; margin-top: 2px;">待审核</span>
           </div>
           <div style="margin-bottom: 10px; color: var(--text-secondary); font-size: 13px;">
             答题时间：${examData.answerTime || '未答题'}
