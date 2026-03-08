@@ -838,6 +838,21 @@
         border-radius: 6px;
       }
       
+      /* 手机端表格优化 */
+      .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      table {
+        min-width: 800px !important;
+      }
+      
+      th, td {
+        padding: 8px !important;
+        font-size: 14px !important;
+      }
+      
       /* 待审核答题头部布局优化 */
       .question-item > div:first-child {
         flex-direction: column !important;
@@ -870,19 +885,24 @@
         display: none !important;
       }
       
-      /* 电脑端二级导航按钮样式 - 更大的按钮 */
+      /* 电脑端二级导航按钮样式 */
       .content-section .section-nav {
-        padding: 20px;
-        gap: 15px;
+        padding: 15px;
+        gap: 12px;
       }
       
       .content-section .section-nav .section-nav-item {
-        padding: 12px 28px;
-        font-size: 16px;
-        border-radius: 10px;
-        min-width: 100px;
+        padding: 10px 20px;
+        font-size: 14px;
+        border-radius: 8px;
+        min-width: 80px;
       }
-    }
+      
+      /* 电脑端按钮大小优化 */
+      .btn-primary {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
       
       /* 按钮布局优化 */
       .btn-group {
@@ -906,67 +926,55 @@
         justify-content: center;
         font-size: 16px;
       }
-      
-      /* 表格优化 */
-      .table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      
-      table {
-        min-width: 600px;
-        font-size: 11px;
-      }
-      
-      th, td {
-        padding: 6px 4px;
-        white-space: nowrap;
-      }
-      
-      /* Q&A表格特殊处理 */
-      #qaTable {
-        min-width: 500px;
-      }
-      
-      #qaTable th:nth-child(2),
-      #qaTable td:nth-child(2) {
-        max-width: 120px;
-        white-space: normal;
-        word-break: break-word;
-      }
-      
-      /* 成员表格特殊处理 */
-      #membersTable {
-        min-width: 500px;
-      }
-      
-      #membersTable th:nth-child(2),
-      #membersTable td:nth-child(2) {
-        max-width: 70px;
-        white-space: normal;
-        word-break: break-word;
-      }
-      
-      #membersTable th:nth-child(3),
-      #membersTable td:nth-child(3) {
-        max-width: 80px;
-        white-space: normal;
-        word-break: break-word;
-      }
-      
-      #membersTable th:nth-child(4),
-      #membersTable td:nth-child(4) {
-        max-width: 80px;
-        white-space: normal;
-        word-break: break-word;
-      }
-      
-      #membersTable th:nth-child(5),
-      #membersTable td:nth-child(5) {
-        max-width: 90px;
-        white-space: normal;
-        word-break: break-word;
-      }
+    }
+    
+    /* 表格优化 */
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 15px;
+    }
+    
+    /* 表格列宽优化 */
+    #qaTable th:nth-child(2),
+    #qaTable td:nth-child(2) {
+      min-width: 200px;
+    }
+    
+    #membersTable th:nth-child(2),
+    #membersTable td:nth-child(2) {
+      min-width: 120px;
+    }
+    
+    #membersTable th:nth-child(3),
+    #membersTable td:nth-child(3) {
+      min-width: 100px;
+    }
+    
+    #membersTable th:nth-child(4),
+    #membersTable td:nth-child(4) {
+      min-width: 100px;
+    }
+    
+    #membersTable th:nth-child(5),
+    #membersTable td:nth-child(5) {
+      min-width: 150px;
+    }
+    
+    #questionsTable th:nth-child(2),
+    #questionsTable td:nth-child(2) {
+      min-width: 150px;
     }
   </style>
 </head>
