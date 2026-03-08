@@ -1076,9 +1076,9 @@
                 <label class="form-label">选择题目</label>
                 <div id="publishQuestionsList"></div>
               </div>
-              <div class="btn-group">
-                <button class="btn btn-primary" id="publishBtn">发布</button>
-                <button class="btn btn-secondary" id="cancelPublishBtn">取消</button>
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn btn-primary" id="publishBtn" style="flex: 1;">发布</button>
+                <button class="btn btn-secondary" id="cancelPublishBtn" style="flex: 1;">取消</button>
               </div>
             </div>
 
@@ -1138,10 +1138,10 @@
             <div class="section-nav-item" onclick="navigatePoliticalAdminQuick()">上级目录</div>
           </div>
 
-          <div class="btn-group">
-            <button class="btn btn-primary" id="addFolderBtn">创建文件夹</button>
-            <button class="btn btn-primary" id="addPoliticalFileBtn">创建文件</button>
-            <button class="btn btn-secondary" id="refreshPoliticalBtn">🔄</button>
+          <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: center;">
+            <button class="btn btn-primary" id="addFolderBtn" style="flex: 1; min-width: 120px; max-width: calc(50% - 12px);">创建文件夹</button>
+            <button class="btn btn-primary" id="addPoliticalFileBtn" style="flex: 1; min-width: 120px; max-width: calc(50% - 12px);">创建文件</button>
+            <button class="btn btn-secondary" id="refreshPoliticalBtn" style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 16px;">🔄</button>
           </div>
 
           <div class="political-admin-breadcrumb" id="politicalAdminBreadcrumb">
@@ -1470,7 +1470,8 @@
       if (status === '正常') {
         filteredData = membersData.filter(m => m['账号状态'] === '0');
       } else if (status === '封禁') {
-        filteredData = membersData.filter(m => m['账号状态'] !== '0' && m['账号状态'] !== '尚未获取神界圈成员身份');
+        // 除了状态是0的，其他都是封禁状态
+        filteredData = membersData.filter(m => m['账号状态'] !== '0');
       } else {
         filteredData = membersData;
       }
@@ -2108,9 +2109,9 @@
         }
 
         itemEl.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
-            <div>${headerHtml}</div>
-            <span class="status-badge status-pending">待审核</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); flex-wrap: nowrap;">
+            <div style="flex: 1; min-width: 0;">${headerHtml}</div>
+            <span class="status-badge status-pending" style="white-space: nowrap; flex-shrink: 0;">待审核</span>
           </div>
           <div style="margin-bottom: 10px; color: var(--text-secondary); font-size: 13px;">
             答题时间：${examData.answerTime || '未答题'}
@@ -2791,7 +2792,7 @@
       const element = document.getElementById(sectionId);
       if (element) {
         const headerHeight = 60; // 顶部导航栏高度
-        const elementTop = element.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+        const elementTop = element.getBoundingClientRect().top + window.pageYOffset - headerHeight - 80;
         window.scrollTo({
           top: elementTop,
           behavior: 'smooth'

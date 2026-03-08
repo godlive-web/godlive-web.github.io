@@ -3026,6 +3026,16 @@ function showQADetail(id) {
     answerText = '暂未回答';
   } else if (q.status === '不予回答') {
     answerText = '该疑问尚不披露';
+  } else if (answerText) {
+    // 处理转义的换行符，将 \n 替换为 <br>
+    // 先对文本进行 HTML 转义，避免 XSS 攻击
+    answerText = answerText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\\n/g, '<br>');
   }
 
   const timeText = q.answerTime || q.createTime;
@@ -3056,7 +3066,7 @@ function showQADetail(id) {
         </div>
         <div class="qa-modal-section">
           <div class="qa-modal-label">回答</div>
-          <div class="qa-modal-text">${escapeHtml(answerText)}</div>
+          <div class="qa-modal-text">${answerText}</div>
         </div>
         ${relatedHtml ? `
         <div class="qa-modal-section">
