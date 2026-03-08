@@ -899,7 +899,12 @@
       }
       
       /* 电脑端按钮大小优化 */
-      .btn-primary {
+      .btn-primary:not(.btn-sm) {
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+      
+      .btn-secondary:not(.btn-sm) {
         padding: 10px 20px;
         font-size: 14px;
       }
@@ -912,12 +917,12 @@
         margin-bottom: 15px;
       }
       
-      .btn-group .btn-primary {
+      .btn-group .btn-primary:not(.btn-sm) {
         flex: 1;
         min-width: 120px;
       }
       
-      .btn-group .btn-secondary {
+      .btn-group .btn-secondary:not(.btn-sm) {
         width: 40px;
         height: 40px;
         padding: 0;
