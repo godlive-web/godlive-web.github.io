@@ -3687,7 +3687,7 @@
 
       try {
         const method = id ? 'PUT' : 'POST';
-        const body = id ? { id, title, content, author, createdAt, isTop } : { title, content, author, createdAt };
+        const body = id ? { id, title, content, author, createdAt, isTop } : { title, content, author, createdAt, isTop };
 
         const response = await fetch(`${API_BASE}/api/introduction?type=announcement`, {
           method,

@@ -342,7 +342,7 @@ outline: none;
 border-color: #2575fc;
 box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.3);
 }
-#billSearchBtn {
+#billSearchBtn, #announcementSearchBtn {
 padding: 12px 25px;
 background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
 color: white;
@@ -3374,6 +3374,26 @@ document.getElementById('announcementModal').addEventListener('click', function(
 });
 
 async function loadAnnouncements() {
+  // 检查登录状态
+  const userCookie = getCookie('user');
+  const userDataStr = getCookie('userData');
+  let isLoggedIn = false;
+  if (userCookie && userCookie !== '' && userDataStr) {
+    try {
+      const userData = JSON.parse(userDataStr);
+      if (userData && (userData['账号名称'] || userCookie)) {
+        isLoggedIn = true;
+      }
+    } catch (e) {
+      isLoggedIn = false;
+    }
+  }
+
+  if (!isLoggedIn) {
+    document.getElementById('announcementResults').innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">请先登录后再使用此功能</div>';
+    return;
+  }
+
   const container = document.getElementById('announcementResults');
   container.innerHTML = '<div style="text-align: center; padding: 20px;">加载中...</div>';
 
