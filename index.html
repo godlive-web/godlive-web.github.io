@@ -436,6 +436,57 @@ font-size: 12px;
 color: var(--text-secondary);
 border-top: 1px solid var(--border-color);
 }
+/* 公告样式 */
+.bill-result-card {
+background: var(--bg-secondary);
+border-radius: 10px;
+overflow: hidden;
+box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+cursor: pointer;
+width: calc(25% - 12px);
+min-width: 220px;
+margin: 0;
+position: relative;
+}
+.bill-result-card:hover {
+transform: translateY(-3px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+.bill-top-badge {
+position: absolute;
+top: 10px;
+right: 10px;
+background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+color: white;
+padding: 3px 8px;
+border-radius: 4px;
+font-size: 11px;
+font-weight: bold;
+}
+.bill-result-title {
+font-size: 16px;
+font-weight: bold;
+color: var(--text-primary);
+padding: 15px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+.bill-result-meta {
+padding: 8px 15px;
+font-size: 12px;
+color: var(--text-secondary);
+border-top: 1px solid var(--border-color);
+display: flex;
+justify-content: space-between;
+}
+@media (max-width: 768px) {
+.bill-result-card {
+width: calc(50% - 8px);
+min-width: 140px;
+}
+}
 /* 通用错误/加载样式 */
 .bill-error, .bill-loading, .user-error, .user-loading {
 text-align: center;
@@ -1902,6 +1953,16 @@ padding: 12px 15px;
 <section class="content-section" data-index="1">
 <h2>神界资讯</h2>
 <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
+<div id="announcementSearchContainer" class="bill-search-center">
+<div class="bill-search">
+<button id="announcementSearchBtn">
+<i class="search-icon">📢</i> 查看公告
+</button>
+</div>
+</div>
+<div id="announcementResults" class="bill-results-container">
+<!-- 公告结果动态渲染 -->
+</div>
 </section>
 <!-- 3. 成员信息库（带搜索功能） -->
 <section class="content-section" data-index="2">
@@ -1949,6 +2010,17 @@ padding: 12px 15px;
 <div class="bill-modal-publish" id="modalBillPublish"></div>
 </div>
 </div>
+
+<!-- 公告详情模态框 -->
+<div id="announcementModal" class="bill-modal">
+<div class="bill-modal-content">
+<button class="bill-modal-close" id="closeAnnouncementModal">&times;</button>
+<div class="bill-modal-title" id="modalAnnouncementTitle"></div>
+<div class="bill-modal-body" id="modalAnnouncementContent"></div>
+<div class="bill-modal-publish" id="modalAnnouncementInfo"></div>
+</div>
+</div>
+
 <!-- 5. 神界文件库 -->
 <section class="content-section" data-index="4">
 <h2>神界文件库</h2>
@@ -3287,6 +3359,104 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// ========== 公告功能 ==========
+document.getElementById('announcementSearchBtn').addEventListener('click', loadAnnouncements);
+
+document.getElementById('closeAnnouncementModal').addEventListener('click', function() {
+  document.getElementById('announcementModal').style.display = 'none';
+});
+
+document.getElementById('announcementModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.style.display = 'none';
+  }
+});
+
+async function loadAnnouncements() {
+  const container = document.getElementById('announcementResults');
+  container.innerHTML = '<div style="text-align: center; padding: 20px;">加载中...</div>';
+
+  try {
+    const response = await fetch(`${API_BASE}/api/introduction?type=announcement`);
+    if (!response.ok) {
+      throw new Error('网络连接异常，请检查网络连接');
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.message || '获取公告失败');
+    }
+
+    const announcements = result.data || [];
+    if (announcements.length === 0) {
+      container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">尚未发布公告</div>';
+      return;
+    }
+
+    const sortedAnnouncements = [...announcements].sort((a, b) => {
+      if (a.isTop && !b.isTop) return -1;
+      if (!a.isTop && b.isTop) return 1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    const isMobile = window.innerWidth <= 768;
+    const displayCount = isMobile ? 3 : 5;
+    const displayAnnouncements = sortedAnnouncements.slice(0, displayCount);
+
+    container.innerHTML = displayAnnouncements.map(ann => {
+      const date = new Date(ann.createdAt);
+      const dateStr = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      return `
+        <div class="bill-result-card" onclick="showAnnouncementDetail('${ann.id}')">
+          ${ann.isTop ? '<span class="bill-top-badge">置顶</span>' : ''}
+          <div class="bill-result-title">${escapeHtml(ann.title)}</div>
+          <div class="bill-result-meta">
+            <span>发布者：${escapeHtml(ann.author)}</span>
+            <span>${dateStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+  } catch (error) {
+    console.error('加载公告失败:', error);
+    container.innerHTML = `<div style="text-align: center; color: #dc3545; padding: 20px;">您的网络异常，请检查网络连接</div>`;
+  }
+}
+
+window.showAnnouncementDetail = function(id) {
+  fetch(`${API_BASE}/api/introduction?type=announcement`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('网络连接异常，请检查网络连接');
+      }
+      return response.json();
+    })
+    .then(result => {
+      if (!result.success) {
+        throw new Error(result.message || '获取公告详情失败');
+      }
+
+      const announcement = result.data.find(a => a.id === id);
+      if (!announcement) {
+        throw new Error('未找到该公告');
+      }
+
+      document.getElementById('modalAnnouncementTitle').textContent = announcement.title;
+      document.getElementById('modalAnnouncementContent').textContent = announcement.content;
+
+      const date = new Date(announcement.createdAt);
+      const dateStr = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      document.getElementById('modalAnnouncementInfo').textContent = `发布者：${announcement.author} | ${dateStr}${announcement.isTop ? ' | 🔝 置顶' : ''}`;
+
+      document.getElementById('announcementModal').style.display = 'flex';
+    })
+    .catch(error => {
+      console.error('加载公告详情失败:', error);
+      alert('您的网络异常，请检查网络连接');
+    });
+};
 </script>
 </body>
 </html>

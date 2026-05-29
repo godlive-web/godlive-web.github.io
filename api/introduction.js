@@ -18,6 +18,7 @@ export default async function handler(req, res) {
     const REPO_NAME = "godlive-web.github.io";
     const QA_FILE_PATH = "openfill/Introduction/Q&A.json";
     const POLITICAL_FILE_PATH = "openfill/Introduction/PoliticalSystem.json";
+    const ANNOUNCEMENT_FILE_PATH = "data/announcement.json";
 
     if (!GITHUB_TOKEN) {
       return res.status(500).json({ success: false, msg: "服务器未配置GITHUB_TOKEN" });
@@ -173,6 +174,94 @@ export default async function handler(req, res) {
 
         await updateFileOnGitHub(REPO_OWNER, REPO_NAME, POLITICAL_FILE_PATH, politicalData, GITHUB_TOKEN);
         return res.status(200).json({ success: true, msg: "删除成功" });
+      }
+    }
+
+    // 公告管理
+    if (type === 'announcement') {
+      if (req.method === 'GET') {
+        const announcementData = await getFileFromGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, GITHUB_TOKEN);
+        return res.status(200).json({ success: true, data: announcementData });
+      }
+
+      if (req.method === 'POST') {
+        const { title, content, author } = req.body;
+        if (!title || !content || !author) {
+          return res.status(400).json({ success: false, msg: "缺少必填字段：标题、正文或发布者" });
+        }
+
+        let announcementData = await getFileFromGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, GITHUB_TOKEN);
+        if (!Array.isArray(announcementData)) {
+          announcementData = [];
+        }
+
+        const newAnnouncement = {
+          id: Date.now().toString(),
+          title: title,
+          content: content,
+          author: author,
+          createdAt: new Date().toISOString(),
+          isTop: false
+        };
+
+        announcementData.unshift(newAnnouncement);
+        await updateFileOnGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, announcementData, GITHUB_TOKEN);
+        return res.status(200).json({ success: true, data: newAnnouncement });
+      }
+
+      if (req.method === 'PUT') {
+        const { id, title, content, author, isTop } = req.body;
+        if (!id) {
+          return res.status(400).json({ success: false, msg: "缺少公告ID" });
+        }
+
+        let announcementData = await getFileFromGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, GITHUB_TOKEN);
+        if (!Array.isArray(announcementData)) {
+          announcementData = [];
+        }
+
+        const announcementIndex = announcementData.findIndex(item => item.id === id);
+        if (announcementIndex === -1) {
+          return res.status(404).json({ success: false, msg: "未找到该公告" });
+        }
+
+        if (isTop !== undefined) {
+          announcementData.forEach(item => {
+            if (item.id === id) {
+              item.isTop = isTop;
+            } else if (isTop && item.isTop) {
+              item.isTop = false;
+            }
+          });
+        }
+
+        if (title !== undefined) announcementData[announcementIndex].title = title;
+        if (content !== undefined) announcementData[announcementIndex].content = content;
+        if (author !== undefined) announcementData[announcementIndex].author = author;
+
+        await updateFileOnGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, announcementData, GITHUB_TOKEN);
+        return res.status(200).json({ success: true, data: announcementData[announcementIndex] });
+      }
+
+      if (req.method === 'DELETE') {
+        const { id } = req.body;
+        if (!id) {
+          return res.status(400).json({ success: false, msg: "缺少公告ID" });
+        }
+
+        let announcementData = await getFileFromGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, GITHUB_TOKEN);
+        if (!Array.isArray(announcementData)) {
+          announcementData = [];
+        }
+
+        const announcementIndex = announcementData.findIndex(item => item.id === id);
+        if (announcementIndex === -1) {
+          return res.status(404).json({ success: false, msg: "未找到该公告" });
+        }
+
+        announcementData.splice(announcementIndex, 1);
+        await updateFileOnGitHub(REPO_OWNER, REPO_NAME, ANNOUNCEMENT_FILE_PATH, announcementData, GITHUB_TOKEN);
+        return res.status(200).json({ success: true });
       }
     }
 

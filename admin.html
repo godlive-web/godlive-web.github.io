@@ -1042,6 +1042,10 @@
           <span>🏛️</span>
           政治体系管理
         </div>
+        <div class="sidebar-item" data-section="announcement">
+          <span>📢</span>
+          公告管理
+        </div>
       </aside>
 
       <!-- 内容区 -->
@@ -1240,6 +1244,37 @@
             <!-- 文件夹和文件内容将显示在这里 -->
           </div>
         </section>
+
+        <!-- 公告管理 -->
+        <section id="announcementSection" class="content-section" style="display: none;">
+          <h2>公告管理</h2>
+          <p>管理神界阁公告，包括发布、编辑、删除公告以及设置置顶公告。</p>
+
+          <div class="btn-group">
+            <button class="btn btn-primary" id="addAnnouncementBtn">发布新公告</button>
+            <button class="btn btn-secondary" id="refreshAnnouncementBtn">🔄</button>
+          </div>
+
+          <div class="table-container">
+            <table id="announcementTable">
+              <thead>
+                <tr>
+                  <th>置顶</th>
+                  <th>标题</th>
+                  <th>发布者</th>
+                  <th>发布时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="announcementTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px;">加载中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>
@@ -1363,6 +1398,39 @@
     </div>
   </div>
 
+  <!-- 公告编辑模态框 -->
+  <div id="announcementModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="announcementModalTitle">发布公告</h3>
+        <button class="close-btn" id="closeAnnouncementModal">&times;</button>
+      </div>
+      <form id="announcementForm">
+        <input type="hidden" id="announcementId">
+        <div class="form-group">
+          <label class="form-label" for="announcementTitle">公告标题</label>
+          <input type="text" id="announcementTitle" class="form-input" placeholder="请输入公告标题" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="announcementContent">公告正文</label>
+          <textarea id="announcementContent" class="form-input" rows="6" placeholder="请输入公告正文" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="announcementAuthor">发布者</label>
+          <input type="text" id="announcementAuthor" class="form-input" placeholder="请输入发布者名称" required>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" id="announcementIsTop" style="width: auto;">
+          <label class="form-label" for="announcementIsTop" style="margin-bottom: 0;">置顶此公告</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="closeAnnouncementModalBtn">取消</button>
+          <button type="submit" class="btn btn-primary" id="saveAnnouncementBtn">发布</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     // 允许登录的用户ID列表（在这里添加允许登录的用户ID）
     const ALLOWED_USERS = ['051809'];
@@ -1479,6 +1547,9 @@
 
       // 发布与管理
       initPublish();
+
+      // 公告管理
+      initAnnouncement();
     }
 
     // 成员管理功能
@@ -3400,10 +3471,250 @@
             loadQAList();
           } else if (section === 'political') {
             loadPoliticalSystemData();
+          } else if (section === 'announcement') {
+            loadAnnouncementList();
           }
         });
       });
     });
+
+    // ========== 公告管理功能 ==========
+    let announcementData = [];
+
+    function initAnnouncement() {
+      const addAnnouncementBtn = document.getElementById('addAnnouncementBtn');
+      const refreshAnnouncementBtn = document.getElementById('refreshAnnouncementBtn');
+      const announcementForm = document.getElementById('announcementForm');
+      const closeAnnouncementModalBtn = document.getElementById('closeAnnouncementModalBtn');
+      const closeAnnouncementModal = document.getElementById('closeAnnouncementModal');
+      const announcementModal = document.getElementById('announcementModal');
+
+      if (addAnnouncementBtn) {
+        addAnnouncementBtn.addEventListener('click', function() {
+          openAnnouncementModal();
+        });
+      }
+
+      if (refreshAnnouncementBtn) {
+        refreshAnnouncementBtn.addEventListener('click', loadAnnouncementList);
+      }
+
+      if (announcementForm) {
+        announcementForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          await saveAnnouncement();
+        });
+      }
+
+      if (closeAnnouncementModalBtn) {
+        closeAnnouncementModalBtn.addEventListener('click', closeAnnouncementModalFunc);
+      }
+
+      if (closeAnnouncementModal) {
+        closeAnnouncementModal.addEventListener('click', closeAnnouncementModalFunc);
+      }
+
+      if (announcementModal) {
+        announcementModal.addEventListener('click', function(e) {
+          if (e.target === announcementModal) {
+            closeAnnouncementModalFunc();
+          }
+        });
+      }
+
+      loadAnnouncementList();
+    }
+
+    async function loadAnnouncementList() {
+      const tableBody = document.getElementById('announcementTableBody');
+      tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">加载中...</td></tr>';
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=announcement`);
+        if (!response.ok) {
+          throw new Error('获取公告列表失败');
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || '获取公告列表失败');
+        }
+
+        announcementData = result.data || [];
+        renderAnnouncementTable();
+      } catch (error) {
+        console.error('加载公告列表失败:', error);
+        tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: #dc3545;">加载失败: ${error.message}</td></tr>`;
+      }
+    }
+
+    function renderAnnouncementTable() {
+      const tableBody = document.getElementById('announcementTableBody');
+
+      if (announcementData.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">暂无公告</td></tr>';
+        return;
+      }
+
+      const sortedData = [...announcementData].sort((a, b) => {
+        if (a.isTop && !b.isTop) return -1;
+        if (!a.isTop && b.isTop) return 1;
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+
+      tableBody.innerHTML = sortedData.map(announcement => `
+        <tr>
+          <td>${announcement.isTop ? '✅' : ''}</td>
+          <td>${escapeHtml(announcement.title)}</td>
+          <td>${escapeHtml(announcement.author)}</td>
+          <td>${formatDate(announcement.createdAt)}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="editAnnouncement('${announcement.id}')">编辑</button>
+            <button class="btn btn-secondary btn-sm" onclick="toggleAnnouncementTop('${announcement.id}', ${!announcement.isTop})">${announcement.isTop ? '取消置顶' : '置顶'}</button>
+            <button class="btn btn-secondary btn-sm" onclick="deleteAnnouncement('${announcement.id}')">删除</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAnnouncementModal(announcement = null) {
+      const modal = document.getElementById('announcementModal');
+      const title = document.getElementById('announcementModalTitle');
+      const form = document.getElementById('announcementForm');
+      const idInput = document.getElementById('announcementId');
+      const titleInput = document.getElementById('announcementTitle');
+      const contentInput = document.getElementById('announcementContent');
+      const authorInput = document.getElementById('announcementAuthor');
+      const isTopInput = document.getElementById('announcementIsTop');
+      const saveBtn = document.getElementById('saveAnnouncementBtn');
+
+      if (announcement) {
+        title.textContent = '编辑公告';
+        idInput.value = announcement.id;
+        titleInput.value = announcement.title || '';
+        contentInput.value = announcement.content || '';
+        authorInput.value = announcement.author || '';
+        isTopInput.checked = announcement.isTop || false;
+        saveBtn.textContent = '保存';
+      } else {
+        title.textContent = '发布公告';
+        form.reset();
+        idInput.value = '';
+        saveBtn.textContent = '发布';
+      }
+
+      modal.style.display = 'flex';
+    }
+
+    function closeAnnouncementModalFunc() {
+      const modal = document.getElementById('announcementModal');
+      modal.style.display = 'none';
+    }
+
+    window.editAnnouncement = function(id) {
+      const announcement = announcementData.find(a => a.id === id);
+      if (announcement) {
+        openAnnouncementModal(announcement);
+      }
+    };
+
+    window.toggleAnnouncementTop = async function(id, isTop) {
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=announcement`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, isTop })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || '更新置顶状态失败');
+        }
+
+        await loadAnnouncementList();
+      } catch (error) {
+        console.error('更新置顶状态失败:', error);
+        alert('更新置顶状态失败: ' + error.message);
+      }
+    };
+
+    window.deleteAnnouncement = async function(id) {
+      if (!confirm('确定要删除这条公告吗？')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/api/introduction?type=announcement`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || '删除公告失败');
+        }
+
+        await loadAnnouncementList();
+      } catch (error) {
+        console.error('删除公告失败:', error);
+        alert('删除公告失败: ' + error.message);
+      }
+    };
+
+    async function saveAnnouncement() {
+      const id = document.getElementById('announcementId').value;
+      const title = document.getElementById('announcementTitle').value.trim();
+      const content = document.getElementById('announcementContent').value.trim();
+      const author = document.getElementById('announcementAuthor').value.trim();
+      const isTop = document.getElementById('announcementIsTop').checked;
+
+      if (!title || !content || !author) {
+        alert('请填写所有必填字段');
+        return;
+      }
+
+      try {
+        const method = id ? 'PUT' : 'POST';
+        const body = id ? { id, title, content, author, isTop } : { title, content, author };
+
+        const response = await fetch(`${API_BASE}/api/introduction?type=announcement`, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.message || (id ? '更新公告失败' : '发布公告失败'));
+        }
+
+        closeAnnouncementModalFunc();
+        await loadAnnouncementList();
+      } catch (error) {
+        console.error('保存公告失败:', error);
+        alert('保存公告失败: ' + error.message);
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '无';
+      const date = new Date(dateString);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
   </script>
 </body>
 </html>
