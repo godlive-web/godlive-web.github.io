@@ -479,8 +479,7 @@ font-size: 12px;
 color: var(--text-secondary);
 border-top: 1px solid var(--border-color);
 display: flex;
-flex-direction: column;
-gap: 4px;
+justify-content: space-between;
 }
 @media (max-width: 768px) {
 .bill-result-card {
@@ -2016,7 +2015,10 @@ padding: 12px 15px;
 <button class="bill-modal-close" id="closeAnnouncementModal">&times;</button>
 <div class="bill-modal-title" id="modalAnnouncementTitle"></div>
 <div class="bill-modal-body" id="modalAnnouncementContent"></div>
-<div class="bill-modal-publish" id="modalAnnouncementInfo"></div>
+<div id="modalAnnouncementInfo" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; font-size: 14px; color: #666;">
+  <div id="modalAnnouncementAuthor"></div>
+  <div id="modalAnnouncementDate"></div>
+</div>
 </div>
 </div>
 
@@ -3436,8 +3438,8 @@ async function loadAnnouncements() {
           ${ann.isTop ? '<span class="bill-top-badge">置顶</span>' : ''}
           <div class="bill-result-title">${escapeHtml(ann.title)}</div>
           <div class="bill-result-meta">
-            <div>发布者：${escapeHtml(ann.author)}</div>
-            <div>${dateStr}</div>
+            <span>发布者：${escapeHtml(ann.author)}</span>
+            <span>${dateStr}</span>
           </div>
         </div>
       `;
@@ -3472,7 +3474,8 @@ window.showAnnouncementDetail = function(id) {
 
       const date = new Date(announcement.createdAt);
       const dateStr = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-      document.getElementById('modalAnnouncementInfo').textContent = `发布者：${announcement.author} | ${dateStr}`;
+      document.getElementById('modalAnnouncementAuthor').textContent = `发布者：${announcement.author}`;
+      document.getElementById('modalAnnouncementDate').textContent = dateStr;
 
       document.getElementById('announcementModal').style.display = 'flex';
     })
