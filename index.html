@@ -1953,15 +1953,13 @@ padding: 12px 15px;
 <section class="content-section" data-index="1">
 <h2>神界资讯</h2>
 <p>获取神界圈和神界阁的最新动态与公告，了解神界圈。</p>
-<div id="announcementSearchContainer" class="bill-search-center">
-<div class="bill-search">
-<button id="announcementSearchBtn">
-<i class="search-icon">📢</i> 查看公告
-</button>
-</div>
-</div>
+<div id="announcementContainer" style="display: none;">
 <div id="announcementResults" class="bill-results-container">
 <!-- 公告结果动态渲染 -->
+</div>
+</div>
+<div id="announcementLoginHint" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+请先登录后再查看公告
 </div>
 </section>
 <!-- 3. 成员信息库（带搜索功能） -->
@@ -2939,6 +2937,8 @@ userDescText.classList.remove('desc-hidden');
 checkNetworkConnection();
 // 绑定弹窗事件
 bindPopupEvents();
+// 加载公告
+loadAnnouncements();
 
 // 补充：监听窗口大小变化，调整侧边栏状态
 window.addEventListener('resize', function() {
@@ -3361,8 +3361,6 @@ function escapeHtml(text) {
 }
 
 // ========== 公告功能 ==========
-document.getElementById('announcementSearchBtn').addEventListener('click', loadAnnouncements);
-
 document.getElementById('closeAnnouncementModal').addEventListener('click', function() {
   document.getElementById('announcementModal').style.display = 'none';
 });
@@ -3373,24 +3371,28 @@ document.getElementById('announcementModal').addEventListener('click', function(
   }
 });
 
-async function loadAnnouncements() {
-  // 检查登录状态
+function checkAnnouncementLogin() {
   const userCookie = getCookie('user');
   const userDataStr = getCookie('userData');
-  let isLoggedIn = false;
   if (userCookie && userCookie !== '' && userDataStr) {
     try {
       const userData = JSON.parse(userDataStr);
       if (userData && (userData['账号名称'] || userCookie)) {
-        isLoggedIn = true;
+        document.getElementById('announcementContainer').style.display = 'block';
+        document.getElementById('announcementLoginHint').style.display = 'none';
+        return true;
       }
     } catch (e) {
-      isLoggedIn = false;
+      return false;
     }
   }
+  document.getElementById('announcementContainer').style.display = 'none';
+  document.getElementById('announcementLoginHint').style.display = 'block';
+  return false;
+}
 
-  if (!isLoggedIn) {
-    document.getElementById('announcementResults').innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">请先登录后再使用此功能</div>';
+async function loadAnnouncements() {
+  if (!checkAnnouncementLogin()) {
     return;
   }
 
