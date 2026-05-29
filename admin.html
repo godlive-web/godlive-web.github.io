@@ -3603,12 +3603,12 @@
         saveBtn.textContent = '发布';
       }
 
-      modal.style.display = 'flex';
+      modal.classList.add('show');
     }
 
     function closeAnnouncementModalFunc() {
       const modal = document.getElementById('announcementModal');
-      modal.style.display = 'none';
+      modal.classList.remove('show');
     }
 
     window.editAnnouncement = function(id) {
