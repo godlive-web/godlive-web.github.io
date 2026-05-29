@@ -285,6 +285,8 @@ async function getFileFromGitHub(owner, repo, path, token) {
       // 文件不存在，返回默认结构
       if (path.includes('Q&A')) {
         return { questions: [] };
+      } else if (path.includes('announcement')) {
+        return [];
       } else {
         return { folders: [], files: [] };
       }
