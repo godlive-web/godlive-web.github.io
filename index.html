@@ -3435,8 +3435,8 @@ async function loadAnnouncements() {
           ${ann.isTop ? '<span class="bill-top-badge">置顶</span>' : ''}
           <div class="bill-result-title">${escapeHtml(ann.title)}</div>
           <div class="bill-result-meta">
-            <span>发布者：${escapeHtml(ann.author)}</span>
-            <span>${dateStr}</span>
+            <div>发布者：${escapeHtml(ann.author)}</div>
+            <div>${dateStr}</div>
           </div>
         </div>
       `;
@@ -3471,7 +3471,7 @@ window.showAnnouncementDetail = function(id) {
 
       const date = new Date(announcement.createdAt);
       const dateStr = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-      document.getElementById('modalAnnouncementInfo').textContent = `发布者：${announcement.author} | ${dateStr}${announcement.isTop ? ' | 🔝 置顶' : ''}`;
+      document.getElementById('modalAnnouncementInfo').textContent = `发布者：${announcement.author} | ${dateStr}`;
 
       document.getElementById('announcementModal').style.display = 'flex';
     })
