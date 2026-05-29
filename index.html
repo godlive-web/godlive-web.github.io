@@ -3397,6 +3397,7 @@ async function loadAnnouncements() {
   }
 
   const container = document.getElementById('announcementResults');
+  container.classList.add('active');
   container.innerHTML = '<div style="text-align: center; padding: 20px;">加载中...</div>';
 
   try {
